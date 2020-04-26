@@ -77,7 +77,9 @@ def user_role(user_obj)
 end
 
 get "/users/:username/exercises" do
-  @dates = past_num_days(from: Date.today)
+  @end_date = params[:end_date] ? Date.parse(params[:end_date]) : Date.today
+
+  @dates = past_num_days(from: @end_date)
   @patient = get_user_obj(params[:username])
   erb :tracker
 end

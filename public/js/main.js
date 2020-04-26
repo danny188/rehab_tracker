@@ -33,9 +33,6 @@ function loadDoc() {
 
   }, timeout);
 
-
-
-
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
      document.getElementById("demo").innerHTML = this.responseText;
@@ -44,5 +41,16 @@ function loadDoc() {
 
   xhttp.open("post", "/save_changes_tracker", true);
   xhttp.send();
+}
+
+function reloadDates(endDate_str) {
+
+  var xhttp = new XMLHttpRequest();
+
 
 }
+
+// enable bootstrap tooltip
+$(document).ready(function(){
+  $('[data-toggle="tooltip"]').tooltip();
+});

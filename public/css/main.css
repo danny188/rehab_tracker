@@ -21,6 +21,11 @@
 
 }
 
+.exercise-row {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
 .header-row {
   color: darkslategray;
   padding: -20px;
@@ -49,6 +54,13 @@
   margin: 1em;
 }
 
-.input-group-btn {
-    margin-left: 10px !important;
+.add-new-exercise {
+    /*margin-left: 10px !important;*/
+}
+
+.date-nav-button {
+  /*margin-bottom: 20px;*/
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+  height: 50%;
 }

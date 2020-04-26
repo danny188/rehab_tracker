@@ -1,6 +1,15 @@
 <div class="starter-template">
+  <div class="row">
     <h1>Exercise Tracker</h1>
+    <h3 class="offset-5 date-controller">Dates</h3>
+    <a href="/users/<%= @patient.username %>/exercises?end_date=<%= (@end_date-7).strftime("%Y%m%d") %>" class="btn btn-info date-nav-button" data-toggle="tooltip" title="View earlier days"><i class="fas fa-arrow-left"></i></a>
+    <a href="/users/<%= @patient.username %>/exercises?end_date=<%= (@end_date+7).strftime("%Y%m%d") %>" class="btn btn-info date-nav-button" data-toggle="tooltip" title="View later days"><i class="fas fa-arrow-right"></i></a>
+
+    <!-- ajax versions of date nav -->
+    <button type="button" onclick="reloadDates(<%= (@end_date-1).strftime("%Y%m%d") %>)" class="btn btn-warning date-nav-button" data-toggle="tooltip" title="View earlier days"><i class="fas fa-arrow-left"></i></a>
+    <button type="button" onclick="reloadDates(<%= (@end_date+1).strftime("%Y%m%d") %>)" class="btn btn-warning date-nav-button" data-toggle="tooltip" title="View later days"><i class="fas fa-arrow-right"></i></a>
   </div>
+</div>
 
 
   <div class="row spacer-top header-row">
@@ -18,16 +27,22 @@
 
   <!-- List of current exercises -->
   <% @patient.exercises.each do |exercise| %>
-    <div class="row">
+    <div class="row exercise-row">
       <div class="col-lg-5">
         <span class="exercise"><%= exercise.name %></span>
 
-        <a href="#" class="btn btn-secondary exercise-button">View/Edit</a>
+        <a href="#" class="btn btn-outline-danger exercise-button float-right" data-toggle="tooltip" title="Delete exercise and associated data.">Delete</a>
+        <a href="#" class="btn btn-secondary exercise-button float-right" data-toggle="tooltip" title="Move exercise up"><i class="fas fa-arrow-up"></i></a>
+        <a href="#" class="btn btn-secondary exercise-button float-right" data-toggle="tooltip" title="Move exercise down"><i class="fas fa-arrow-down"></i></a>
+        <a href="#" class="btn btn-secondary exercise-button float-right" data-toggle="tooltip" title="View/change exercise instructions or add comments.">View/Edit</a>
+
+
+
 
       </div>
 
 
-
+      <!-- Checkboxes for each day for each exercise -->
       <% @dates.each do |date| %>
         <div class="col-lg-1">
           <form action="/users/<%= @patient.username %>/update_tracker" method="post">
@@ -49,12 +64,12 @@
   <br>
   <form class="" id="form_add_exercise" action="/users/<%=@patient.username%>/exercises/add" method="post">
     <div class="form-row">
-      <div class="form-group col-3">
-  <div class="input-group">
+      <div class="form-group col-5">
+         <div class="input-group">
         <label class = "sr-only" for="formGroupExampleInput">Name of new exercise</label>
-        <input type="text"  class="form-control" name="new_exercise_name" placeholder="New Exercise">
-
-        <button type="submit" class="input-group-btn btn btn-outline-primary">Add Exercise</button>
+        <input type="text"  class="form-control" name="new_exercise_name" placeholder="Name of new exercise">
+        <div class="col-1"></div><!--  spacer-column -->
+        <button type="submit" class="input-group-btn btn btn-outline-primary add-new-exercise">Add Exercise</button>
         </div>
       </div>
     </div>
