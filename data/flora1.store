@@ -1,0 +1,14 @@
+---
+:data: !ruby/object:Patient
+  exercises: []
+  username: flora1
+  pw: !ruby/string:BCrypt::Password
+    str: "$2a$12$drJOMjaRw38bz28FZr.vhu6BnN7CYeNJEIjOOjGT3QtRGqKayOydq"
+    version: 2a
+    cost: 12
+    salt: "$2a$12$drJOMjaRw38bz28FZr.vhu"
+    checksum: 6BnN7CYeNJEIjOOjGT3QtRGqKayOydq
+  email: flora@gmail.com
+  first_name: Flora
+  last_name: Bee
+  last_updated: today

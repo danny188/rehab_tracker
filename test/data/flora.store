@@ -1,0 +1,16 @@
+---
+patient_info: &1 !ruby/object:Patient
+  exercises:
+  - !ruby/object:Exercise
+    name: bridge
+    reps: 30
+    patient: *1
+    record_of_days: []
+  - !ruby/object:Exercise
+    name: plank
+    reps: 3
+    patient: *1
+    record_of_days: []
+    duration: 30 seconds
+  username: flora_username
+  pw: secret

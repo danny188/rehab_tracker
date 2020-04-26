@@ -1,0 +1,35 @@
+.dates {
+
+  font-weight: bold;
+}
+
+.exercises {
+  font-weight: bold;
+}
+
+* {
+  font-family: 'Raleway', sans-serif;
+}
+
+.spacer-top {
+  padding-top: 20px;
+}
+
+.custom-control-label::before,
+.custom-control-label::after {
+  width: 2rem !important;
+  height: 2rem !important;
+}
+
+.custom-checkbox {
+
+}
+
+.table_patient_list {
+  text-align: center;
+}
+
+.table_patient_list a {
+  margin: 1em;
+}
+

@@ -1,0 +1,37 @@
+<h2>Welcome, <%= @user.first_name %>. </h2>
+
+<br>
+<h5>Here is the list of current patients. Click on any of them to view their progress.</h5>
+<br>
+
+<div class="row justify-content-center">
+<table class="table_patient_list table table-hover table-sm">
+  <thead>
+    <tr>
+      <th scope="col" style="width: 10%">#</th>
+      <th scope="col" style="width: 10%">Last</th>
+      <th scope="col" style="width: 10%">First</th>
+      <th scope="col" style="width: 10%">Username</th>
+      <th scope="col" style="width: 10%">Last updated</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @all_patients.each_with_index do |patient, index| %>
+
+      <tr>
+        <td><%= index + 1 %></td>
+        <td><%= patient.last_name %></td>
+        <td><%= patient.first_name %></td>
+        <td><%= patient.username %></td>
+        <td><%= patient.last_updated %></td>
+        <td>
+          <a href="#">View Exercises</a>
+          <a href="#" class="text-danger">Delete</a>
+        </td>
+      </tr>
+    <% end %>
+
+  </tbody>
+</table>
+</div>

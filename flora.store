@@ -1,0 +1,20 @@
+---
+patient_info: &1 !ruby/object:Patient
+  exercises:
+  - !ruby/object:Exercise
+    name: bridge
+    reps: 30
+    patient: *1
+    record_of_days:
+    - 2020-04-24
+    - 2020-04-22
+  - !ruby/object:Exercise
+    name: plank
+    reps: 3
+    patient: *1
+    record_of_days:
+    - 2020-04-25
+    - 2020-04-23
+    duration: 30 seconds
+  username: flora_username
+  pw: secret

@@ -1,0 +1,44 @@
+<div class="starter-template">
+    <h1>Exercise Tracker</h1>
+  </div>
+
+  <div class="row spacer-top">
+    <div class="col-lg-5">
+      <p class="dates">Dates</p>
+    </div>
+
+    <% @dates.each do |date| %>
+      <div class="col-lg-1 text-center">
+        <span class="dates"><%= format_date(date) %></span>
+      </div>
+    <% end %>
+  </div>
+
+  <% @patient.exercises.each do |exercise| %>
+    <div class="row">
+      <div class="col-lg-5">
+        <p><%= exercise.name %></p>
+      </div>
+
+      <% @dates.each do |date| %>
+        <div class="col-lg-1">
+          <form action="/users/<%= @patient.username %>/update_tracker" method="post">
+            <div class="custom-control custom-checkbox text-center">
+              <input type="checkbox" class="custom-control-input" id="chk_<%= exercise.name + "_" + date.strftime("%Y%m%d") %>" name="<%= exercise.name %>" value="checkbox_value" <%= check_value(date, exercise.record_of_days) %>>
+              <input type="hidden" name="exercise_name" value="<%= exercise.name %>">
+              <input type="hidden" name="date" value="<%= date.strftime("%d%b%Y") %>">
+              <label class="custom-control-label" for="chk_<%= exercise.name + "_" + date.strftime("%Y%m%d") %>"></label>
+            </div>
+          </form>
+        </div>
+      <% end %>
+
+    </div>
+  <% end %>
+
+  <!-- Therapist View - ability to add exercises -->
+
+  <% if @therapist %>
+  <!-- nextup -->
+
+  <% end %>
