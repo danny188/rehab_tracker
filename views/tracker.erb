@@ -2,9 +2,10 @@
     <h1>Exercise Tracker</h1>
   </div>
 
-  <div class="row spacer-top">
+
+  <div class="row spacer-top header-row">
     <div class="col-lg-5">
-      <p class="dates">Dates</p>
+      <p class="header dates">Exercises</p>
     </div>
 
     <% @dates.each do |date| %>
@@ -14,11 +15,18 @@
     <% end %>
   </div>
 
+
+  <!-- List of current exercises -->
   <% @patient.exercises.each do |exercise| %>
     <div class="row">
       <div class="col-lg-5">
-        <p><%= exercise.name %></p>
+        <span class="exercise"><%= exercise.name %></span>
+
+        <a href="#" class="btn btn-secondary exercise-button">View/Edit</a>
+
       </div>
+
+
 
       <% @dates.each do |date| %>
         <div class="col-lg-1">
@@ -36,7 +44,21 @@
     </div>
   <% end %>
 
-  <!-- Therapist View - ability to add exercises -->
+  <!-- Form to add new exercises -->
+  <br>
+  <br>
+  <form class="" id="form_add_exercise" action="/users/<%=@patient.username%>/exercises/add" method="post">
+    <div class="form-row">
+      <div class="form-group col-3">
+  <div class="input-group">
+        <label class = "sr-only" for="formGroupExampleInput">Name of new exercise</label>
+        <input type="text"  class="form-control" name="new_exercise_name" placeholder="New Exercise">
+
+        <button type="submit" class="input-group-btn btn btn-outline-primary">Add Exercise</button>
+        </div>
+      </div>
+    </div>
+  </form>
 
   <% if @therapist %>
   <!-- nextup -->

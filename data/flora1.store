@@ -1,6 +1,10 @@
 ---
 :data: !ruby/object:Patient
-  exercises: []
+  exercises:
+  - !ruby/object:Exercise
+    name: marching
+    reps: 30
+    record_of_days: []
   username: flora1
   pw: !ruby/string:BCrypt::Password
     str: "$2a$12$drJOMjaRw38bz28FZr.vhu6BnN7CYeNJEIjOOjGT3QtRGqKayOydq"

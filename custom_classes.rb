@@ -3,19 +3,17 @@ require 'stringio'
 
 class Exercise
   attr_accessor :name, :description, :reps, :duration,
-                :id, :added_date, :record_of_days, :patient,
+                :id, :added_date, :record_of_days,
                 :comment_by_patient, :comment_by_therapist,
                 :pictures
 
   Comment = Struct.new(:author, :text, :last_modified)
 
-  def initialize(name, reps = 30, patient)
+  def initialize(name, reps = 30)
     @name = name
     @reps = reps
-    @patient = patient
     @record_of_days = []
   end
-
 end
 
 class User
@@ -34,11 +32,19 @@ end
 class Patient < User
   attr_accessor :exercises, :wellness_ratings, :last_updated
 
+  class ExerciseNameNotUniqueErr < StandardError; end
+
   Wellness = Struct.new(:date, :rating)
 
   def initialize(username, pw)
     @exercises = []
     super
+  end
+
+  def add_exercise(exercise_name)
+    raise ExerciseNameNotUniqueErr if exercises.any? { |exercise| exercise.name == exercise_name }
+
+    exercises.push(Exercise.new(exercise_name))
   end
 end
 

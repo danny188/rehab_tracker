@@ -1,14 +1,30 @@
 .dates {
-
+  font-size: 15px;
   font-weight: bold;
 }
 
-.exercises {
-  font-weight: bold;
-}
+
 
 * {
   font-family: 'Raleway', sans-serif;
+}
+
+.exercise {
+  font-weight: bold;
+  font-size: 18px;
+  margin-right: 50px;
+}
+
+.exercise-button {
+  margin-left: 10px;
+  margin-right: 10px;
+
+}
+
+.header-row {
+  color: darkslategray;
+  padding: -20px;
+  margin-bottom: 20px;
 }
 
 .spacer-top {
@@ -33,3 +49,6 @@
   margin: 1em;
 }
 
+.input-group-btn {
+    margin-left: 10px !important;
+}

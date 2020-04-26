@@ -85,7 +85,6 @@ end
 # combine this into "/:username/exercises" path by using session[:user]
 # signed in user can be different to :username in path if signed-in user is a therapist or admin
 get "/users/:username/exercises/therapist_view" do
-#nextup
   @dates = past_num_days(from: Date.today)
   @patient = get_user_obj(params[:username])
   @therapist = get_user_obj('therapist_1')
@@ -93,6 +92,17 @@ get "/users/:username/exercises/therapist_view" do
   erb :tracker
 end
 
+post "/users/:username/exercises/add" do
+  @patient = get_user_obj(params[:username])
+  @patient.add_exercise(params[:new_exercise_name])
+
+  save_user_obj(@patient)
+
+  redirect "/users/#{@patient.username}/exercises"
+
+  rescue Patient::ExerciseNameNotUniqueErr
+    "exercise name already exists for patient"
+end
 
 post "/users/:username/exercises/therapist_edit" do
 
@@ -226,6 +236,20 @@ def get_user_obj(username)
   user_obj
 end
 
+def save_user_obj(user)
+  store = YAML::Store.new("./data/#{user.username}.store")
+  store.transaction do
+    store[:data] = user
+  end
+end
+
+def save_exercises(patient)
+  store = YAML::Store.new("./data/#{patient.username}.store")
+  store.transaction do
+    store[:data][:exercises] = patient.exercises
+  end
+end
+
 get "/patient_list" do
   # verify user access rights
   @user = get_user_obj('admin_1')
@@ -253,3 +277,4 @@ end
 def get_all_therapists
   get_all_users.select { |user| user_role(user) == :therapist }
 end
+
