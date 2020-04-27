@@ -1,13 +1,13 @@
 <div class="starter-template">
   <div class="row">
-    <h1>Exercise Tracker</h1>
-    <h3 class="offset-5 date-controller">Dates</h3>
+    <h1 class="col-3">Exercise Tracker</h1>
+    <h3 class="offset-4 date-controller">Dates</h3>
     <a href="/users/<%= @patient.username %>/exercises?end_date=<%= (@end_date-7).strftime("%Y%m%d") %>" class="btn btn-info date-nav-button" data-toggle="tooltip" title="View earlier days"><i class="fas fa-arrow-left"></i></a>
     <a href="/users/<%= @patient.username %>/exercises?end_date=<%= (@end_date+7).strftime("%Y%m%d") %>" class="btn btn-info date-nav-button" data-toggle="tooltip" title="View later days"><i class="fas fa-arrow-right"></i></a>
 
     <!-- ajax versions of date nav -->
-    <button type="button" onclick="reloadDates(<%= (@end_date-1).strftime("%Y%m%d") %>)" class="btn btn-warning date-nav-button" data-toggle="tooltip" title="View earlier days"><i class="fas fa-arrow-left"></i></a>
-    <button type="button" onclick="reloadDates(<%= (@end_date+1).strftime("%Y%m%d") %>)" class="btn btn-warning date-nav-button" data-toggle="tooltip" title="View later days"><i class="fas fa-arrow-right"></i></a>
+    <!-- <button type="button" onclick="reloadDates(<%= (@end_date-1).strftime("%Y%m%d") %>)" class="btn btn-warning date-nav-button" data-toggle="tooltip" title="View earlier days"><i class="fas fa-arrow-left"></i></a>
+    <button type="button" onclick="reloadDates(<%= (@end_date+1).strftime("%Y%m%d") %>)" class="btn btn-warning date-nav-button" data-toggle="tooltip" title="View later days"><i class="fas fa-arrow-right"></i></a> -->
   </div>
 </div>
 
@@ -34,7 +34,7 @@
         <a href="#" class="btn btn-outline-danger exercise-button float-right" data-toggle="tooltip" title="Delete exercise and associated data.">Delete</a>
         <a href="#" class="btn btn-secondary exercise-button float-right" data-toggle="tooltip" title="Move exercise up"><i class="fas fa-arrow-up"></i></a>
         <a href="#" class="btn btn-secondary exercise-button float-right" data-toggle="tooltip" title="Move exercise down"><i class="fas fa-arrow-down"></i></a>
-        <a href="#" class="btn btn-secondary exercise-button float-right" data-toggle="tooltip" title="View/change exercise instructions or add comments.">View/Edit</a>
+        <a href="/users/<%= @patient.username %>/exercises/<%= exercise.name %>/edit" class="btn btn-secondary exercise-button float-right" data-toggle="tooltip" title="View/change exercise instructions or add comments.">View/Edit</a>
 
 
 
@@ -50,7 +50,7 @@
               <input type="checkbox" class="custom-control-input" id="chk_<%= exercise.name + "_" + date.strftime("%Y%m%d") %>" name="<%= exercise.name %>" value="checkbox_value" <%= check_value(date, exercise.record_of_days) %>>
               <input type="hidden" name="exercise_name" value="<%= exercise.name %>">
               <input type="hidden" name="date" value="<%= date.strftime("%d%b%Y") %>">
-              <label class="custom-control-label" for="chk_<%= exercise.name + "_" + date.strftime("%Y%m%d") %>"></label>
+              <label class="custom-control-label custom-checkbox " for="chk_<%= exercise.name + "_" + date.strftime("%Y%m%d") %>"></label>
             </div>
           </form>
         </div>

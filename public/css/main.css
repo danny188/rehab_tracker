@@ -43,7 +43,7 @@
 }
 
 .custom-checkbox {
-
+  cursor: pointer;
 }
 
 .table_patient_list {
@@ -60,7 +60,6 @@
 
 .date-nav-button {
   /*margin-bottom: 20px;*/
-  margin-left: 0.5em;
-  margin-right: 0.5em;
+  margin-left: 0.4em;
   height: 50%;
 }

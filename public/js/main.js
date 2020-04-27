@@ -43,12 +43,12 @@ function loadDoc() {
   xhttp.send();
 }
 
-function reloadDates(endDate_str) {
+// function reloadDates(endDate_str) {
 
-  var xhttp = new XMLHttpRequest();
+//   var xhttp = new XMLHttpRequest();
 
 
-}
+// }
 
 // enable bootstrap tooltip
 $(document).ready(function(){

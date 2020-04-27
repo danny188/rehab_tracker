@@ -106,8 +106,10 @@ post "/users/:username/exercises/add" do
     "exercise name already exists for patient"
 end
 
-post "/users/:username/exercises/therapist_edit" do
-
+get "/users/:username/exercises/:exercise_name/edit" do
+  @patient = get_user_obj(params[:username])
+  @exercise = @patient.get_exercise(params[:exercise_name])
+  erb :edit_exercise
 end
 
 post "/users/:username/update_tracker" do #rename to patient_edit

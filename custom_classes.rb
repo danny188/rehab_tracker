@@ -2,7 +2,7 @@ require 'aws-sdk-s3'
 require 'stringio'
 
 class Exercise
-  attr_accessor :name, :description, :reps, :duration,
+  attr_accessor :name, :instructions, :reps, :duration,
                 :id, :added_date, :record_of_days,
                 :comment_by_patient, :comment_by_therapist,
                 :pictures
@@ -45,6 +45,10 @@ class Patient < User
     raise ExerciseNameNotUniqueErr if exercises.any? { |exercise| exercise.name == exercise_name }
 
     exercises.push(Exercise.new(exercise_name))
+  end
+
+  def get_exercise(exercise_name)
+    exercises.find { |exercise| exercise.name == exercise_name }
   end
 end
 
