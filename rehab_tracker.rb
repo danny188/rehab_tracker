@@ -5,8 +5,21 @@ require "sinatra/content_for"
 require 'yaml/store'
 require 'date'
 require 'bcrypt'
+require 'fileutils'
 
 require_relative 'custom_classes'
+
+def data_path
+  if ENV["RACK_ENV"] == "test"
+    File.expand_path("../test/data", __FILE__)
+  else
+    File.expand_path("../data", __FILE__)
+  end
+end
+
+def public_path
+  File.expand_path("../public", __FILE__)
+end
 
 def create_test_patient_flora
   flora = Patient.new('flora_username', 'secret')
@@ -110,6 +123,25 @@ get "/users/:username/exercises/:exercise_name/edit" do
   @patient = get_user_obj(params[:username])
   @exercise = @patient.get_exercise(params[:exercise_name])
   erb :edit_exercise
+
+
+end
+
+post "/users/:username/exercises/:exercise_name/upload_file" do
+  image_name = ""
+  params[:images].each do |file_hash|
+    dest_path = File.join(public_path + "/images/#{params[:username]}/#{params[:exercise_name]}", file_hash[:filename])
+    upload_file(source: file_hash[:tempfile], dest: dest_path)
+
+    image_link = File.join("/images/#{params[:username]}/#{params[:exercise_name]}", file_hash[:filename])
+    @patient = get_user_obj(params[:username])
+    @exercise = @patient.get_exercise(params[:exercise_name])
+    @exercise.image_links.push(image_link)
+    save_user_obj(@patient)
+  end
+image_name
+  # todo: limit file sizes and number of files uploaded per exercise
+
 end
 
 post "/users/:username/update_tracker" do #rename to patient_edit
@@ -280,5 +312,13 @@ end
 
 def get_all_therapists
   get_all_users.select { |user| user_role(user) == :therapist }
+end
+
+def upload_file(source:, dest:)
+  FileUtils.cp(source, dest)
+end
+
+def delete_file(filename)
+
 end
 

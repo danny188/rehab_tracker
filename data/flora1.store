@@ -5,10 +5,23 @@
     name: marching
     reps: 30
     record_of_days: []
+    image_links:
+    - "/images/flora1/marching/03.jpg"
   - !ruby/object:Exercise
     name: squat
     reps: 30
     record_of_days: []
+    image_links: []
+  - !ruby/object:Exercise
+    name: pushup plus
+    reps: 30
+    record_of_days: []
+    image_links: []
+  - !ruby/object:Exercise
+    name: calf raise
+    reps: 30
+    record_of_days: []
+    image_links: []
   username: flora1
   pw: !ruby/string:BCrypt::Password
     str: "$2a$12$drJOMjaRw38bz28FZr.vhu6BnN7CYeNJEIjOOjGT3QtRGqKayOydq"

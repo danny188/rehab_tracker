@@ -9,7 +9,7 @@ $('.custom-control-input').change(function() {
 })
 
 // check file sizes
-$('#file_upload').change(function() {
+$('#chosen_file').change(function() {
   for (i=0; i<this.files.length; i++) {
     if(this.files[i].size > MAX_FILE_SIZE) {
       $('#file_upload').val('');
@@ -20,7 +20,7 @@ $('#file_upload').change(function() {
 });
 
 $('#upload_form').submit(function(){
-  if ( !$('#file_upload').val() ) {
+  if ( !$('#chosen_file').val() ) {
     return false;
   }
 });

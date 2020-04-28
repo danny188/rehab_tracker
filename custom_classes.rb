@@ -5,7 +5,7 @@ class Exercise
   attr_accessor :name, :instructions, :reps, :duration,
                 :id, :added_date, :record_of_days,
                 :comment_by_patient, :comment_by_therapist,
-                :pictures
+                :pictures, :image_links
 
   Comment = Struct.new(:author, :text, :last_modified)
 
@@ -13,6 +13,7 @@ class Exercise
     @name = name
     @reps = reps
     @record_of_days = []
+    @image_links = []
   end
 end
 
