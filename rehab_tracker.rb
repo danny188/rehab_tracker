@@ -144,6 +144,23 @@ image_name
 
 end
 
+# Save exercise details
+post "/users/:username/exercises/:exercise_name/update" do
+  @patient = get_user_obj(params[:username])
+  @exercise = @patient.get_exercise(params[:exercise_name])
+  @exercise.name = params[:exercise_name]
+  @exercise.reps = params[:reps]
+  @exercise.instructions = params[:instructions]
+  @exercise.comment_by_patient = params[:patient_comment]
+  @exercise.comment_by_therapist = params[:therapist_comment]
+
+  save_user_obj(@patient)
+
+  session[:success] = "Your changes have been saved."
+  redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit"
+
+end
+
 post "/users/:username/update_tracker" do #rename to patient_edit
 
   exercise_name = params[:exercise_name]

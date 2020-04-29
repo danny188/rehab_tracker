@@ -3,10 +3,13 @@
   exercises:
   - !ruby/object:Exercise
     name: marching
-    reps: 30
+    reps: '5'
     record_of_days: []
     image_links:
     - "/images/flora1/marching/03.jpg"
+    instructions: test
+    comment_by_patient: pt comment
+    comment_by_therapist: therapit comment
   - !ruby/object:Exercise
     name: squat
     reps: 30
