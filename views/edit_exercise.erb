@@ -1,5 +1,7 @@
 <div class="row">
   <h2 class="col-5">Exercise Details</h2>
+
+
 </div>
 
 
@@ -31,23 +33,39 @@
      </div>
      <div class="form-group row">
       <label for="instructions" class="col-3 col-form-label"><b>Instructions</b></label>
-      <textarea class="form-control col-7" id="instructions" name="instructions" rows="3"><%= @exercise.instructions %></textarea>
+      <textarea class="form-control col-8" id="instructions" name="instructions" rows="3"><%= @exercise.instructions %></textarea>
     </div>
     <div class="form-group row">
       <label for="patient_comment" class="col-3 col-form-label"><b>Comments</b></label>
-      <textarea class="form-control col-7" id="patient_comment" name="patient_comment" rows="3"><%= @exercise.comment_by_patient %></textarea>
+      <textarea class="form-control col-8" id="patient_comment" name="patient_comment" rows="3"><%= @exercise.comment_by_patient %></textarea>
     </div>
     <div class="form-group row">
       <label for="therapist_comment" class="col-3 col-form-label"><b>Therapist's reply</b></label>
-      <textarea class="form-control col-7" id="therapist_comment" name="therapist_comment" rows="3"><%= @exercise.comment_by_therapist %></textarea>
+      <textarea class="form-control col-8" id="therapist_comment" name="therapist_comment" rows="3"><%= @exercise.comment_by_therapist %></textarea>
     </div>
     <div class="form-group row">
       <label class="col-3 col-form-label"></label>
 
       <button type="submit" class="btn btn-outline-primary form-control col-3 mr-2">Save</button>
+
       <a href="/users/<%= @patient.username %>/exercises" class="btn btn-outline-secondary form-control col-3">Back to exercises</a>
     </div>
+
+    <label class="col-3 col-form-label"></label>
+
+    <!-- success/error messages -->
+    <% if session[:success] %>
+    <div class="offset-3 col-8 alert alert-success fade show text-center" role="alert"><%= session.delete(:success) %></div>
+    <% end %>
+
+    <% if session[:error] %>
+    <div class="offset-2 col-8 alert alert-danger fade show text-center" role="alert">
+      <p><%= session.delete(:error) %></p>
+    </div>
+    <% end %>
   </form>
+
+
 </div>
 
 <!-- exercise images section -->

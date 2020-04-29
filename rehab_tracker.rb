@@ -128,20 +128,20 @@ get "/users/:username/exercises/:exercise_name/edit" do
 end
 
 post "/users/:username/exercises/:exercise_name/upload_file" do
-  image_name = ""
+  @patient = get_user_obj(params[:username])
+  @exercise = @patient.get_exercise(params[:exercise_name])
   params[:images].each do |file_hash|
     dest_path = File.join(public_path + "/images/#{params[:username]}/#{params[:exercise_name]}", file_hash[:filename])
     upload_file(source: file_hash[:tempfile], dest: dest_path)
 
     image_link = File.join("/images/#{params[:username]}/#{params[:exercise_name]}", file_hash[:filename])
-    @patient = get_user_obj(params[:username])
-    @exercise = @patient.get_exercise(params[:exercise_name])
+
     @exercise.image_links.push(image_link)
     save_user_obj(@patient)
   end
-image_name
-  # todo: limit file sizes and number of files uploaded per exercise
 
+  # todo: limit file sizes and number of files uploaded per exercise
+  redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit"
 end
 
 # Save exercise details
@@ -156,9 +156,8 @@ post "/users/:username/exercises/:exercise_name/update" do
 
   save_user_obj(@patient)
 
-  session[:success] = "Your changes have been saved."
+  session[:success] = "saved"
   redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit"
-
 end
 
 post "/users/:username/update_tracker" do #rename to patient_edit

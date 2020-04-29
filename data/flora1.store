@@ -7,6 +7,7 @@
     record_of_days: []
     image_links:
     - "/images/flora1/marching/03.jpg"
+    - "/images/flora1/marching/01.jpg"
     instructions: test
     comment_by_patient: pt comment
     comment_by_therapist: therapit comment

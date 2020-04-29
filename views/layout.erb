@@ -64,10 +64,11 @@
         </div>
       </li>
     </ul>
-    <form class="form-inline my-2 my-lg-0">
+    <!-- <form class="form-inline my-2 my-lg-0">
       <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
       <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-    </form>
+    </form> -->
+
   </div>
 </nav>
 
@@ -79,6 +80,14 @@
       <div class="alert alert-danger fade show alert-dismissible" role="alert">
         <p><%= session.delete(:error) %></p>
       </div>
+    </div>
+  <% end %>
+
+  <% if session[:success] %>
+
+      <div class=" col-5 alert alert-success fade show alert-dismissible text-center mx-auto" role="alert">
+        <%= session.delete(:success) %>
+
     </div>
   <% end %>
 
