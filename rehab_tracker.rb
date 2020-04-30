@@ -127,6 +127,10 @@ get "/users/:username/exercises/:exercise_name/edit" do
 
 end
 
+def delete_file(path)
+  FileUtils.rm(path)
+end
+
 post "/users/:username/exercises/:exercise_name/upload_file" do
   @patient = get_user_obj(params[:username])
   @exercise = @patient.get_exercise(params[:exercise_name])
@@ -157,9 +161,29 @@ post "/users/:username/exercises/:exercise_name/update" do
 
   save_user_obj(@patient)
 
-  session[:success] = "saved"
+  session[:success] = "Your changes have been saved"
   redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit"
 end
+
+# Delete file associated with exercise
+post "/users/:username/exercises/:exercise_name/delete_file" do
+  @patient = get_user_obj(params[:username])
+  @exercise = @patient.get_exercise(params[:exercise_name])
+  @file_path = params[:file_path]
+
+  if @exercise.image_links.delete(@file_path)
+    save_user_obj(@patient)
+    filename = File.basename(@file_path)
+    delete_file(public_path + "/images/#{params[:username]}/#{params[:exercise_name]}/#{filename}")
+    session[:success] = "File succcessfuly removed"
+  else
+    session[:error] = "File does not exist"
+  end
+
+
+  redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit"
+end
+
 
 post "/users/:username/update_tracker" do #rename to patient_edit
 
@@ -333,9 +357,5 @@ end
 
 def upload_file(source:, dest:)
   FileUtils.cp(source, dest)
-end
-
-def delete_file(filename)
-
 end
 

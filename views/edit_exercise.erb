@@ -32,8 +32,8 @@
        </datalist>
 
        <label for="reps" class="col-1 offset-1 col-form-label"><b>Sets</b></label>
-        <input name="sets" list="sets" class="col-2 form-control" value="<%= @exercise.sets %>">
-        <datalist id="sets">
+       <input name="sets" list="sets" class="col-2 form-control" value="<%= @exercise.sets %>">
+       <datalist id="sets">
          <option value="1"></option>
          <option value="2"></option>
          <option value="3"></option>
@@ -90,12 +90,17 @@
     <% @exercise.image_links.each do |image_link| %>
     <div class="col mb-4">
       <div class="card text-center">
-        <img src="<%= image_link %>" class="card-img-top" alt="...">
-        <div class="card-body">
-          <h5 class="card-title"><%= File.basename(image_link) %></h5>
-          <a href="#" class="btn btn-outline-dark">View Image</a>
-          <a href="#" class="btn btn-outline-danger">Delete</a>
-        </div>
+        <form class="form-inline" method="post" action="/users/<%= @patient.username %>/exercises/<%= @exercise.name %>/delete_file">
+          <img src="<%= image_link %>" class="card-img-top" alt="...">
+          <input type="hidden" name="file_path" value="<%= image_link %>">
+          <div class="card-body">
+            <h5 class="card-title"><%= File.basename(image_link) %></h5>
+            <a href="<%= image_link %>" class="btn btn-outline-dark">View Image</a>
+
+            <button type="submit" class="btn btn-outline-danger">Delete</a>
+          </div>
+        </form>
+
       </div>
     </div>
     <% end %>
