@@ -11,6 +11,7 @@
     instructions: test
     comment_by_patient: pt comment
     comment_by_therapist: therapit comment
+    sets: '1'
   - !ruby/object:Exercise
     name: squat
     reps: 30

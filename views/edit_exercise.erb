@@ -30,6 +30,16 @@
          <option value="50"></option>
          <option value="100"></option>
        </datalist>
+
+       <label for="reps" class="col-1 offset-1 col-form-label"><b>Sets</b></label>
+        <input name="sets" list="sets" class="col-2 form-control" value="<%= @exercise.sets %>">
+        <datalist id="sets">
+         <option value="1"></option>
+         <option value="2"></option>
+         <option value="3"></option>
+         <option value="4"></option>
+         <option value="5"></option>
+       </datalist>
      </div>
      <div class="form-group row">
       <label for="instructions" class="col-3 col-form-label"><b>Instructions</b></label>

@@ -150,6 +150,7 @@ post "/users/:username/exercises/:exercise_name/update" do
   @exercise = @patient.get_exercise(params[:exercise_name])
   @exercise.name = params[:exercise_name]
   @exercise.reps = params[:reps]
+  @exercise.sets = params[:sets]
   @exercise.instructions = params[:instructions]
   @exercise.comment_by_patient = params[:patient_comment]
   @exercise.comment_by_therapist = params[:therapist_comment]

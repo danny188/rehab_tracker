@@ -2,16 +2,17 @@ require 'aws-sdk-s3'
 require 'stringio'
 
 class Exercise
-  attr_accessor :name, :instructions, :reps, :duration,
+  attr_accessor :name, :instructions, :reps, :sets, :duration,
                 :id, :added_date, :record_of_days,
                 :comment_by_patient, :comment_by_therapist,
                 :pictures, :image_links
 
   Comment = Struct.new(:author, :text, :last_modified)
 
-  def initialize(name, reps = 30)
+  def initialize(name, reps = 30, sets = 3)
     @name = name
     @reps = reps
+    @sets = sets
     @record_of_days = []
     @image_links = []
   end
