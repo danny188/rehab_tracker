@@ -9,6 +9,8 @@ require 'fileutils'
 
 require_relative 'custom_classes'
 
+ROLES = [:public, :patient, :therapist, :admin]
+
 def data_path
   if ENV["RACK_ENV"] == "test"
     File.expand_path("../test/data", __FILE__)
@@ -90,6 +92,10 @@ def user_role(user_obj)
 end
 
 get "/users/:username/exercises" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+
   @end_date = params[:end_date] ? Date.parse(params[:end_date]) : Date.today
 
   @dates = past_num_days(from: @end_date)
@@ -281,24 +287,36 @@ post "/new_account" do
     halt erb(:new_account)
   end
 
+  save_user_obj(new_user)
+  # store = YAML::Store.new("./data/#{@username}.store")
+  # store.transaction do
+  #   store[:data] = new_user
 
-  store = YAML::Store.new("./data/#{@username}.store")
-  store.transaction do
-    store[:data] = new_user
+  #   # if user_records.key?(@username.to_sym)
+  #   #   session[:error] = "Username already exists. Please pick another."
 
-    # if user_records.key?(@username.to_sym)
-    #   session[:error] = "Username already exists. Please pick another."
+  #   #   halt erb(:new_account)
+  #   # end
 
-    #   halt erb(:new_account)
-    # end
-
-    # user_record[:data] = new_user
-    # store[:users] = user_records
-  end
+  #   # user_record[:data] = new_user
+  #   # store[:users] = user_records
+  # end
 end
 
 get "/login" do
-  erb :login
+  erb :login, layout: :layout
+end
+
+def logout_user
+
+end
+
+post "/user/logout" do
+  session.delete(:user_obj)
+  session.delete(:username)
+  session.delete(:role)
+
+  "/login"
 end
 
 post "/login" do
@@ -306,10 +324,21 @@ post "/login" do
   @password = params[:password]
 
   if authenticate_user(@username, @password)
-    user = get_user_obj(@username)
-    "Welcome, #{user.first_name}."
+    @user = get_user_obj(@username)
+
+    session[:user] = @user
+
+    case session[:user].role
+      when :patient
+        redirect "/users/#{@username}/exercises"
+      when :therapist
+        redirect "/patient_list"
+      when :admin
+        redirect "/admin_panel"
+    end
   else
-    "Please check your details and try again."
+    session[:error] = "Please check your details and try again."
+    halt erb(:login)
   end
 end
 
@@ -342,23 +371,47 @@ def save_user_obj(user)
 end
 
 def save_exercises(patient)
-  store = YAML::Store.new("./data/#{patient.username}.store")
+  store = YAML::Store.new("./data/patient/#{patient.username}.store")
   store.transaction do
     store[:data][:exercises] = patient.exercises
   end
 end
 
-get "/patient_list" do
-  # verify user access rights
-  @user = get_user_obj('admin_1')
+def verify_user_access(required_authorization: :public, required_username: nil)
+  session_role = session[:user].role if session[:user]
+  current_role = session_role || :public
 
+  access_level_diff = ROLES.index(current_role) - ROLES.index(required_authorization)
+  role_ok = access_level_diff >= 0
+  username_ok = if required_username
+                  session[:user].username == required_username ||
+                    access_level_diff > 0
+                 # if required_username is provided, access is only granted
+                 # if username matches, OR logged-in user has higher access level than required
+                else
+                  true
+                end
+
+  role_ok && username_ok
+end
+
+get "/access_error" do
+  erb :access_error
+end
+
+get "/patient_list" do
+  unless verify_user_access(required_authorization: :therapist)
+    redirect "/access_error"
+  end
+  @user = session[:user]
   @all_patients = get_all_patients
   erb :patient_list
 end
 
 # returns array of all user data objects
 def get_all_users
-  files = Dir.glob("./data/*.store")
+  files = Dir.glob("./data/**/*.store")
+
   result = []
   files.each do |file_path|
     contents = YAML.load(File.read(file_path))

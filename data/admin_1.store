@@ -1,12 +1,4 @@
 ---
-:data: !ruby/object:Therapist
+:data: !ruby/object:Admin
   username: admin_1
-  pw: !ruby/string:BCrypt::Password
-    str: "$2a$12$ikYgIHelG1sSHkIAI2yB0u2mfXYA1CejrU6X7zS4VPJNWDUB/tMjy"
-    version: 2a
-    cost: 12
-    salt: "$2a$12$ikYgIHelG1sSHkIAI2yB0u"
-    checksum: 2mfXYA1CejrU6X7zS4VPJNWDUB/tMjy
-  email: admin1@gmail.com
-  first_name: Admin's first name
-  last_name: Admin's last name
+  pw: secret

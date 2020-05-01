@@ -33,4 +33,24 @@
       <p>New user? <a href="/new_account">Create new account</a></p>
     </div>
   </form>
+
 </div>
+
+
+<!-- success/error messages -->
+
+<br>
+
+<% if session[:success] %>
+<div class="offset-4 col-4 alert alert-success fade show text-center" role="alert">
+
+  <span><%= session.delete(:success) %></span>
+  </div>
+<% end %>
+
+<% if session[:error] %>
+<div class="offset-4 col-4 alert alert-danger fade show text-center" role="alert">
+
+  <span><%= session.delete(:error) %></span>
+</div>
+<% end %>

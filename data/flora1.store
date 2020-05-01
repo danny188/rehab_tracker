@@ -4,7 +4,8 @@
   - !ruby/object:Exercise
     name: marching
     reps: '5'
-    record_of_days: []
+    record_of_days:
+    - '20200429'
     image_links:
     - "/images/flora1/marching/01.jpg"
     - "/images/flora1/marching/04.jpeg"

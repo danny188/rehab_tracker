@@ -2,11 +2,11 @@
 :data: !ruby/object:Therapist
   username: therapist_1
   pw: !ruby/string:BCrypt::Password
-    str: "$2a$12$ikYgIHelG1sSHkIAI2yB0u2mfXYA1CejrU6X7zS4VPJNWDUB/tMjy"
+    str: "$2a$12$vkQOImp6F3U7Ho7xZ19./eRIVq16nS7Qtv4sSn9rD/7lR5YxDX0s."
     version: 2a
     cost: 12
-    salt: "$2a$12$ikYgIHelG1sSHkIAI2yB0u"
-    checksum: 2mfXYA1CejrU6X7zS4VPJNWDUB/tMjy
-  email: therapist@gmail.com
-  first_name: Mr.
-  last_name: Therapist
+    salt: "$2a$12$vkQOImp6F3U7Ho7xZ19./e"
+    checksum: RIVq16nS7Qtv4sSn9rD/7lR5YxDX0s.
+  email: ddddd@dddd.com
+  first_name: Michael
+  last_name: ANgelo

@@ -25,6 +25,18 @@ $('#upload_form').submit(function(){
   }
 });
 
+function logOut() {
+  $.ajax({
+    type: "POST",
+    url: "/user/logout",
+    data: {},
+      success: function(data){
+        window.location.href = data;
+      }
+  });
+}
+
+
 function loadDoc() {
   var xhttp = new XMLHttpRequest();
 

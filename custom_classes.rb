@@ -42,6 +42,10 @@ class User
   def to_s
     first_name
   end
+
+  def role
+    self.class.to_s.downcase.to_sym
+  end
 end
 
 class Patient < User

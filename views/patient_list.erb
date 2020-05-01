@@ -1,4 +1,4 @@
-<h2>Welcome, <%= @user.first_name %>. </h2>
+<h2>Welcome, <%= @user.first_name || @user.username %> </h2>
 
 <br>
 <h5>Here is the list of current patients. Click on any of them to view their progress.</h5>
