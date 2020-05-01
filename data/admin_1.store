@@ -1,4 +1,12 @@
 ---
 :data: !ruby/object:Admin
   username: admin_1
-  pw: secret
+  pw: !ruby/string:BCrypt::Password
+    str: "$2a$12$vkQOImp6F3U7Ho7xZ19./eRIVq16nS7Qtv4sSn9rD/7lR5YxDX0s."
+    version: 2a
+    cost: 12
+    salt: "$2a$12$vkQOImp6F3U7Ho7xZ19./e"
+    checksum: RIVq16nS7Qtv4sSn9rD/7lR5YxDX0s.
+  role: :admin
+  first_name: Sato
+  last_name: San

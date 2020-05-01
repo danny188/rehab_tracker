@@ -1,0 +1,140 @@
+<div class="row">
+<h2 class="col-6">Welcome, <%= @user.first_name || @user.username %>. Here is your admin panel.</h2>
+
+
+<% if session[:success] %>
+<div class="offset-1 col-3 alert alert-success fade show text-center" role="alert">
+  <span><%= session.delete(:success) %></span>
+  </div>
+<% end %>
+
+<% if session[:error] %>
+<div class="offset-1 col-3 alert alert-danger fade show text-center" role="alert">
+  <span><%= session.delete(:error) %></span>
+</div>
+<% end %>
+
+</div>
+
+
+<br>
+<h5 class=""><b>Current Admins</b></h5>
+
+<br>
+
+<div class="row justify-content-center">
+<table class="table_accounts_list table table-hover table-sm">
+  <thead class="thead-light">
+    <tr>
+      <th scope="col" style="width: 10%">#</th>
+      <th scope="col" style="width: 10%">Last</th>
+      <th scope="col" style="width: 10%">First</th>
+      <th scope="col" style="width: 10%">Username</th>
+      <th scope="col" style="width: 10%"></th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @all_admins.each_with_index do |admin, index| %>
+
+      <tr>
+        <td><%= index + 1 %></td>
+        <td><%= admin.last_name %></td>
+        <td><%= admin.first_name %></td>
+        <td><%= admin.username %></td>
+        <td></td>
+        <td>
+          <a href="/users/<%= admin.username %>/exercises">View Profile</a>
+          <a href="#" class="text-danger">Delete</a>
+        </td>
+      </tr>
+    <% end %>
+
+  </tbody>
+</table>
+
+</div>
+
+<a class="btn btn-outline-primary" href="/new_account?role=admin">Create new Admin account</a>
+
+<hr>
+<br>
+<br>
+<h5><b>Current Therapists</b></h5>
+<br>
+
+<div class="row justify-content-center">
+<table class="table_accounts_list table table-hover table-sm">
+  <thead class="thead-light">
+    <tr>
+      <th scope="col" style="width: 10%">#</th>
+      <th scope="col" style="width: 10%">Last</th>
+      <th scope="col" style="width: 10%">First</th>
+      <th scope="col" style="width: 10%">Username</th>
+      <th scope="col" style="width: 10%"></th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @all_therapists.each_with_index do |therapist, index| %>
+
+      <tr>
+        <td><%= index + 1 %></td>
+        <td><%= therapist.last_name %></td>
+        <td><%= therapist.first_name %></td>
+        <td><%= therapist.username %></td>
+        <td></td>
+        <td>
+          <a href="/users/<%= therapist.username %>/exercises">View Profile</a>
+          <a href="#" class="text-danger">Delete</a>
+        </td>
+      </tr>
+    <% end %>
+
+  </tbody>
+</table>
+
+</div>
+
+<a class="btn btn-outline-primary" href="/new_account?role=therapist">Create new Therapist account</a>
+
+<hr>
+<br>
+<br>
+<h5><b>Current Patients</b></h5>
+<br>
+
+<div class="row justify-content-center">
+<table class="table_accounts_list table table-hover table-sm">
+  <thead class="thead-light">
+    <tr>
+      <th scope="col" style="width: 10%">#</th>
+      <th scope="col" style="width: 10%">Last</th>
+      <th scope="col" style="width: 10%">First</th>
+      <th scope="col" style="width: 10%">Username</th>
+      <th scope="col" style="width: 10%">Last updated</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @all_patients.each_with_index do |patient, index| %>
+
+      <tr>
+        <td><%= index + 1 %></td>
+        <td><%= patient.last_name %></td>
+        <td><%= patient.first_name %></td>
+        <td><%= patient.username %></td>
+        <td><%= patient.last_updated %></td>
+        <td>
+          <a href="/users/<%= patient.username %>/exercises">View Exercises</a>
+          <a href="/users/<%= patient.username %>/exercises">View Profile</a>
+          <a href="#" class="text-danger">Delete</a>
+        </td>
+      </tr>
+    <% end %>
+
+  </tbody>
+</table>
+</div>
+
+<a class="btn btn-outline-primary" href="/new_account?role=patient">Create new Patient account</a>

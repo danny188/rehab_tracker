@@ -49,8 +49,13 @@
       <label for="role">Your Role (required)</label>
       <select class="custom-select mr-sm-2" name="role" id="role" required>
           <option <%= 'selected' unless @role %>>Choose...</option>
-          <option value="patient" <%= 'selected' if @role=='patient'%>>Patient</option>
-          <option value="therapist"<%= 'selected' if @role=='therapist'%>>Therapist</option>
+          <option value="patient" <%= 'selected' if params[:role]=='patient'%>>Patient</option>
+
+          <% if session[:user].role == :admin %>
+          <!-- admin-only options -->
+          <option value="therapist"<%= 'selected' if params[:role]=='therapist'%>>Therapist</option>
+          <option value="admin"<%= 'selected' if params[:role]=='admin'%>>Admin</option>
+          <% end %>
       </select>
       <small id="role_help" class="form-text text-muted"></small>
     </div>

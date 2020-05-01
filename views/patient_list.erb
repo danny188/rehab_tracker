@@ -5,7 +5,7 @@
 <br>
 
 <div class="row justify-content-center">
-<table class="table_patient_list table table-hover table-sm">
+<table class="table_accounts_list table table-hover table-sm">
   <thead>
     <tr>
       <th scope="col" style="width: 10%">#</th>
@@ -26,7 +26,7 @@
         <td><%= patient.username %></td>
         <td><%= patient.last_updated %></td>
         <td>
-          <a href="#">View Exercises</a>
+          <a href="/users/<%= patient.username %>/exercises">View Exercises</a>
           <a href="#" class="text-danger">Delete</a>
         </td>
       </tr>
@@ -35,3 +35,5 @@
   </tbody>
 </table>
 </div>
+
+<a class="btn btn-outline-primary" href="/new_account?role=patient">Create new Patient account</a>

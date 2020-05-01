@@ -50,13 +50,14 @@
   cursor: pointer;
 }
 
-.table_patient_list {
+.table_accounts_list {
   text-align: center;
 }
 
-.table_patient_list a {
+.table_accounts_list a {
   margin: 1em;
 }
+
 
 .add-new-exercise {
     /*margin-left: 10px !important;*/

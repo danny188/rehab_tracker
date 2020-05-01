@@ -68,17 +68,17 @@ end
 
 get "/" do
 
-  store = YAML::Store.new("./flora.store")
-  store.transaction do
-    store['patient_info'] = create_test_patient_flora
-  end
+  # store = YAML::Store.new("./flora.store")
+  # store.transaction do
+  #   store['patient_info'] = create_test_patient_flora
+  # end
 
-
+  redirect_to_home_page(session[:user])
 
   # Amazon_AWS.upload("./flora.store")
-  @dates = past_num_days(from: Date.today)
-  @patient = create_test_patient_flora
-  erb :tracker, layout: :layout
+  # @dates = past_num_days(from: Date.today)
+  # @patient = create_test_patient_flora
+  # erb :tracker, layout: :layout
 end
 
 def user_role(user_obj)
@@ -271,7 +271,17 @@ post "/new_account" do
   if @role == 'patient'
     new_user = Patient.new(@username, @hashed_pw)
   elsif @role == 'therapist'
+    unless verify_user_access(required_authorization: :therapist)
+      redirect "/access_error"
+    end
+
     new_user = Therapist.new(@username, @hashed_pw)
+  elsif @role = 'admin'
+    unless verify_user_access(required_authorization: :admin)
+      redirect "/access_error"
+    end
+
+    new_user = Admin.new(@username, @hashed_pw)
   else # no role chosen
     session[:error] = "Please choose a role."
     halt erb(:new_account)
@@ -301,22 +311,35 @@ post "/new_account" do
   #   # user_record[:data] = new_user
   #   # store[:users] = user_records
   # end
+
+  session[:success] = "Account #{@username} has been created"
+  redirect_to_home_page(session[:user])
 end
 
 get "/login" do
   erb :login, layout: :layout
 end
 
-def logout_user
-
-end
 
 post "/user/logout" do
-  session.delete(:user_obj)
-  session.delete(:username)
-  session.delete(:role)
+  session.delete(:user)
 
   "/login"
+end
+
+def redirect_to_home_page(user)
+  @user = user
+
+  redirect "/login" unless @user
+
+  case @user.role
+    when :patient
+      redirect "/users/#{@user.username}/exercises"
+    when :therapist
+      redirect "/patient_list"
+    when :admin
+      redirect "/users/#{@user.username}/admin_panel"
+    end
 end
 
 post "/login" do
@@ -328,18 +351,23 @@ post "/login" do
 
     session[:user] = @user
 
-    case session[:user].role
-      when :patient
-        redirect "/users/#{@username}/exercises"
-      when :therapist
-        redirect "/patient_list"
-      when :admin
-        redirect "/admin_panel"
-    end
+    redirect_to_home_page(@user)
   else
     session[:error] = "Please check your details and try again."
     halt erb(:login)
   end
+end
+
+get "/users/:username/admin_panel" do
+  unless verify_user_access(required_authorization: :admin)
+    redirect "/access_error"
+  end
+  @user = get_user_obj(params[:username])
+  @all_patients = get_all_patients
+  @all_therapists = get_all_therapists
+  @all_admins = get_all_admins
+
+  erb :admin_panel
 end
 
 def user_exists?(username)
@@ -427,6 +455,10 @@ end
 
 def get_all_therapists
   get_all_users.select { |user| user_role(user) == :therapist }
+end
+
+def get_all_admins
+  get_all_users.select { |user| user_role(user) == :admin }
 end
 
 def upload_file(source:, dest:)
