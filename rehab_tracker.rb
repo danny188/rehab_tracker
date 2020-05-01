@@ -165,6 +165,17 @@ post "/users/:username/exercises/:exercise_name/update" do
   redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit"
 end
 
+# delete exercise for patient
+post "/users/:username/exercises/:exercise_name/delete" do
+  @patient = get_user_obj(params[:username])
+
+  @patient.delete_exercise(params[:exercise_name])
+
+  save_user_obj(@patient)
+
+  redirect "/users/#{@patient.username}/exercises"
+end
+
 # Delete file associated with exercise
 post "/users/:username/exercises/:exercise_name/delete_file" do
   @patient = get_user_obj(params[:username])

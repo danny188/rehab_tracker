@@ -65,6 +65,10 @@ class Patient < User
   def get_exercise(exercise_name)
     exercises.find { |exercise| exercise.name == exercise_name }
   end
+
+  def delete_exercise(exercise_name)
+    exercises.delete_if { |exercise| exercise.name == exercise_name }
+  end
 end
 
 class Therapist < User

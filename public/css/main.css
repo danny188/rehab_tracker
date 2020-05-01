@@ -1,5 +1,5 @@
 .dates {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: bold;
 }
 
@@ -12,7 +12,7 @@
 .exercise {
   font-weight: bold;
   font-size: 18px;
-  margin-right: 50px;
+  margin-right: 40px;
 }
 
 .exercise-button {
@@ -28,7 +28,7 @@
 
 .header-row {
   color: darkslategray;
-  padding: -20px;
+  /*padding: -20px;*/
   margin-bottom: 20px;
 }
 

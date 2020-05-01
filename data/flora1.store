@@ -27,6 +27,13 @@
     reps: 30
     record_of_days: []
     image_links: []
+  - !ruby/object:Exercise
+    name: this is a very long name of an exercise
+    reps: 30
+    record_of_days: !ruby/object:Set
+      hash: {}
+    image_links: []
+    sets: 3
   username: flora1
   pw: !ruby/string:BCrypt::Password
     str: "$2a$12$drJOMjaRw38bz28FZr.vhu6BnN7CYeNJEIjOOjGT3QtRGqKayOydq"
