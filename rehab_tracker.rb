@@ -186,12 +186,22 @@ end
 
 
 post "/users/:username/update_tracker" do #rename to patient_edit
+  @patient = get_user_obj(params[:username])
+  @exercise = @patient.get_exercise(params[:exercise_name])
+  @check_date = params[:date]
+  @ticked = params[:checkbox_value]
 
-  exercise_name = params[:exercise_name]
-  check_date = params[:date]
-  ticked = params[exercise_name.to_sym]
+  if @ticked
+    @exercise.add_date(@check_date)
+  else
+    @exercise.delete_date(@check_date)
+  end
 
-  result = "updating #{exercise_name} for #{params[:username]}. Date is #{check_date}. Tick value is #{!!ticked}"
+  save_user_obj(@patient)
+
+  # result = "updating #{@exercise_name} for #{params[:username]}. Date is #{@check_date}. Tick value is #{!!@ticked}"
+
+
 
   # if params[:example1]
   #   "checked, exercise_id=#{params[:exercise_id]}"
@@ -199,7 +209,7 @@ post "/users/:username/update_tracker" do #rename to patient_edit
   #   "not checked, exercise_id=#{params[:exercise_id]}"
   # end
 
-  # redirect "/"
+  redirect "/users/#{@patient.username}/exercises"
 end
 
 get "/upload" do

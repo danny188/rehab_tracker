@@ -49,9 +49,9 @@
         <div class="col-lg-1">
           <form action="/users/<%= @patient.username %>/update_tracker" method="post">
             <div class="custom-control custom-checkbox text-center">
-              <input type="checkbox" class="custom-control-input" id="chk_<%= exercise.name + "_" + date.strftime("%Y%m%d") %>" name="<%= exercise.name %>" value="checkbox_value" <%= check_value(date, exercise.record_of_days) %>>
+              <input type="checkbox" class="custom-control-input" id="chk_<%= exercise.name + "_" + date.strftime("%Y%m%d") %>" name="checkbox_value" value="checkbox_value <%= check_value(date, exercise.record_of_days) %>" <%= "checked" if exercise.done_on?(date.strftime("%Y%m%d")) %>>
               <input type="hidden" name="exercise_name" value="<%= exercise.name %>">
-              <input type="hidden" name="date" value="<%= date.strftime("%d%b%Y") %>">
+              <input type="hidden" name="date" value="<%= date.strftime("%Y%m%d") %>">
               <label class="custom-control-label custom-checkbox " for="chk_<%= exercise.name + "_" + date.strftime("%Y%m%d") %>"></label>
             </div>
           </form>

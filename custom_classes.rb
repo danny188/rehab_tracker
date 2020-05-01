@@ -1,5 +1,6 @@
 require 'aws-sdk-s3'
 require 'stringio'
+require 'set'
 
 class Exercise
   attr_accessor :name, :instructions, :reps, :sets, :duration,
@@ -13,8 +14,20 @@ class Exercise
     @name = name
     @reps = reps
     @sets = sets
-    @record_of_days = []
+    @record_of_days = Set.new
     @image_links = []
+  end
+
+  def add_date(date)
+    record_of_days << date
+  end
+
+  def delete_date(date)
+    record_of_days.delete(date)
+  end
+
+  def done_on?(date)
+    record_of_days.include?(date)
   end
 end
 
