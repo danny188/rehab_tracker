@@ -21,6 +21,10 @@
 
 }
 
+.badge.reps-sets {
+  font-size: 14px;
+}
+
 .exercise-row {
   margin-top: 4px;
   margin-bottom: 4px;
