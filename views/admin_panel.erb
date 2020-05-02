@@ -5,7 +5,7 @@
 <% if session[:success] %>
 <div class="offset-1 col-3 alert alert-success fade show text-center" role="alert">
   <span><%= session.delete(:success) %></span>
-  </div>
+</div>
 <% end %>
 
 <% if session[:error] %>
@@ -19,7 +19,6 @@
 
 <br>
 <h5 class=""><b>Current Admins</b></h5>
-
 <br>
 
 <div class="row justify-content-center">

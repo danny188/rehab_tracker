@@ -69,3 +69,15 @@
   height: 50%;
 }
 
+.btn.square {
+  background: transparent  url("../images/square.png") 0 50% no-repeat;
+
+}
+
+.custom-checkbox {
+    border-radius: .99rem;
+}
+
+.select-all-none-btn {
+
+}

@@ -73,6 +73,22 @@ class Patient < User
   def delete_exercise(exercise_name)
     exercises.delete_if { |exercise| exercise.name == exercise_name }
   end
+
+  def mark_done_all_exercises(date)
+    exercises.each do |exercise|
+      exercise.add_date(date)
+    end
+  end
+
+  def mark_undone_all_exercises(date)
+    exercises.each do |exercise|
+      exercise.delete_date(date)
+    end
+  end
+
+  def done_all_exercises?(date)
+    exercises.all? { |exercise| exercise.done_on?(date) }
+  end
 end
 
 class Therapist < User

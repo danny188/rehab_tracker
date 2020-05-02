@@ -23,11 +23,36 @@
   </div>
 
   <% @dates.each do |date| %>
-  <div class="col-lg-1 text-center">
+  <div class="col-1 text-center">
     <span class="dates"><%= format_date(date) %></span>
   </div>
   <% end %>
 </div>
+
+<!-- select all/none button -->
+<div class="row exericse-row">
+  <div class="col-5">
+    <span class="ml-3 header dates"></span>
+  </div>
+
+  <% @dates.each do |date| %>
+
+  <div class="col-1 text-center mb-3">
+     <form method="post" action="/users/<%= @patient.username %>/exercises/mark_all">
+    <!-- <button type="button" class="border-0 px-4 btn btn-outline-secondary square"></button> -->
+
+    <div class="custom-control custom-checkbox">
+      <input type="checkbox" class="border-primary custom-checkbox custom-control-input" id="<%="select_all_none_" + date.strftime("%Y%m%d") %>" name="select_all_none" value="select_all_none" <%= "checked" if @patient.done_all_exercises?(date.strftime("%Y%m%d")) %>>
+      <label class="custom-checkbox custom-control-label border-primar" for="<%="select_all_none_" + date.strftime("%Y%m%d") %>" data-toggle="tooltip" title="Check all/none"></label>
+      <input type="hidden" name="date" value="<%= date.strftime("%Y%m%d") %>">
+    </div>
+    </form>
+  </div>
+
+  <% end %>
+</div>
+
+
 
 
 <!-- List of current exercises -->
@@ -66,7 +91,7 @@
 
   <!-- Checkboxes for each day for each exercise -->
   <% @dates.each do |date| %>
-  <div class="col-lg-1">
+  <div class="col-1">
     <form action="/users/<%= @patient.username %>/update_tracker" method="post">
       <div class="custom-control custom-checkbox text-center">
         <input type="checkbox" class="custom-control-input" id="chk_<%= exercise.name + "_" + date.strftime("%Y%m%d") %>" name="checkbox_value" value="checkbox_value <%= check_value(date, exercise.record_of_days) %>" <%= "checked" if exercise.done_on?(date.strftime("%Y%m%d")) %>>

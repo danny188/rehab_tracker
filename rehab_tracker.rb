@@ -91,6 +91,8 @@ def user_role(user_obj)
   end
 end
 
+
+
 get "/users/:username/exercises" do
   unless verify_user_access(required_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
@@ -201,6 +203,20 @@ post "/users/:username/exercises/:exercise_name/delete_file" do
   redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit"
 end
 
+post "/users/:username/exercises/mark_all" do
+  @patient = get_user_obj(params[:username])
+  @mark_date = params[:date]
+  @mark_all_done = params[:select_all_none]
+
+  if @mark_all_done
+    @patient.mark_done_all_exercises(@mark_date)
+  else
+    @patient.mark_undone_all_exercises(@mark_date)
+  end
+  save_user_obj(@patient)
+
+  redirect "/users/#{@patient.username}/exercises"
+end
 
 post "/users/:username/update_tracker" do #rename to patient_edit
   @patient = get_user_obj(params[:username])
