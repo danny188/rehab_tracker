@@ -45,6 +45,13 @@
       <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm Password (required)" required>
     </div>
 
+    <% if session[:user].role == :admin %>
+    <div class="form-group form-check">
+      <input type="checkbox" class="form-check-input" id="prompt_change_pw" name="prompt_change_pw" checked>
+      <label class="form-check-label" for="prompt_change_pw">Prompt user to change password on next login</label>
+    </div>
+    <% end %>
+
     <div class="form-group">
       <label for="role">Your Role (required)</label>
       <select class="custom-select mr-sm-2" name="role" id="role" required>

@@ -100,6 +100,10 @@ class Patient < User
   def done_all_exercises?(date)
     exercises.all? { |exercise| exercise.done_on?(date) }
   end
+
+  def num_of_exercises
+    exercises.size
+  end
 end
 
 class Therapist < User

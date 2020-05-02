@@ -43,7 +43,7 @@
         <td><%= admin.username %></td>
         <td></td>
         <td>
-          <a href="/users/<%= admin.username %>/exercises">View Profile</a>
+          <a href="/users/<%= admin.username %>/profile">View Profile</a>
           <a href="#" class="text-danger">Delete</a>
         </td>
       </tr>
@@ -84,7 +84,7 @@
         <td><%= therapist.username %></td>
         <td></td>
         <td>
-          <a href="/users/<%= therapist.username %>/exercises">View Profile</a>
+          <a href="/users/<%= therapist.username %>/profile">View Profile</a>
           <a href="#" class="text-danger">Delete</a>
         </td>
       </tr>
@@ -126,7 +126,7 @@
         <td><%= patient.last_updated %></td>
         <td>
           <a href="/users/<%= patient.username %>/exercises">View Exercises</a>
-          <a href="/users/<%= patient.username %>/exercises">View Profile</a>
+          <a href="/users/<%= patient.username %>/profile">View Profile</a>
           <a href="#" class="text-danger">Delete</a>
         </td>
       </tr>

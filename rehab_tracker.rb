@@ -308,6 +308,7 @@ post "/new_account" do
   new_user.email = @email
   new_user.first_name = @first_name
   new_user.last_name = @last_name
+  new_user.change_pw_next_login = true if params[:prompt_change_pw]
 
   if user_exists?(@username)
     session[:error] = "Username already exists. Please pick another."
@@ -343,7 +344,7 @@ post "/users/:username/profile/update" do
   @user = get_user_obj(params[:username])
   @current_password = params[:current_password]
 
-  if authenticate_user(@user.username, @current_password)
+  if authenticate_user(@user.username, @current_password) || session[:user].role == :admin
 
     @user.first_name = params[:first_name]
     @user.last_name = params[:last_name]
@@ -358,11 +359,11 @@ post "/users/:username/profile/update" do
       if @new_password == @confirm_new_password
         @hashed_new_pw = BCrypt::Password.create(@new_password)
         @user.pw = @hashed_new_pw
+        @user.change_pw_next_login = false
       else
         session[:error] = "Please correctly confirm your new password."
         halt erb(:profile)
       end
-      session[:warning] = "new pw was '#{@new_password}'"
     end
 
     # change role enabled only for admins
@@ -374,6 +375,8 @@ post "/users/:username/profile/update" do
         user_with_new_role = Therapist.new(@user.username, @user.pw)
       when :admin
         user_with_new_role = Admin.new(@user.username, @user.pw)
+      else
+        user_with_new_role = @user
       end
       user_with_new_role.copy_from(@user)
       @user = user_with_new_role

@@ -36,7 +36,7 @@
 
     <div class="form-group">
       <label class="sr-only" for="current_password">Current Password</label>
-      <input type="password" id="current_password" class="form-control" name="current_password" placeholder="Current Password (required)" required>
+      <input type="password" id="current_password" class="form-control" name="current_password" placeholder="Current Password (required)" <% 'required' unless session[:user].role == :admin %>>
       <small id="passwordHelp" class="form-text text-muted"></small>
     </div>
 
@@ -57,7 +57,7 @@
           <option <%= 'selected' unless @user.role %>>Choose...</option>
           <option value="patient" <%= 'selected' if @user.role == :patient %>>Patient</option>
 
-          <% if session[:user].role == :therapist %>
+          <% if session[:user].role == :therapist || session[:user].role == :admin %>
           <option value="therapist"<%= 'selected' if @user.role == :therapist %>>Therapist</option>
           <% end %>
           <% if session[:user].role == :admin %>

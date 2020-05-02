@@ -1,0 +1,21 @@
+---
+:data: !ruby/object:Patient
+  exercises:
+  - !ruby/object:Exercise
+    name: squat
+    reps: 30
+    sets: 3
+    record_of_days: !ruby/object:Set
+      hash: {}
+    image_links: []
+  username: patient_3
+  pw: !ruby/string:BCrypt::Password
+    str: "$2a$12$Q3cYf5Ju1C7XM7RxzR28/OEIr3tpIqFd0al6/MRtlZtLt9Gi..ixK"
+    version: 2a
+    cost: 12
+    salt: "$2a$12$Q3cYf5Ju1C7XM7RxzR28/O"
+    checksum: EIr3tpIqFd0al6/MRtlZtLt9Gi..ixK
+  email: 3@gmail.com
+  first_name: first name 3
+  last_name: last name 3
+  change_pw_next_login: true

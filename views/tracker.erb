@@ -30,6 +30,7 @@
 </div>
 
 <!-- select all/none button -->
+<% if @patient.num_of_exercises > 0 %>
 <div class="row exericse-row">
   <div class="col-5">
     <span class="ml-3 header dates"></span>
@@ -51,6 +52,13 @@
 
   <% end %>
 </div>
+
+<% else %>
+  <div class="col-5">
+    <span class="">No exercises added yet</span>
+  </div>
+
+<% end %>
 
 
 
@@ -109,7 +117,7 @@
   <!-- Form to add new exercises -->
 <br>
 <br>
-<form class="" id="form_add_exercise" action="/users/<%=@patient.username%>/exercises/add" method="post">
+<form class="col-12" id="form_add_exercise" action="/users/<%=@patient.username%>/exercises/add" method="post">
   <div class="form-row">
     <div class="form-group col-5">
       <div class="input-group">
