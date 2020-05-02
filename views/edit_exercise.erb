@@ -15,8 +15,8 @@
   <div class="col-6">
     <form action="/users/<%= @patient.username %>/exercises/<%= @exercise.name %>/update" method="post">
       <div class="form-group row">
-        <label for="exercise_name" class="col-3 col-form-label"><b>Name of exercise</b></label>
-        <input type="text" class="form-control col-6" id="exercise_name" name="exercise_name" value="<%= @exercise.name %>">
+        <label for="new_exercise_name" class="col-3 col-form-label"><b>Name of exercise</b></label>
+        <input type="text" class="form-control col-6" id="new_exercise_name" name="new_exercise_name" value="<%= @exercise.name %>">
       </div>
       <div class="form-group row">
         <label for="reps" class="col-3 col-form-label"><b>Repetitions</b></label>

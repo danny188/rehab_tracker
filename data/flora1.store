@@ -2,7 +2,7 @@
 :data: !ruby/object:Patient
   exercises:
   - !ruby/object:Exercise
-    name: squat
+    name: Squat
     reps: '30'
     record_of_days:
     - 
@@ -15,40 +15,42 @@
     comment_by_patient: ''
     comment_by_therapist: squat is important
   - !ruby/object:Exercise
-    name: pushup plus
-    reps: 30
+    name: Pushup Plus
+    reps: '30'
     record_of_days:
     - 
     - '20200427'
     - '20200429'
     image_links: []
+    sets: ''
+    instructions: TesT
+    comment_by_patient: ''
+    comment_by_therapist: 
   - !ruby/object:Exercise
-    name: calf raise
-    reps: 30
+    name: Diagonal Weight Shift
+    reps: '30'
     record_of_days:
     - 
     - '20200427'
     - '20200429'
     image_links: []
+    sets: ''
+    instructions: ''
+    comment_by_patient: ''
+    comment_by_therapist: 
   - !ruby/object:Exercise
-    name: this is a very long name of an exercise
-    reps: 30
+    name: 4-Point Kneeling + Pelvic Tilt
+    reps: '30'
     record_of_days: !ruby/object:Set
       hash:
         ! '': true
         '20200427': true
         '20200429': true
     image_links: []
-    sets: 3
-  - !ruby/object:Exercise
-    name: " this is the very long name of an exercisethis is the very long name of
-      an exercise"
-    reps: 30
-    record_of_days: !ruby/object:Set
-      hash:
-        '20200429': true
-    image_links: []
-    sets: 3
+    sets: '3'
+    instructions: ''
+    comment_by_patient: ''
+    comment_by_therapist: 
   username: flora1
   pw: !ruby/string:BCrypt::Password
     str: "$2a$12$vkQOImp6F3U7Ho7xZ19./eRIVq16nS7Qtv4sSn9rD/7lR5YxDX0s."

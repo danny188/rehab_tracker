@@ -169,7 +169,7 @@ end
 post "/users/:username/exercises/:exercise_name/update" do
   @patient = get_user_obj(params[:username])
   @exercise = @patient.get_exercise(params[:exercise_name])
-  @exercise.name = params[:exercise_name]
+  @exercise.name = params[:new_exercise_name]
   @exercise.reps = params[:reps]
   @exercise.sets = params[:sets]
   @exercise.instructions = params[:instructions]
@@ -180,6 +180,10 @@ post "/users/:username/exercises/:exercise_name/update" do
 
   session[:success] = "Your changes have been saved"
   redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit"
+end
+
+get "/about" do
+  erb :about
 end
 
 # delete exercise for patient
