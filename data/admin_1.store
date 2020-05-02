@@ -2,11 +2,13 @@
 :data: !ruby/object:Admin
   username: admin_1
   pw: !ruby/string:BCrypt::Password
-    str: "$2a$12$vkQOImp6F3U7Ho7xZ19./eRIVq16nS7Qtv4sSn9rD/7lR5YxDX0s."
+    str: "$2a$12$FNA/yChx0ybyYln41o2aiOPMjMQRvG.HP0qJWV1pa/FFwVFKsFLY2"
     version: 2a
     cost: 12
-    salt: "$2a$12$vkQOImp6F3U7Ho7xZ19./e"
-    checksum: RIVq16nS7Qtv4sSn9rD/7lR5YxDX0s.
+    salt: "$2a$12$FNA/yChx0ybyYln41o2aiO"
+    checksum: PMjMQRvG.HP0qJWV1pa/FFwVFKsFLY2
   role: :admin
   first_name: Sato
-  last_name: San
+  last_name: San2
+  email: test@gmail.com
+  change_pw_next_login: false

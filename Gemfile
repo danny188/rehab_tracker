@@ -9,3 +9,4 @@ gem "sinatra-contrib"
 gem "rack-test"
 gem "minitest"
 gem "bcrypt"
+gem 'pry-byebug'

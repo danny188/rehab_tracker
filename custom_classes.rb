@@ -32,11 +32,13 @@ class Exercise
 end
 
 class User
-  attr_accessor :username, :pw, :first_name, :last_name, :email
+  attr_accessor :username, :pw, :first_name, :last_name, :email,
+                :change_pw_next_login
 
   def initialize(username, pw)
     @username = username
     @pw = pw
+    change_pw_next_login = false
   end
 
   def to_s
@@ -45,6 +47,15 @@ class User
 
   def role
     self.class.to_s.downcase.to_sym
+  end
+
+  def copy_from(another_user)
+    self.username = another_user.username
+    self.pw = another_user.pw
+    self.first_name = another_user.first_name
+    self.last_name = another_user.last_name
+    self.email = another_user.email
+    self.change_pw_next_login = another_user.change_pw_next_login
   end
 end
 
@@ -95,7 +106,6 @@ class Therapist < User
 end
 
 class Admin < User
-
 end
 
 class Amazon_AWS

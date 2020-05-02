@@ -6,6 +6,7 @@ require 'yaml/store'
 require 'date'
 require 'bcrypt'
 require 'fileutils'
+require 'pry-byebug'
 
 require_relative 'custom_classes'
 
@@ -213,6 +214,7 @@ post "/users/:username/exercises/mark_all" do
   else
     @patient.mark_undone_all_exercises(@mark_date)
   end
+
   save_user_obj(@patient)
 
   redirect "/users/#{@patient.username}/exercises"
@@ -332,6 +334,61 @@ post "/new_account" do
   redirect_to_home_page(session[:user])
 end
 
+
+post "/users/:username/profile/update" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+
+  @user = get_user_obj(params[:username])
+  @current_password = params[:current_password]
+
+  if authenticate_user(@user.username, @current_password)
+
+    @user.first_name = params[:first_name]
+    @user.last_name = params[:last_name]
+    @user.email = params[:email]
+
+    @new_role = params[:role].to_sym
+    @new_password = params[:new_password]
+    @confirm_new_password = params[:confirm_new_password]
+
+    # change pw
+    unless @new_password == ""
+      if @new_password == @confirm_new_password
+        @hashed_new_pw = BCrypt::Password.create(@new_password)
+        @user.pw = @hashed_new_pw
+      else
+        session[:error] = "Please correctly confirm your new password."
+        halt erb(:profile)
+      end
+      session[:warning] = "new pw was '#{@new_password}'"
+    end
+
+    # change role enabled only for admins
+    if @user.role != @new_role && session[:user].role == :admin
+      case @new_role
+      when :patient
+        user_with_new_role = Patient.new(@user.username, @user.pw)
+      when :therapist
+        user_with_new_role = Therapist.new(@user.username, @user.pw)
+      when :admin
+        user_with_new_role = Admin.new(@user.username, @user.pw)
+      end
+      user_with_new_role.copy_from(@user)
+      @user = user_with_new_role
+    end
+  else
+    session[:error] = "Current password was incorrect. Please try again."
+    halt erb(:profile)
+  end
+
+  save_user_obj(@user)
+
+  session[:success] = "Changes have been saved."
+  redirect "/users/#{@user.username}/profile"
+end
+
 get "/login" do
   erb :login, layout: :layout
 end
@@ -366,6 +423,11 @@ post "/login" do
     @user = get_user_obj(@username)
 
     session[:user] = @user
+
+    if @user.change_pw_next_login
+      session[:warning] = "Please change your password"
+      redirect "/users/#{@username}/profile"
+    end
 
     redirect_to_home_page(@user)
   else
@@ -451,6 +513,17 @@ get "/patient_list" do
   @all_patients = get_all_patients
   erb :patient_list
 end
+
+get "/users/:username/profile" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+
+  @user = get_user_obj(params[:username])
+
+  erb :profile
+end
+
 
 # returns array of all user data objects
 def get_all_users
