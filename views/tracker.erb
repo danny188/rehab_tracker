@@ -71,7 +71,7 @@
   </div>
   <div class="col-lg-2">
     <% if exercise.reps || exercise.sets %>
-    <span class="badge badge-info reps-sets my-2"><%= [("#{exercise.reps} reps" if exercise.reps), ("#{exercise.sets} " + (exercise.sets.to_i > 1 ? "sets" : "set") if exercise.sets)].compact.join(", ") %></span>
+    <span class="badge badge-info reps-sets my-2"><%= reps_and_sets_str(exercise) %></span>
     <% end %>
 
     <a class="float-right btn btn-outline-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

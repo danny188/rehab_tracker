@@ -10,12 +10,14 @@ class Exercise
 
   Comment = Struct.new(:author, :text, :last_modified)
 
-  def initialize(name, reps = 30, sets = 3)
+  def initialize(name, reps = '30', sets = '3')
     @name = name
     @reps = reps
     @sets = sets
     @record_of_days = Set.new
     @image_links = []
+    @comment_by_therapist = ""
+    @comment_by_patient = ""
   end
 
   def add_date(date)

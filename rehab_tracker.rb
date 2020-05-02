@@ -65,6 +65,12 @@ helpers do
   def check_value(test_date, dates_ary)
     "checked" if dates_ary.include?(test_date)
   end
+
+  def reps_and_sets_str(exercise)
+    reps_str = "#{exercise.reps} " + (exercise.reps.to_i > 1 ? "reps" : "rep") unless exercise.reps.empty?
+    sets_str = "#{exercise.sets} " + (exercise.sets.to_i > 1 ? "sets" : "set") unless exercise.sets.empty?
+    [reps_str, sets_str].compact.join(", ")
+  end
 end
 
 get "/" do

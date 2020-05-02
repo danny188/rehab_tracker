@@ -51,6 +51,16 @@
     instructions: ''
     comment_by_patient: ''
     comment_by_therapist: 
+  - !ruby/object:Exercise
+    name: marching
+    reps: '1'
+    record_of_days: !ruby/object:Set
+      hash: {}
+    image_links: []
+    sets: '3'
+    instructions: ''
+    comment_by_patient: ''
+    comment_by_therapist: 
   username: flora1
   pw: !ruby/string:BCrypt::Password
     str: "$2a$12$vkQOImp6F3U7Ho7xZ19./eRIVq16nS7Qtv4sSn9rD/7lR5YxDX0s."

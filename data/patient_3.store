@@ -3,8 +3,8 @@
   exercises:
   - !ruby/object:Exercise
     name: squat
-    reps: 30
-    sets: 3
+    reps: '30'
+    sets: '3'
     record_of_days: !ruby/object:Set
       hash: {}
     image_links: []
