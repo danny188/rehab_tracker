@@ -1,0 +1,31 @@
+---
+:data: !ruby/object:Patient
+  exercises:
+  - !ruby/object:Exercise
+    name: push up
+    reps: '30'
+    sets: '3'
+    record_of_days: !ruby/object:Set
+      hash:
+        '20200426': true
+    image_links: []
+    instructions: get down on the group and push up
+    comment_by_patient: ''
+    comment_by_therapist: ''
+  - !ruby/object:Exercise
+    name: squat
+    reps: 30
+    sets: 3
+    record_of_days: !ruby/object:Set
+      hash: {}
+    image_links: []
+  username: james
+  pw: !ruby/string:BCrypt::Password
+    str: "$2a$12$kpjpcsXf4pPUlnfMwtaoPuUllbK.5vUp4bXW7iRpiuK5hb1q0YuhO"
+    version: 2a
+    cost: 12
+    salt: "$2a$12$kpjpcsXf4pPUlnfMwtaoPu"
+    checksum: UllbK.5vUp4bXW7iRpiuK5hb1q0YuhO
+  email: james@gmail.com
+  first_name: James
+  last_name: Wick

@@ -2,37 +2,33 @@
 :data: !ruby/object:Patient
   exercises:
   - !ruby/object:Exercise
-    name: marching
-    reps: '5'
-    record_of_days:
-    - '20200429'
-    - 
-    image_links:
-    - "/images/flora1/marching/01.jpg"
-    - "/images/flora1/marching/04.jpeg"
-    instructions: test
-    comment_by_patient: pt comment
-    comment_by_therapist: therapit comment
-    sets: '1'
-  - !ruby/object:Exercise
     name: squat
-    reps: 30
+    reps: '30'
     record_of_days:
     - 
     - '20200428'
     - '20200427'
+    - '20200410'
     image_links: []
+    sets: ''
+    instructions: ''
+    comment_by_patient: ''
+    comment_by_therapist: squat is important
   - !ruby/object:Exercise
     name: pushup plus
     reps: 30
     record_of_days:
     - 
+    - '20200427'
+    - '20200429'
     image_links: []
   - !ruby/object:Exercise
     name: calf raise
     reps: 30
     record_of_days:
     - 
+    - '20200427'
+    - '20200429'
     image_links: []
   - !ruby/object:Exercise
     name: this is a very long name of an exercise
@@ -40,15 +36,26 @@
     record_of_days: !ruby/object:Set
       hash:
         ! '': true
+        '20200427': true
+        '20200429': true
+    image_links: []
+    sets: 3
+  - !ruby/object:Exercise
+    name: " this is the very long name of an exercisethis is the very long name of
+      an exercise"
+    reps: 30
+    record_of_days: !ruby/object:Set
+      hash:
+        '20200429': true
     image_links: []
     sets: 3
   username: flora1
   pw: !ruby/string:BCrypt::Password
-    str: "$2a$12$drJOMjaRw38bz28FZr.vhu6BnN7CYeNJEIjOOjGT3QtRGqKayOydq"
+    str: "$2a$12$vkQOImp6F3U7Ho7xZ19./eRIVq16nS7Qtv4sSn9rD/7lR5YxDX0s."
     version: 2a
     cost: 12
-    salt: "$2a$12$drJOMjaRw38bz28FZr.vhu"
-    checksum: 6BnN7CYeNJEIjOOjGT3QtRGqKayOydq
+    salt: "$2a$12$vkQOImp6F3U7Ho7xZ19./e"
+    checksum: RIVq16nS7Qtv4sSn9rD/7lR5YxDX0s.
   email: flora@gmail.com
   first_name: Flora
   last_name: Bee

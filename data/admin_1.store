@@ -10,5 +10,5 @@
   role: :admin
   first_name: Sato
   last_name: San2
-  email: test@gmail.com
+  email: ''
   change_pw_next_login: false

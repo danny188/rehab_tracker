@@ -13,6 +13,7 @@
   font-weight: bold;
   font-size: 18px;
   margin-right: 40px;
+  padding-left: 0;
 }
 
 .exercise-button {
@@ -28,6 +29,7 @@
 .exercise-row {
   margin-top: 4px;
   margin-bottom: 4px;
+  margin-left: 3px;
 }
 
 .header-row {

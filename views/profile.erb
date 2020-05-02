@@ -53,16 +53,22 @@
 
     <div class="form-group">
       <label for="role">Your Role (required)</label>
-      <select class="custom-select mr-sm-2" name="role" id="role" required <%= 'disabled' unless session[:user].role == :admin %>>
-          <option <%= 'selected' unless @user.role %>>Choose...</option>
-          <option value="patient" <%= 'selected' if @user.role == :patient %>>Patient</option>
 
-          <% if session[:user].role == :therapist || session[:user].role == :admin %>
-          <option value="therapist"<%= 'selected' if @user.role == :therapist %>>Therapist</option>
-          <% end %>
-          <% if session[:user].role == :admin %>
-          <option value="admin"<%= 'selected' if @user.role == :admin %>>Admin</option>
-          <% end %>
+      <!-- hidden input is needed because 'select' element is disabled and not sent in form submission if signed in user is not admin -->
+      <% unless @user.role == :admin %>
+      <input type="hidden" name="role" value="<%= @user.role.to_s %>">
+      <% end %>
+
+      <select class="custom-select mr-sm-2" name="role" id="role" required <%= 'disabled' unless session[:user].role == :admin %>>
+        <option <%= 'selected' unless @user.role %>>Choose...</option>
+        <option value="patient" <%= 'selected' if @user.role == :patient %>>Patient</option>
+
+        <% if session[:user].role == :therapist || session[:user].role == :admin %>
+        <option value="therapist"<%= 'selected' if @user.role == :therapist %>>Therapist</option>
+        <% end %>
+        <% if session[:user].role == :admin %>
+        <option value="admin"<%= 'selected' if @user.role == :admin %>>Admin</option>
+        <% end %>
       </select>
       <small id="role_help" class="form-text text-muted"></small>
     </div>
@@ -91,7 +97,7 @@
 <div class="offset-4 col-4 alert alert-success fade show text-center" role="alert">
 
   <span><%= session.delete(:success) %></span>
-  </div>
+</div>
 <% end %>
 
 <% if session[:error] %>

@@ -92,7 +92,9 @@ def user_role(user_obj)
   end
 end
 
-
+not_found do
+"page not found, return to home in 3 secs"
+end
 
 get "/users/:username/exercises" do
   unless verify_user_access(required_authorization: :patient, required_username: params[:username])
@@ -117,6 +119,12 @@ get "/users/:username/exercises/therapist_view" do
 end
 
 post "/users/:username/exercises/add" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+
+  # validate exercise name
+
   @patient = get_user_obj(params[:username])
   @patient.add_exercise(params[:new_exercise_name])
 
@@ -487,6 +495,8 @@ def save_exercises(patient)
 end
 
 def verify_user_access(required_authorization: :public, required_username: nil)
+  return false unless session[:user] || required_authorization == :public
+
   session_role = session[:user].role if session[:user]
   current_role = session_role || :public
 

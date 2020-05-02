@@ -49,10 +49,14 @@
       <label for="patient_comment" class="col-3 col-form-label"><b>Comments</b></label>
       <textarea class="form-control col-8" id="patient_comment" name="patient_comment" rows="3"><%= @exercise.comment_by_patient %></textarea>
     </div>
+
+    <% if @exercise.comment_by_therapist || session[:user].role != :patient %>
     <div class="form-group row">
       <label for="therapist_comment" class="col-3 col-form-label"><b>Therapist's reply</b></label>
-      <textarea class="form-control col-8" id="therapist_comment" name="therapist_comment" rows="3"><%= @exercise.comment_by_therapist %></textarea>
+      <textarea class="form-control col-8" id="therapist_comment" name="therapist_comment" rows="3" <%= 'readonly' if session[:user].role == :patient %>><%= @exercise.comment_by_therapist %></textarea>
     </div>
+    <% end %>
+
     <div class="form-group row">
       <label class="col-3 col-form-label"></label>
 

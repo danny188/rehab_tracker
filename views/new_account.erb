@@ -45,7 +45,7 @@
       <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm Password (required)" required>
     </div>
 
-    <% if session[:user].role == :admin %>
+    <% if session[:user] && session[:user].role == :admin %>
     <div class="form-group form-check">
       <input type="checkbox" class="form-check-input" id="prompt_change_pw" name="prompt_change_pw" checked>
       <label class="form-check-label" for="prompt_change_pw">Prompt user to change password on next login</label>
@@ -58,7 +58,7 @@
           <option <%= 'selected' unless @role %>>Choose...</option>
           <option value="patient" <%= 'selected' if params[:role]=='patient'%>>Patient</option>
 
-          <% if session[:user].role == :admin %>
+          <% if session[:user] && session[:user].role == :admin %>
           <!-- admin-only options -->
           <option value="therapist"<%= 'selected' if params[:role]=='therapist'%>>Therapist</option>
           <option value="admin"<%= 'selected' if params[:role]=='admin'%>>Admin</option>

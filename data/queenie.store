@@ -1,0 +1,46 @@
+---
+:data: !ruby/object:Patient
+  exercises:
+  - !ruby/object:Exercise
+    name: ''
+    reps: 30
+    sets: 3
+    record_of_days: !ruby/object:Set
+      hash:
+        '20200426': true
+        '20200427': true
+        '20200502': true
+    image_links: []
+  - !ruby/object:Exercise
+    name: 'walking '
+    reps: 30
+    sets: 3
+    record_of_days: !ruby/object:Set
+      hash:
+        '20200426': true
+        '20200427': true
+        '20200502': true
+    image_links: []
+  - !ruby/object:Exercise
+    name: xyz
+    reps: '0'
+    sets: '1'
+    record_of_days: !ruby/object:Set
+      hash:
+        '20200426': true
+        '20200502': true
+        '20200427': true
+    image_links: []
+    instructions: haha
+    comment_by_patient: 'no'
+    comment_by_therapist: n/a
+  username: queenie
+  pw: !ruby/string:BCrypt::Password
+    str: "$2a$12$IYNuRvJEcrPOZ92tbyr9bu0D2zQSnqNXoASVlyUMrD985Iq9syuY2"
+    version: 2a
+    cost: 12
+    salt: "$2a$12$IYNuRvJEcrPOZ92tbyr9bu"
+    checksum: 0D2zQSnqNXoASVlyUMrD985Iq9syuY2
+  email: queenie@gmail.com
+  first_name: queenie
+  last_name: ho
