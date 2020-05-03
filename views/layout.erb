@@ -76,7 +76,7 @@
 
       <li class="nav-item  <%= active_class("/about")%>">
         <form method="get" action="/weather">
-          <a id="weather_btn" onmouseover="getWeather()" class="nav-link"  data-container="body" data-toggle="popover" data-trigger="hover" title="<b>Current Sydney Weather</b>" data-placement="right" data-content="Loading...">
+          <a tabindex="-1" id="weather_btn" onclick="getWeather()" class="nav-link"  data-container="body" data-toggle="popover" data-trigger="focus" title="<b>Current Sydney Weather</b>" data-placement="right" data-content="Loading...">
           Weather
           </button>
         </form>

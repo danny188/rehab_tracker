@@ -1,6 +1,8 @@
 const MAX_FILE_SIZE = 1048576
 const timeout = 1500
 
+var weatherPopoverVisible = false;
+
 // checkbox - on change
 $('.custom-control-input').change(function() {
  // alert($(this).prop('checked'));
@@ -47,11 +49,23 @@ function getWeather() {
     data: {},
       success: function(data){
         document.getElementById("weather_btn").setAttribute("data-content", data);
-        $('#weather_btn').popover('show');
+
+        if (weatherPopoverVisible == true) {
+          $('#weather_btn').popover('show');
+        }
       }
   });
-
 }
+
+$('#weather_btn').on('hidden.bs.popover', function () {
+  weatherPopoverVisible = false;
+})
+
+$('#weather_btn').on('shown.bs.popover ', function () {
+  weatherPopoverVisible = true;
+})
+
+
 
 function loadDoc() {
   var xhttp = new XMLHttpRequest();
@@ -101,5 +115,6 @@ $(document).ready(function(){
 });
 
 $(function () {
-  $('[data-toggle="popover"]').popover({html:true, trigger: 'click'});
+  $('[data-toggle="popover"]').popover({html:true});
 })
+
