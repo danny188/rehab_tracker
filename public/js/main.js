@@ -5,6 +5,10 @@ const timeout = 1500
 $('.custom-control-input').change(function() {
  // alert($(this).prop('checked'));
   // alert($(this).is('checked'));
+
+  document.getElementById("save-change-spinner").style.display = "block";
+  document.getElementById("save-change-spinner-label").style.display = "block";
+
   this.form.submit();
 })
 
@@ -77,6 +81,7 @@ $(document).ready(function(){
   //       clickedItem.addClass( "active" );
   //   });
 
-
+  document.getElementById("save-change-spinner").style.display = "none";
+  document.getElementById("save-change-spinner-label").style.display = "none";
 
 });

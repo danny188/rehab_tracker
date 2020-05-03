@@ -7,8 +7,20 @@
     sets: '3'
     record_of_days: !ruby/object:Set
       hash:
-        '20200427': true
         '20200429': true
+        '20200428': true
+    image_links: []
+    comment_by_therapist: ''
+    comment_by_patient: ''
+  - !ruby/object:Exercise
+    name: marching
+    reps: '30'
+    sets: '3'
+    record_of_days: !ruby/object:Set
+      hash:
+        '20200429': true
+        '20200427': true
+        '20200430': true
     image_links: []
     comment_by_therapist: ''
     comment_by_patient: ''

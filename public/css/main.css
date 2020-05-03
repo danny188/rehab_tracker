@@ -22,6 +22,10 @@
 
 }
 
+.heading-row {
+  padding-left: 5px;
+}
+
 .badge.reps-sets {
   font-size: 14px;
 }
