@@ -114,16 +114,6 @@ get "/users/:username/exercises" do
   erb :tracker
 end
 
-# combine this into "/:username/exercises" path by using session[:user]
-# signed in user can be different to :username in path if signed-in user is a therapist or admin
-get "/users/:username/exercises/therapist_view" do
-  @dates = past_num_days(from: Date.today)
-  @patient = get_user_obj(params[:username])
-  @therapist = get_user_obj('therapist_1')
-
-  erb :tracker
-end
-
 post "/users/:username/exercises/add" do
   unless verify_user_access(required_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
@@ -143,11 +133,13 @@ post "/users/:username/exercises/add" do
 end
 
 get "/users/:username/exercises/:exercise_name/edit" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+
   @patient = get_user_obj(params[:username])
   @exercise = @patient.get_exercise(params[:exercise_name])
   erb :edit_exercise
-
-
 end
 
 def delete_file(path)
@@ -155,6 +147,10 @@ def delete_file(path)
 end
 
 post "/users/:username/exercises/:exercise_name/upload_file" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+
   @patient = get_user_obj(params[:username])
   @exercise = @patient.get_exercise(params[:exercise_name])
   params[:images].each do |file_hash|
@@ -173,6 +169,10 @@ end
 
 # Save exercise details
 post "/users/:username/exercises/:exercise_name/update" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+
   @patient = get_user_obj(params[:username])
   @exercise = @patient.get_exercise(params[:exercise_name])
   @exercise.name = params[:new_exercise_name]
@@ -189,11 +189,16 @@ post "/users/:username/exercises/:exercise_name/update" do
 end
 
 get "/about" do
+
   erb :about
 end
 
 # delete exercise for patient
 post "/users/:username/exercises/:exercise_name/delete" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+
   @patient = get_user_obj(params[:username])
 
   @patient.delete_exercise(params[:exercise_name])
@@ -205,6 +210,10 @@ end
 
 # Delete file associated with exercise
 post "/users/:username/exercises/:exercise_name/delete_file" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+
   @patient = get_user_obj(params[:username])
   @exercise = @patient.get_exercise(params[:exercise_name])
   @file_path = params[:file_path]
@@ -223,6 +232,10 @@ post "/users/:username/exercises/:exercise_name/delete_file" do
 end
 
 post "/users/:username/exercises/mark_all" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+
   @patient = get_user_obj(params[:username])
   @mark_date = params[:date]
   @mark_all_done = params[:select_all_none]
@@ -238,7 +251,12 @@ post "/users/:username/exercises/mark_all" do
   redirect "/users/#{@patient.username}/exercises"
 end
 
-post "/users/:username/update_tracker" do #rename to patient_edit
+# update checkbox values for a particular exercise and day for a patient
+post "/users/:username/update_tracker" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+
   @patient = get_user_obj(params[:username])
   @exercise = @patient.get_exercise(params[:exercise_name])
   @check_date = params[:date]
@@ -265,31 +283,26 @@ post "/users/:username/update_tracker" do #rename to patient_edit
   redirect "/users/#{@patient.username}/exercises"
 end
 
-get "/upload" do
+# post "/upload" do
+#   file_hashes = params['images']
+#   filenames = params['images'].map { |f| f[:name] }.join(";")
 
-  erb :exercise, layout: :layout
-end
+#   filenames = filenames.split(";")
+#   num_files = filenames.length
 
-post "/upload" do
-  file_hashes = params['images']
-  filenames = params['images'].map { |f| f[:name] }.join(";")
+#   file_hashes.each do |file_h|
+#     file = file_h[:tempfile]
+#     File.open("./uploaded_#{file_h[:filename]}", "wb") do |f|
+#       f.write file.read
+#     end
+#   end
 
-  filenames = filenames.split(";")
-  num_files = filenames.length
+#    # params['images'].inspect
+# end
 
-  file_hashes.each do |file_h|
-    file = file_h[:tempfile]
-    File.open("./uploaded_#{file_h[:filename]}", "wb") do |f|
-      f.write file.read
-    end
-  end
-
-   # params['images'].inspect
-end
-
-post "/save_changes_tracker" do
-  "result_of_ajax"
-end
+# post "/save_changes_tracker" do
+#   "result_of_ajax"
+# end
 
 get "/new_account" do
   erb :new_account
@@ -307,7 +320,7 @@ post "/new_account" do
   if @role == 'patient'
     new_user = Patient.new(@username, @hashed_pw)
   elsif @role == 'therapist'
-    unless verify_user_access(required_authorization: :therapist)
+    unless verify_user_access(required_authorization: :admin)
       redirect "/access_error"
     end
 
