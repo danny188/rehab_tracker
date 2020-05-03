@@ -8,6 +8,8 @@ require 'bcrypt'
 require 'fileutils'
 require 'pry-byebug'
 require 'chartkick'
+require 'net/http'
+require 'json'
 
 require_relative 'custom_classes'
 
@@ -76,6 +78,28 @@ helpers do
   def active_class(test_path)
     "active" if request.path_info == test_path
   end
+end
+
+get "/weather" do
+  url = "https://api.openweathermap.org/data/2.5/weather?id=2147714&appid=a987a5af5f795697f65534eeb4c91f39&units=metric"
+  uri = URI(url)
+  response = Net::HTTP.get(uri)
+  @data = JSON.parse(response)
+  @weather_icon_url = "http://openweathermap.org/img/wn/#{@data['weather'][0]['icon']}@2x.png"
+
+
+  weather_btn_popover_content = <<-HEREDOC
+  <div class="text-center">
+  <img width="120px" height="120px" id="wicon"  src="#{@weather_icon_url}" alt="Weather icon">
+  <p>#{ @data['weather'][0]['description'] }</p>
+  <hr>
+  <p>Current Temp: #{@data['main']['temp']} °C</p>
+  <p>Max Temp: #{@data['main']['temp_max']} °C</p>
+  <p>Min Temp: #{@data['main']['temp_min']} °C</p>
+
+  </div>
+  HEREDOC
+
 end
 
 get "/" do

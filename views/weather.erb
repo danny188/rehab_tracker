@@ -1,0 +1,12 @@
+<%= @data.inspect %>
+<%= @data['name'] %>
+
+<%= @data['name'] %>
+<%= @data['main']['temp'] %>
+<%= @data['weather'][0]['description'] %>
+<%= @data['weather'][0]['icon'] %>
+<% @weather_icon_url = "http://openweathermap.org/img/wn/#{@data['weather'][0]['icon']}@2x.png" %>
+
+
+
+ <div id="icon"><img id="wicon" src="<%= @weather_icon_url %>" alt="Weather icon"></div>

@@ -74,6 +74,14 @@
         <a class="nav-link" href="/about">About</a>
       </li>
 
+      <li class="nav-item  <%= active_class("/about")%>">
+        <form method="get" action="/weather">
+          <a id="weather_btn" onmouseover="getWeather()" class="nav-link"  data-container="body" data-toggle="popover" data-trigger="hover" title="<b>Current Sydney Weather</b>" data-placement="right" data-content="Loading...">
+          Weather
+          </button>
+        </form>
+      </a>
+
       <!-- <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
         <div class="dropdown-menu" aria-labelledby="dropdown01">

@@ -56,6 +56,14 @@
   cursor: pointer;
 }
 
+#weather_btn {
+  cursor: pointer;
+}
+
+#wicon {
+  margin-top: -20px;
+}
+
 .table_accounts_list {
   text-align: center;
 }

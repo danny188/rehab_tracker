@@ -40,6 +40,18 @@ function logOut() {
   });
 }
 
+function getWeather() {
+  $.ajax({
+    type: "get",
+    url: "/weather",
+    data: {},
+      success: function(data){
+        document.getElementById("weather_btn").setAttribute("data-content", data);
+        $('#weather_btn').popover('show');
+      }
+  });
+
+}
 
 function loadDoc() {
   var xhttp = new XMLHttpRequest();
@@ -71,6 +83,8 @@ $(document).ready(function(){
   // enable bootstrap tooltip
   $('[data-toggle="tooltip"]').tooltip();
 
+
+
   // highlight active link in nav bar
   // $( ".nav-item" ).bind( "click", function(event) {
 
@@ -85,3 +99,7 @@ $(document).ready(function(){
   document.getElementById("save-change-spinner-label").style.display = "none";
 
 });
+
+$(function () {
+  $('[data-toggle="popover"]').popover({html:true, trigger: 'click'});
+})
