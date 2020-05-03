@@ -84,6 +84,8 @@
     </ul>
     <% if session[:user] %>
       <span class="text-white">Logged in as <%= session[:user].username %><button class="btn btn-light mx-3" onclick="logOut()">Log out</a></span>
+    <% elsif request.path_info != "/login" %>
+      <a href="/login" class="btn btn-light mx-3">Log in</a>
     <% end %>
     <!-- <form class="form-inline my-2 my-lg-0">
       <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
