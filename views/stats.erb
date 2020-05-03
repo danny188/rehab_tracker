@@ -1,8 +1,46 @@
 
+<div class="container">
 
+<h1 class="text-center">Exercise Stats for <%= @patient.first_name || @patient.username %></h1>
+<hr>
 
-<%= line_chart(@patient.exercise_completion_rates_by_day, ytitle: "Completion Rate (%)", xtitle: 'Dates', suffix: "%", messages: {empty: "No data"}) %>
+<div class="row mb-3">
 
-<%= pie_chart(@patient.exercise_completion_rates_by_exercise, donut: true, messages: {empty: "No data"}, suffix: " days") %>
+<div class="card col-12 px-0">
+  <div class="card-header text-center">
+    <b>Daily Exercise Completion Rates</b>
+  </div>
+  <div class="card-body">
+    <%= line_chart(@patient.exercise_completion_rates_by_day, ytitle: "Completion Rate (%)", xtitle: 'Dates', suffix: "%", messages: {empty: "No data"}) %>
+  </div>
+</div>
 
-<%= column_chart(@patient.exercise_completion_rates_by_weekday, xtitle: "Day of Week", ytitle: "Exercise Completions", messages:{empty: "No data"} ) %>
+</div>
+
+<div class="row">
+<div class="col-5 pl-0">
+<div class="card">
+  <div class="card-header text-center">
+    <b>Completion Rates by Exercise</b>
+  </div>
+  <div class="card-body">
+  <%= pie_chart(@patient.exercise_completion_rates_by_exercise, donut: true, messages: {empty: "No data"}, suffix: " days") %>
+
+  </div>
+</div>
+</div>
+<br>
+<div class="col-7 pr-0">
+<div class="card">
+  <div class="card-header text-center">
+    <b>Exercise Completions by Day of Week</b>
+  </div>
+  <div class="card-body">
+  <%= column_chart(@patient.exercise_completion_rates_by_weekday, xtitle: "Day of Week", ytitle: "Exercise Completions", messages:{empty: "No data"} ) %>
+
+  </div>
+</div>
+</div>
+
+</div>
+</div>
