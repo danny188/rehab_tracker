@@ -1,0 +1,24 @@
+---
+:data: !ruby/object:Patient
+  exercises:
+  - !ruby/object:Exercise
+    name: squat
+    reps: '30'
+    sets: '3'
+    record_of_days: !ruby/object:Set
+      hash:
+        '20200427': true
+        '20200429': true
+    image_links: []
+    comment_by_therapist: ''
+    comment_by_patient: ''
+  username: ada
+  pw: !ruby/string:BCrypt::Password
+    str: "$2a$12$6IPu3RLG4RofCe9np4rJw.5CiJVHrgVm2maivXFdKAMelcEL1IiaO"
+    version: 2a
+    cost: 12
+    salt: "$2a$12$6IPu3RLG4RofCe9np4rJw."
+    checksum: 5CiJVHrgVm2maivXFdKAMelcEL1IiaO
+  email: ada@gmail.com
+  first_name: Ada
+  last_name: Wong

@@ -31,6 +31,24 @@ class Exercise
   def done_on?(date)
     record_of_days.include?(date)
   end
+
+  def first_day
+    return nil if record_of_days.empty?
+    record_of_days.select { |day| day }.min
+  end
+
+  def last_day
+    return nil if record_of_days.empty?
+    record_of_days.select { |day| day }.max
+  end
+
+  def days_done
+    record_of_days.select { |day| day }.count
+  end
+
+  def has_not_been_started?
+    first_day == nil && last_day == nil
+  end
 end
 
 class User
@@ -106,6 +124,71 @@ class Patient < User
   def num_of_exercises
     exercises.size
   end
+
+  def has_not_started_exercising
+    exercises.all? { |exercise| exercise.has_not_been_started? }
+  end
+
+  def first_exercise_day
+    return nil if has_not_started_exercising
+    exercises.map { |exercise| exercise.first_day }.select { |first_day| first_day }.min
+  end
+
+  def last_exercise_day
+    return nil if has_not_started_exercising
+    exercises.map { |exercise| exercise.last_day }.select { |last_day| last_day }.max
+  end
+
+  def num_of_exercises_done_on(date)
+    return 0 if has_not_started_exercising
+    exercises.select { |exercise| exercise.done_on?(date) }.count
+  end
+
+  def exercise_completion_rates_by_day
+    return nil if num_of_exercises <= 0 || has_not_started_exercising
+
+    result = []
+    date_strings(first_exercise_day, last_exercise_day).each do |day|
+      rate = num_of_exercises_done_on(day) / num_of_exercises.to_f * 100
+      result.push([day, rate.round])
+    end
+
+    result
+  end
+
+  def exercise_completion_rates_by_exercise
+    return nil if num_of_exercises <= 0 || has_not_started_exercising
+
+    result = []
+    exercises.each do |exercise|
+      result.push([exercise.name, exercise.days_done])
+    end
+    result
+  end
+
+  def exercise_completion_rates_by_weekday
+    return nil if num_of_exercises <= 0 || has_not_started_exercising
+
+    result = Date::ABBR_DAYNAMES.map { |day_name| [day_name, 0] }.to_h
+
+    date_strings(first_exercise_day, last_exercise_day).each do |day|
+      weekday = Date.parse(day).strftime("%a")
+      result[weekday] += num_of_exercises_done_on(day)
+    end
+
+    result
+  end
+
+  def num_of_exercises
+    exercises.size
+  end
+
+  private
+
+  def date_strings(from, to)
+    (Date.parse(from)..Date.parse(to)).map { |date| date.strftime("%Y%m%d") }
+  end
+
 end
 
 class Therapist < User

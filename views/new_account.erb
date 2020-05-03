@@ -55,8 +55,8 @@
     <div class="form-group">
       <label for="role">Your Role (required)</label>
       <select class="custom-select mr-sm-2" name="role" id="role" required>
-          <option <%= 'selected' unless @role %>>Choose...</option>
-          <option value="patient" <%= 'selected' if params[:role]=='patient'%>>Patient</option>
+          <option <%= 'selected' unless @role || session[:user].nil? %>>Choose...</option>
+          <option value="patient" <%= 'selected' if params[:role]=='patient' || session[:user].nil? %>>Patient</option>
 
           <% if session[:user] && session[:user].role == :admin %>
           <!-- admin-only options -->

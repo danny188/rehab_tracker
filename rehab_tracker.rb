@@ -7,6 +7,7 @@ require 'date'
 require 'bcrypt'
 require 'fileutils'
 require 'pry-byebug'
+require 'chartkick'
 
 require_relative 'custom_classes'
 
@@ -70,6 +71,10 @@ helpers do
     reps_str = "#{exercise.reps} " + (exercise.reps.to_i > 1 ? "reps" : "rep") unless exercise.reps.empty?
     sets_str = "#{exercise.sets} " + (exercise.sets.to_i > 1 ? "sets" : "set") unless exercise.sets.empty?
     [reps_str, sets_str].compact.join(", ")
+  end
+
+  def active_class(test_path)
+    "active" if request.path_info == test_path
   end
 end
 
@@ -434,19 +439,21 @@ post "/user/logout" do
   "/login"
 end
 
-def redirect_to_home_page(user)
-  @user = user
+def home_page_for(user)
+  return "/login" unless user
 
-  redirect "/login" unless @user
-
-  case @user.role
+  case user.role
     when :patient
-      redirect "/users/#{@user.username}/exercises"
+      "/users/#{user.username}/exercises"
     when :therapist
-      redirect "/patient_list"
+      "/patient_list"
     when :admin
-      redirect "/users/#{@user.username}/admin_panel"
-    end
+      "/users/#{user.username}/admin_panel"
+  end
+end
+
+def redirect_to_home_page(user)
+  redirect home_page_for(user)
 end
 
 post "/login" do
@@ -560,6 +567,19 @@ get "/users/:username/profile" do
   erb :profile
 end
 
+get "/users/:username/stats" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+
+
+
+  @patient = get_user_obj(params[:username])
+  erb :stats
+  # @patient.exercise_completion_rates_by_day.inspect
+  # rate = @patient.num_of_exercises_done_on('20200501') / @patient.num_of_exercises.to_f
+  # rate.to_s
+end
 
 # returns array of all user data objects
 def get_all_users

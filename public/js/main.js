@@ -62,7 +62,21 @@ function loadDoc() {
 
 // }
 
-// enable bootstrap tooltip
+
 $(document).ready(function(){
+  // enable bootstrap tooltip
   $('[data-toggle="tooltip"]').tooltip();
+
+  // highlight active link in nav bar
+  // $( ".nav-item" ).bind( "click", function(event) {
+
+  //       var clickedItem = $( this );
+  //       $( ".nav-item" ).each( function() {
+  //           $( this ).removeClass( "active" );
+  //       });
+  //       clickedItem.addClass( "active" );
+  //   });
+
+
+
 });

@@ -1,0 +1,8 @@
+
+
+
+<%= line_chart(@patient.exercise_completion_rates_by_day, ytitle: "Completion Rate (%)", xtitle: 'Dates', suffix: "%", messages: {empty: "No data"}) %>
+
+<%= pie_chart(@patient.exercise_completion_rates_by_exercise, donut: true, messages: {empty: "No data"}, suffix: " days") %>
+
+<%= column_chart(@patient.exercise_completion_rates_by_weekday, xtitle: "Day of Week", ytitle: "Exercise Completions", messages:{empty: "No data"} ) %>

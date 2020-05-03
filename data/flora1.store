@@ -4,63 +4,78 @@
   - !ruby/object:Exercise
     name: Squat
     reps: '30'
-    record_of_days:
-    - 
-    - '20200428'
-    - '20200427'
-    - '20200410'
-    image_links: []
     sets: ''
-    instructions: ''
-    comment_by_patient: ''
+    record_of_days: !ruby/object:Set
+      hash:
+        '20200501': true
+        '20200429': true
+        '20200430': true
+        '20200502': true
+        '20200428': true
+        '20200422': true
+    image_links: []
     comment_by_therapist: squat is important
+    comment_by_patient: ''
+    instructions: ''
   - !ruby/object:Exercise
     name: Pushup Plus
     reps: '30'
-    record_of_days:
-    - 
-    - '20200427'
-    - '20200429'
-    image_links: []
     sets: ''
-    instructions: TesT
-    comment_by_patient: ''
+    record_of_days: !ruby/object:Set
+      hash:
+        '20200501': true
+        '20200429': true
+        '20200502': true
+        '20200428': true
+    image_links: []
     comment_by_therapist: 
+    comment_by_patient: ''
+    instructions: TesT
   - !ruby/object:Exercise
     name: Diagonal Weight Shift
     reps: '30'
-    record_of_days:
-    - 
-    - '20200427'
-    - '20200429'
-    image_links: []
     sets: ''
-    instructions: ''
-    comment_by_patient: ''
+    record_of_days: !ruby/object:Set
+      hash:
+        '20200501': true
+        '20200429': true
+        '20200430': true
+        '20200502': true
+        '20200428': true
+    image_links: []
     comment_by_therapist: 
+    comment_by_patient: ''
+    instructions: ''
   - !ruby/object:Exercise
     name: 4-Point Kneeling + Pelvic Tilt
     reps: '30'
+    sets: '3'
     record_of_days: !ruby/object:Set
       hash:
-        ! '': true
         '20200427': true
         '20200429': true
+        '20200430': true
+        '20200502': true
+        '20200428': true
     image_links: []
-    sets: '3'
-    instructions: ''
-    comment_by_patient: ''
     comment_by_therapist: 
+    comment_by_patient: ''
+    instructions: ''
   - !ruby/object:Exercise
     name: marching
     reps: '1'
-    record_of_days: !ruby/object:Set
-      hash: {}
-    image_links: []
     sets: '3'
-    instructions: ''
-    comment_by_patient: ''
+    record_of_days: !ruby/object:Set
+      hash:
+        '20200501': true
+        '20200429': true
+        '20200430': true
+        '20200502': true
+        '20200428': true
+    image_links: []
     comment_by_therapist: 
+    comment_by_patient: ''
+    instructions: ''
   username: flora1
   pw: !ruby/string:BCrypt::Password
     str: "$2a$12$vkQOImp6F3U7Ho7xZ19./eRIVq16nS7Qtv4sSn9rD/7lR5YxDX0s."

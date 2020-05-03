@@ -10,3 +10,4 @@ gem "rack-test"
 gem "minitest"
 gem "bcrypt"
 gem 'pry-byebug'
+gem "chartkick"
