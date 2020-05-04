@@ -47,35 +47,14 @@
     comment_by_patient: ''
     instructions: ''
   - !ruby/object:Exercise
-    name: 4-Point Kneeling + Pelvic Tilt
+    name: step up
     reps: '30'
     sets: '3'
     record_of_days: !ruby/object:Set
-      hash:
-        '20200427': true
-        '20200429': true
-        '20200430': true
-        '20200502': true
-        '20200428': true
+      hash: {}
     image_links: []
-    comment_by_therapist: 
+    comment_by_therapist: ''
     comment_by_patient: ''
-    instructions: ''
-  - !ruby/object:Exercise
-    name: marching
-    reps: '1'
-    sets: '3'
-    record_of_days: !ruby/object:Set
-      hash:
-        '20200501': true
-        '20200429': true
-        '20200430': true
-        '20200502': true
-        '20200428': true
-    image_links: []
-    comment_by_therapist: 
-    comment_by_patient: ''
-    instructions: ''
   username: flora1
   pw: !ruby/string:BCrypt::Password
     str: "$2a$12$vkQOImp6F3U7Ho7xZ19./eRIVq16nS7Qtv4sSn9rD/7lR5YxDX0s."

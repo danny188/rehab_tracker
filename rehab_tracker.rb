@@ -23,6 +23,10 @@ def data_path
   end
 end
 
+def nil_or_empty?(value)
+  value.nil? || value.empty?
+end
+
 def public_path
   File.expand_path("../public", __FILE__)
 end
@@ -631,6 +635,13 @@ def get_all_admins
 end
 
 def upload_file(source:, dest:)
+  # create directory if doesn't exist
+  dir_name = File.dirname(dest)
+
+  unless File.directory?(dir_name)
+    FileUtils.mkdir_p(dir_name)
+  end
+
   FileUtils.cp(source, dest)
 end
 
