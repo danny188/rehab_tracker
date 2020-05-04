@@ -9,10 +9,11 @@
       hash:
         '20200501': true
         '20200429': true
-        '20200430': true
         '20200502': true
         '20200428': true
         '20200422': true
+        '20200430': true
+        '20200503': true
     image_links: []
     comment_by_therapist: squat is important
     comment_by_patient: ''
@@ -27,6 +28,8 @@
         '20200429': true
         '20200502': true
         '20200428': true
+        '20200430': true
+        '20200503': true
     image_links: []
     comment_by_therapist: 
     comment_by_patient: ''
@@ -39,15 +42,27 @@
       hash:
         '20200501': true
         '20200429': true
-        '20200430': true
         '20200502': true
         '20200428': true
+        '20200430': true
+        '20200503': true
     image_links: []
     comment_by_therapist: 
     comment_by_patient: ''
     instructions: ''
   - !ruby/object:Exercise
     name: step up
+    reps: '30'
+    sets: '3'
+    record_of_days: !ruby/object:Set
+      hash:
+        '20200430': true
+        '20200502': true
+    image_links: []
+    comment_by_therapist: ''
+    comment_by_patient: ''
+  - !ruby/object:Exercise
+    name: marching
     reps: '30'
     sets: '3'
     record_of_days: !ruby/object:Set

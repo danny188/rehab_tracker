@@ -105,6 +105,10 @@ class Patient < User
     exercises.delete_if { |exercise| exercise.name == exercise_name }
   end
 
+  def has_exercise(exercise_name)
+    exercises.any? { |exercise| exercise.name == exercise_name }
+  end
+
   def mark_done_all_exercises(date)
     exercises.each do |exercise|
       exercise.add_date(date)

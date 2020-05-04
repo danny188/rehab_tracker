@@ -147,14 +147,23 @@ get "/users/:username/exercises" do
   erb :tracker
 end
 
+post "/users/:username/delete_account" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+end
+
 post "/users/:username/exercises/add" do
   unless verify_user_access(required_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
 
-  # validate exercise name
-
   @patient = get_user_obj(params[:username])
+  @new_exercise_name = params[:new_exercise_name]
+
+  # validate exercise name
+  raise Patient::ExerciseNameNotUniqueErr if @patient.has_exercise(@new_exercise_name)
+
   @patient.add_exercise(params[:new_exercise_name])
 
   save_user_obj(@patient)
@@ -162,7 +171,8 @@ post "/users/:username/exercises/add" do
   redirect "/users/#{@patient.username}/exercises"
 
   rescue Patient::ExerciseNameNotUniqueErr
-    "exercise name already exists for patient"
+    session[:error] = "An exercise called '#{@new_exercise_name}' already exists. Please pick a new name."
+    redirect "/users/#{@patient.username}/exercises"
 end
 
 get "/users/:username/exercises/:exercise_name/edit" do

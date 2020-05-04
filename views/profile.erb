@@ -1,3 +1,28 @@
+<% session[:warning] = "HI" %>
+
+<% if session[:warning] %>
+<div class="offset-4 col-4 alert alert-warning fade show text-center" role="alert">
+
+  <span><%= session.delete(:warning) %></span>
+</div>
+<% end %>
+
+<% if session[:success] %>
+<div class="offset-4 col-4 alert alert-success fade show text-center" role="alert">
+
+  <span><%= session.delete(:success) %></span>
+</div>
+<% end %>
+
+<% if session[:error] %>
+<div class="offset-4 col-4 alert alert-danger fade show text-center" role="alert">
+
+  <span><%= session.delete(:error) %></span>
+</div>
+<% end %>
+
+
+
 <h1 class="row justify-content-center"><%= @user.first_name || @user.username %>'s Profile</h1>
 <br>
 
@@ -81,28 +106,15 @@
   </form>
 </div>
 
+<hr class="col-3">
+<div class="row justify-content-center">
+  <form>
+    <button type="submit" class="btn btn-outline-danger">Delete Account</button>
+  </form>
+</div>
+
 <!-- success/error messages -->
 
+
+
 <br>
-
-
-<% if session[:warning] %>
-<div class="offset-4 col-4 alert alert-warning fade show text-center" role="alert">
-
-  <span><%= session.delete(:warning) %></span>
-</div>
-<% end %>
-
-<% if session[:success] %>
-<div class="offset-4 col-4 alert alert-success fade show text-center" role="alert">
-
-  <span><%= session.delete(:success) %></span>
-</div>
-<% end %>
-
-<% if session[:error] %>
-<div class="offset-4 col-4 alert alert-danger fade show text-center" role="alert">
-
-  <span><%= session.delete(:error) %></span>
-</div>
-<% end %>

@@ -2,7 +2,7 @@
 
 
 <div class="row">
-  <div class="col-8 ml-4">
+  <div class="col-8 ml-4 mr-5">
     <div class="row heading-row">
       <h1><%= @patient.first_name || @patient.username %>'s Exercises</h1>
       <div class="offset-4 spinner-border text-info" id="save-change-spinner" role="status">
@@ -12,9 +12,9 @@
     </div>
 
   </div>
-  <div class="col-3 text-center">
-    <div class="row">
-      <h3 class="date-controller offset-3">Dates</h3>
+  <div class="col-2 offset-1  mr-0 pr-0">
+    <div class="row float-right">
+      <h3 class="date-controller">Dates</h3>
       <a href="/users/<%= @patient.username %>/exercises?end_date=<%= (@end_date-7).strftime("%Y%m%d") %>" class="btn btn-info date-nav-button" data-toggle="tooltip" title="View earlier days"><i class="fas fa-arrow-left"></i></a>
       <a href="/users/<%= @patient.username %>/exercises?end_date=<%= (@end_date+7).strftime("%Y%m%d") %>" class="btn btn-info date-nav-button" data-toggle="tooltip" title="View later days"><i class="fas fa-arrow-right"></i></a>
     </div>

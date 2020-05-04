@@ -1,66 +1,66 @@
 
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <title>Rehab Tracker</title>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <title>Rehab Buddy</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
-<script src="/js/Chart.js"></script>
-<script src="/js/chartkick.js"></script>
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-<link rel="stylesheet" type="text/css" href="/css/main.css">
-<link rel="stylesheet" type="text/css" href="/css/sticky-footer.css">
-<link rel="stylesheet" type="text/css" href="/css/print.css" media="print" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+  <script src="/js/Chart.js"></script>
+  <script src="/js/chartkick.js"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="/css/main.css">
+  <link rel="stylesheet" type="text/css" href="/css/sticky-footer.css">
+  <link rel="stylesheet" type="text/css" href="/css/print.css" media="print" />
 
-<link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
 
-    <style>
-      .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
+  <style>
+    .bd-placeholder-img {
+      font-size: 1.125rem;
+      text-anchor: middle;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    @media (min-width: 768px) {
+      .bd-placeholder-img-lg {
+        font-size: 3.5rem;
       }
+    }
+  </style>
+  <!-- Custom styles for this template -->
+  <link href="starter-template.css" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand" href="/">Rehab Buddy<i class="fas fa-grin-stars ml-2"></i></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-      @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-          font-size: 3.5rem;
-        }
-      }
-    </style>
-    <!-- Custom styles for this template -->
-    <link href="starter-template.css" rel="stylesheet">
-  </head>
-  <body>
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-  <a class="navbar-brand" href="/">Rehab Buddy<i class="fas fa-grin-stars ml-2"></i></a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
+    <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item <%= active_class(home_page_for(session[:user])) %>">
+          <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item <%= active_class("/users/#{session[:user].username if session[:user] }/exercises") %>">
+          <% if session[:user] && session[:user].role == :patient %>
+          <a class="nav-link" href="/users/<%= session[:user].username if session[:user] %>/exercises">Exercises</a>
+          <% end %>
+        </li>
 
-  <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item <%= active_class(home_page_for(session[:user])) %>">
-        <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
-      </li>
-      <li class="nav-item <%= active_class("/users/#{session[:user].username if session[:user] }/exercises") %>">
-        <% if session[:user] && session[:user].role == :patient %>
-        <a class="nav-link" href="/users/<%= session[:user].username if session[:user] %>/exercises">Exercises</a>
-        <% end %>
-      </li>
-
-      <li class="nav-item <%= active_class("/users/#{ session[:user].username if session[:user] }/stats") %>">
-        <% if session[:user] && session[:user].role == :patient %>
-        <a class="nav-link" href="/users/<%= session[:user].username if session[:user] %>/stats">Stats</a>
-        <% end %>
-      </li>
+        <li class="nav-item <%= active_class("/users/#{ session[:user].username if session[:user] }/stats") %>">
+          <% if session[:user] && session[:user].role == :patient %>
+          <a class="nav-link" href="/users/<%= session[:user].username if session[:user] %>/stats">Stats</a>
+          <% end %>
+        </li>
       <!-- <li class="nav-item">
         <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
       </li> -->
@@ -71,16 +71,18 @@
       <% end %>
 
       <li class="nav-item  <%= active_class("/about")%>">
-        <a class="nav-link" href="/about">About</a>
+        <form method="get" action="/weather">
+          <a tabindex="-1" id="weather_btn" onclick="getWeather()" class="nav-link"  data-container="body" data-toggle="popover" data-trigger="focus" title="<div class='text-center'><b>Current Sydney Weather</b></div>" data-placement="right" data-content="Loading...">
+            Weather
+          </a>
+        </form>
       </li>
 
       <li class="nav-item  <%= active_class("/about")%>">
-        <form method="get" action="/weather">
-          <a tabindex="-1" id="weather_btn" onclick="getWeather()" class="nav-link"  data-container="body" data-toggle="popover" data-trigger="focus" title="<div class='text-center'><b>Current Sydney Weather</b></div>" data-placement="right" data-content="Loading...">
-          Weather
-          </button>
-        </form>
-      </a>
+        <a class="nav-link" href="/about">About</a>
+      </li>
+
+
 
       <!-- <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
@@ -92,10 +94,10 @@
       </li> -->
     </ul>
     <% if session[:user] %>
-      <span class="text-white">Logged in as <%= session[:user].username %><button class="btn btn-light mx-3" onclick="logOut()">Log out</a></span>
-    <% elsif request.path_info != "/login" %>
+    <span class="text-white">Logged in as <%= session[:user].username %><button class="btn btn-light mx-3" onclick="logOut()">Log out</a></span>
+      <% elsif request.path_info != "/login" %>
       <a href="/login" class="btn btn-light mx-3">Log in</a>
-    <% end %>
+      <% end %>
     <!-- <form class="form-inline my-2 my-lg-0">
       <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
       <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
@@ -105,20 +107,20 @@
 </nav>
 
 <main role="main" class="container-fluid">
-<br><br><br>
+  <br><br><br>
 
   <% if session[:error] %>
-    <div class="row justify-content-center">
-      <div class="alert alert-danger fade show" role="alert">
-        <span><%= session.delete(:error) %></span>
-      </div>
+  <div class="row justify-content-center">
+    <div class="alert alert-danger fade show" role="alert">
+      <span><%= session.delete(:error) %></span>
     </div>
+  </div>
   <% end %>
 
   <% if session[:success] %>
-    <div class=" col-5 alert alert-success fade show text-center mx-auto" role="alert">
-        <span><%= session.delete(:success) %></span>
-    </div>
+  <div class=" col-5 alert alert-success fade show text-center mx-auto" role="alert">
+    <span><%= session.delete(:success) %></span>
+  </div>
   <% end %>
 
   <%= yield %>
@@ -164,7 +166,7 @@
 
 
 <!--   <script>window.jQuery || document.write('<script src="https://code.jquery.com/jquery-3.5.0.min.js"><\/script>')</script>
- -->
+-->
 <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
@@ -176,35 +178,35 @@
 
 
 
-  <script src="/js/main.js"></script>
+<script src="/js/main.js"></script>
 
 
 
 
-  <footer class="footer">
-    <div class="container">
-      <div class="row">
-        <div class="col-8">
-      <ul class="list-inline">
+<footer class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-8">
+        <ul class="list-inline mb-0">
           <li class="list-inline-item"><a href="#">Privacy</a></li>
           <li class="list-inline-item"><a href="#">Terms</a></li>
-      </ul>
-    </div>
+        </ul>
+      </div>
       <div class="col-4 text-right">
-      <span class="">
-        <a href="#" class="">Back to top</a>
-      </span>
-    </div>
+        <span class="">
+          <a href="#" class="">Back to top</a>
+        </span>
+      </div>
       <!-- <p class="mb-1">&copy; 2017-2018 Company Name
 
 
       </p>
- -->
+    -->
 
 
-      </div>
-    </div>
-  </footer>
+  </div>
+</div>
+</footer>
 
 
 </body>
