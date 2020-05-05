@@ -90,10 +90,11 @@ get "/weather" do
   response = Net::HTTP.get(uri)
   @data = JSON.parse(response)
   @weather_icon_url = "http://openweathermap.org/img/wn/#{@data['weather'][0]['icon']}@2x.png"
-
+  @cur_time = Time.now.strftime("%d/%m %a %I:%M %p")
 
   weather_btn_popover_content = <<-HEREDOC
   <div class="text-center">
+  <p>#{@cur_time}</p>
   <img width="120px" height="120px" id="wicon"  src="#{@weather_icon_url}" alt="Weather icon">
   <p>#{ @data['weather'][0]['description'] }</p>
   <hr>
