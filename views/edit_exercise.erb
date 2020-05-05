@@ -89,13 +89,14 @@
     <label class="col-3 col-form-label"></label>
 
     <!-- success/error messages -->
+
     <% if session[:success] %>
     <div class="offset-3 col-8 alert alert-success fade show text-center" role="alert"><%= session.delete(:success) %></div>
     <% end %>
 
     <% if session[:error] %>
-    <div class="offset-2 col-8 alert alert-danger fade show text-center" role="alert">
-      <p><%= session.delete(:error) %></p>
+    <div class="offset-3 col-8 alert alert-danger fade show text-center" role="alert">
+      <%= session.delete(:error) %>
     </div>
     <% end %>
 
