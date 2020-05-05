@@ -104,6 +104,6 @@ footer p {
  font-size: 16px;
 }
 
-#empty-label {
-
+.deactivate-account-btn {
+  width: 150px;
 }

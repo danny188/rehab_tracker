@@ -147,7 +147,7 @@ get "/users/:username/exercises" do
   erb :tracker
 end
 
-post "/users/:username/delete_account" do
+post "/users/:username/deactivate_account" do
   unless verify_user_access(required_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
@@ -222,10 +222,14 @@ post "/users/:username/exercises/:exercise_name/upload_file" do
   redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit"
 end
 
-post "/users/:username/delete_account" do
+get "/users/:username/deactivate_account" do
+  erb :deactivate_account
+end
+
+post "/users/:username/deactivate_account" do
   @delete_user = get_user_obj(params[:username])
 
-  #confirm delete code
+  # todo: confirm delete code
 
   case @delete_user.role
   when :patient

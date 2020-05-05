@@ -63,12 +63,13 @@ end
 
 class User
   attr_accessor :username, :pw, :first_name, :last_name, :email,
-                :change_pw_next_login
+                :change_pw_next_login, :account_status
 
   def initialize(username, pw)
     @username = username
     @pw = pw
     change_pw_next_login = false
+    account_status = :active
   end
 
   def to_s
