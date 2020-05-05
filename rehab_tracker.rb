@@ -222,6 +222,14 @@ post "/users/:username/exercises/:exercise_name/upload_file" do
   redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit"
 end
 
+post "/users/:username/delete_account" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+
+
+end
+
 # Save exercise details
 post "/users/:username/exercises/:exercise_name/update" do
   unless verify_user_access(required_authorization: :patient, required_username: params[:username])

@@ -2,7 +2,13 @@
 
 
 <div class="col-5 text-center alert-warning mx-auto">
-  <h5>Sorry, you do not have access to the requested page.</h5>
+  <h5>
+  <% if session[:access_error] %>
+    <%= session.delete(:access_error) %>
+  <% else %>
+    Sorry, you do not have access to the requested page.
+  <% end %>
+  </h5>
 </div>
 
 <br>

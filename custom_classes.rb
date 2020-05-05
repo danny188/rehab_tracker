@@ -8,7 +8,7 @@ class Exercise
                 :comment_by_patient, :comment_by_therapist,
                 :pictures, :image_links
 
-  FILES_LIMIT = 3
+  FILES_LIMIT = 4
 
   Comment = Struct.new(:author, :text, :last_modified)
 
@@ -24,6 +24,10 @@ class Exercise
 
   def has_file(filename)
     image_links.any? { |image_link| File.basename(image_link) == filename }
+  end
+
+  def num_files
+    image_links.size
   end
 
   def add_date(date)
