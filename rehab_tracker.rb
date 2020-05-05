@@ -223,11 +223,31 @@ post "/users/:username/exercises/:exercise_name/upload_file" do
 end
 
 post "/users/:username/delete_account" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
-    redirect "/access_error"
+  @delete_user = get_user_obj(params[:username])
+
+  #confirm delete code
+
+  case @delete_user.role
+  when :patient
+    unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+      redirect "/access_error"
+    end
+
+    session.delete(user)
+  when :therapist
+    unless verify_user_access(required_authorization: :admin)
+      redirect "/access_error"
+    end
+  when :admin
+    unless verify_user_access(required_authorization: :admin)
+      redirect "/access_error"
+    end
   end
 
+  # delete account from storage
+  delete_user_obj(@delete_user)
 
+  redirect_to_home_page(session[:user])
 end
 
 # Save exercise details
