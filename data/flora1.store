@@ -67,7 +67,9 @@
     sets: '3'
     record_of_days: !ruby/object:Set
       hash: {}
-    image_links: []
+    image_links:
+    - "/images/flora1/marching/04.jpeg"
+    - "/images/flora1/marching/03.jpg"
     comment_by_therapist: ''
     comment_by_patient: ''
   username: flora1

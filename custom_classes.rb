@@ -8,6 +8,8 @@ class Exercise
                 :comment_by_patient, :comment_by_therapist,
                 :pictures, :image_links
 
+  FILES_LIMIT = 3
+
   Comment = Struct.new(:author, :text, :last_modified)
 
   def initialize(name, reps = '30', sets = '3')
@@ -18,6 +20,10 @@ class Exercise
     @image_links = []
     @comment_by_therapist = ""
     @comment_by_patient = ""
+  end
+
+  def has_file(filename)
+    image_links.any? { |image_link| File.basename(image_link) == filename }
   end
 
   def add_date(date)

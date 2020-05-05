@@ -189,6 +189,7 @@ def delete_file(path)
   FileUtils.rm(path)
 end
 
+# upload image or other files associated with an exercise for a patient
 post "/users/:username/exercises/:exercise_name/upload_file" do
   unless verify_user_access(required_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
@@ -196,9 +197,18 @@ post "/users/:username/exercises/:exercise_name/upload_file" do
 
   @patient = get_user_obj(params[:username])
   @exercise = @patient.get_exercise(params[:exercise_name])
+
+
+
   params[:images].each do |file_hash|
     dest_path = File.join(public_path + "/images/#{params[:username]}/#{params[:exercise_name]}", file_hash[:filename])
     upload_file(source: file_hash[:tempfile], dest: dest_path)
+
+
+    if @exercise.has_file(file_hash[:filename]) # image with same name already exists
+      session[:error] = "This exercise already has an image called #{file_hash[:filename]}. Please upload an image with a different name."
+      halt erb(:edit_exercise)
+    end
 
     image_link = File.join("/images/#{params[:username]}/#{params[:exercise_name]}", file_hash[:filename])
 
