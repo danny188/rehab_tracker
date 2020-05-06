@@ -9,9 +9,9 @@
       hash:
         '20200426': true
     image_links: []
-    instructions: get down on the group and push up
-    comment_by_patient: ''
     comment_by_therapist: ''
+    comment_by_patient: ''
+    instructions: get down on the group and push up
   - !ruby/object:Exercise
     name: squat
     reps: 30
@@ -29,3 +29,4 @@
   email: james@gmail.com
   first_name: James
   last_name: Wick
+  account_status: :deactivated

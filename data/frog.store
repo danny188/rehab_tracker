@@ -1,0 +1,14 @@
+---
+:data: !ruby/object:Patient
+  exercises: []
+  username: frog
+  pw: !ruby/string:BCrypt::Password
+    str: "$2a$12$elZBmgf9RZ8uzFKVMlYfC.7fOOmi9PP0y8TznpUumo41vuCg6nDvO"
+    version: 2a
+    cost: 12
+    salt: "$2a$12$elZBmgf9RZ8uzFKVMlYfC."
+    checksum: 7fOOmi9PP0y8TznpUumo41vuCg6nDvO
+  email: dfdf@dddd.com
+  first_name: Frog
+  last_name: Man
+  account_status: :deactivated

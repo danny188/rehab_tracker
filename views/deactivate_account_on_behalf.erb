@@ -1,0 +1,73 @@
+<div class="row">
+  <div class="col-8 offset-2 text-center">
+    <h2 class="text-danger">Deactivate Account on behalf of <%= @deactivate_user.username %></h2>
+    <br>
+
+    <div class="row">
+      <div class="col">
+        <table class="table-delete-user mx-auto">
+          <tbody>
+            <tr>
+              <th>Name:</th>
+              <td> <%= @deactivate_user.full_name %></td>
+            </tr>
+            <tr>
+              <th>Username:</th>
+              <td><%= @deactivate_user.username %></td>
+            </tr>
+            <tr>
+              <th>Role:</th>
+              <td><%= @deactivate_user.role.to_s.capitalize  %></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <p><%= @message %> </p>
+    <p><i>Please note that deactivated accounts are not recoverable.</i></p>
+    <br>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-4 col-md-8 col-sm-8">
+    <form method="post" action="/users/<%= @deactivate_user.username %>/deactivate_account">
+      <div class="form-group">
+        <label><b>Please confirm by entering the username for the account you want to deactivate</b></label>
+        <label class="sr-only" for="confirm_username">Username</label>
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text">@</span>
+          </div>
+          <input type="text" class="form-control" id="confirm_username" placeholder="Username" name="confirm_username" value="<%= @username %>" required>
+        </div>
+      </div>
+
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" name="understand_check" required>
+        <label class="form-check-label" for="understand_check" >I understand that deactivated accounts are not recoverable</label>
+      </div>
+      <br>
+      <a href="<%= home_page_for(session[:user]) %>" class="btn btn-secondary deactivate-account-btn">Cancel</a>
+      <button type="submit" class="btn btn-danger deactivate-account-btn">Deactivate</button>
+
+    </form>
+  </div>
+</div>
+
+<br>
+
+<% if session[:error] %>
+<div class="row justify-content-center">
+  <div class="alert alert-danger fade show" role="alert">
+    <span><%= session.delete(:error) %></span>
+  </div>
+</div>
+<% end %>
+
+<% if session[:success] %>
+<div class=" col-5 alert alert-success fade show text-center mx-auto" role="alert">
+  <span><%= session.delete(:success) %></span>
+</div>
+<% end %>

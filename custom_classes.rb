@@ -72,6 +72,10 @@ class User
     account_status = :active
   end
 
+  def full_name
+    [first_name, last_name].join(' ')
+  end
+
   def to_s
     first_name
   end

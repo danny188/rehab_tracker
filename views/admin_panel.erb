@@ -127,7 +127,7 @@
         <td>
           <a href="/users/<%= patient.username %>/exercises">View Exercises</a>
           <a href="/users/<%= patient.username %>/profile">View Profile</a>
-          <a href="#" class="text-danger">Delete</a>
+          <a href="/users/<%= patient.username %>/deactivate_account" class="text-danger">Delete</a>
         </td>
       </tr>
     <% end %>

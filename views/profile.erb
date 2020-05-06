@@ -1,5 +1,3 @@
-<% session[:warning] = "HI" %>
-
 <% if session[:warning] %>
 <div class="offset-4 col-4 alert alert-warning fade show text-center" role="alert">
 
@@ -108,8 +106,8 @@
 
 <hr class="col-3">
 <div class="row justify-content-center">
-  <form>
-    <button type="submit" class="btn btn-outline-danger">Delete Account</button>
+  <form method="get" action="/users/<%= @user.username %>/deactivate_account">
+    <button type="submit" class="btn btn-outline-danger">Deactivate Account</button>
   </form>
 </div>
 

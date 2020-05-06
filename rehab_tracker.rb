@@ -14,6 +14,7 @@ require 'json'
 require_relative 'custom_classes'
 
 ROLES = [:public, :patient, :therapist, :admin]
+STAFF_ROLES = [:therapist, :admin]
 
 def data_path
   if ENV["RACK_ENV"] == "test"
@@ -67,6 +68,10 @@ end
 helpers do
   def format_date(date)
     date.strftime("%a %d/%m")
+  end
+
+  def address_user(user)
+    user.first_name || user.username
   end
 
   def check_value(test_date, dates_ary)
@@ -148,12 +153,6 @@ get "/users/:username/exercises" do
   erb :tracker
 end
 
-post "/users/:username/deactivate_account" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
-    redirect "/access_error"
-  end
-end
-
 post "/users/:username/exercises/add" do
   unless verify_user_access(required_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
@@ -224,33 +223,59 @@ post "/users/:username/exercises/:exercise_name/upload_file" do
 end
 
 get "/users/:username/deactivate_account" do
-  erb :deactivate_account
+  @deactivate_user = get_user_obj(params[:username])
+
+  if @deactivate_user.username == session[:user].username
+    if @deactivate_user.role == :therapist
+      @message = "Dear #{address_user(@deactivate_user)}, thank you for looking after your patients. Take care!"
+    elsif @deactivate_user.role == :patient
+      @message = "Dear #{address_user(@deactivate_user)}, we sincerely hope that Rehab Buddy has helped you along the way. Take care!"
+    end
+    erb :deactivate_account_own
+  else
+    erb :deactivate_account_on_behalf
+  end
 end
 
 post "/users/:username/deactivate_account" do
-  @delete_user = get_user_obj(params[:username])
+  @deactivate_user = get_user_obj(params[:username])
+  @confirm_username = params[:confirm_username]
+  @confirm_password = params[:confirm_password]
+  @understand_check = params[:understand_check]
 
-  # todo: confirm delete code
+  deactivating_own_account = params[:username] == session[:user].username
+  deactivating_on_behalf = !deactivating_own_account
 
-  case @delete_user.role
+  if !authenticate_user(@confirm_username, @confirm_password) && deactivating_own_account
+    session[:error] = "Please check your credentials and try again."
+  end
+
+  if @confirm_username != @deactivate_user.username && deactivating_on_behalf
+    session[:error] = "Please ensure you enter the correct username."
+  end
+
+  unless @understand_check
+    session[:error] = "Please verify that you understand deactivated accounts are not recoverable."
+  end
+
+  redirect "/users/#{@deactivate_user.username}/deactivate_account" if session[:error]
+
+  case @deactivate_user.role
   when :patient
     unless verify_user_access(required_authorization: :patient, required_username: params[:username])
       redirect "/access_error"
     end
 
-    session.delete(user)
-  when :therapist
-    unless verify_user_access(required_authorization: :admin)
-      redirect "/access_error"
-    end
-  when :admin
+  when :therapist, :admin
     unless verify_user_access(required_authorization: :admin)
       redirect "/access_error"
     end
   end
 
+  session.delete(:user) if deactivating_own_account
+
   # delete account from storage
-  delete_user_obj(@delete_user)
+  deactivate_user_obj(@deactivate_user)
 
   redirect_to_home_page(session[:user])
 end
@@ -598,6 +623,14 @@ def save_user_obj(user)
   store.transaction do
     store[:data] = user
   end
+end
+
+def deactivate_user_obj(user)
+  user.account_status = :deactivated
+
+  # move user file + image file folder to deactivated folder
+
+  save_user_obj(user)
 end
 
 def save_exercises(patient)
