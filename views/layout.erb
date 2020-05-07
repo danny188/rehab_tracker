@@ -109,7 +109,7 @@
 <main role="main" class="container-fluid">
   <br><br><br>
 
-  <% if session[:error] %>
+<!--   <% if session[:error] %>
   <div class="row justify-content-center">
     <div class="alert alert-danger fade show" role="alert">
       <span><%= session.delete(:error) %></span>
@@ -122,6 +122,7 @@
     <span><%= session.delete(:success) %></span>
   </div>
   <% end %>
+-->
 
   <%= yield %>
 

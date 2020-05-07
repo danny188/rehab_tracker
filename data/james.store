@@ -24,7 +24,6 @@
       hash:
         '20200505': true
         '20200501': true
-        '20200502': true
     image_links: []
   username: james
   pw: !ruby/string:BCrypt::Password

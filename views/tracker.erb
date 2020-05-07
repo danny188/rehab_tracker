@@ -1,11 +1,26 @@
 <div class=" d-flex justify-content-between">
   <h1><%= @patient.first_name || @patient.username %>'s Exercises</h1></span>
+
   <span >
+    <% if session[:error] %>
+    <div class="row justify-content-center">
+      <div class="alert alert-danger fade show" role="alert">
+        <span><%= session.delete(:error) %></span>
+      </div>
+    </div>
+    <% end %>
+
+    <% if session[:success] %>
+    <div class=" col-5 alert alert-success fade show text-center mx-auto" role="alert">
+      <span><%= session.delete(:success) %></span>
+    </div>
+    <% end %>
     <span class="spinner-border text-info" id="save-change-spinner" role="status">
       <span class="sr-only">Saving changes, please wait...</span>
     </span>
     <span class="text-info ml-2 pt-1" id="save-change-spinner-label">Saving changes, please wait...</span>
   </span>
+
   <span class="">
     <h3 class="d-inline date-controller">Dates</h3>
     <a href="/users/<%= @patient.username %>/exercises?end_date=<%= (@end_date-7).strftime("%Y%m%d") %>" class="btn btn-info date-nav-button" data-toggle="tooltip" title="View earlier days"><i class="fas fa-arrow-left"></i></a>
