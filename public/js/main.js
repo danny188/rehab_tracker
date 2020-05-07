@@ -94,11 +94,6 @@ function loadDoc() {
 // }
 
 
-  $("#toast-btn").click(function(){
-    window.alert("HI");
-    $('.toast').toast('show');
-
-  });
 
 $(document).ready(function(){
   // enable bootstrap tooltip
@@ -122,14 +117,13 @@ $(document).ready(function(){
   // document.getElementById("save-change-spinner").style.display = "none";
   // document.getElementById("save-change-spinner-label").style.display = "none";
 
-
-  $('.toast').toast('show');
-
-  $("#toast-btn").click(function(){
-    window.alert("HI");
+  if ($('#toast-content').text().trim() !== '') {
     $('.toast').toast('show');
+  }
 
-  });
+  // $("#toast-btn").click(function(){
+  //   $('.deactivate-user-success').toast('show');
+  // });
 
 });
 

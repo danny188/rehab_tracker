@@ -277,6 +277,7 @@ post "/users/:username/deactivate_account" do
   # delete account from storage
   deactivate_user_obj(@deactivate_user)
 
+  session[:toast] = "Account '#{@deactivate_user.username}' has been deactivated."
   redirect_to_home_page(session[:user])
 end
 
