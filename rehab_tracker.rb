@@ -79,8 +79,8 @@ helpers do
   end
 
   def reps_and_sets_str(exercise)
-    reps_str = "#{exercise.reps} " + (exercise.reps.to_i > 1 ? "reps" : "rep") unless exercise.reps.empty?
-    sets_str = "#{exercise.sets} " + (exercise.sets.to_i > 1 ? "sets" : "set") unless exercise.sets.empty?
+    reps_str = "#{exercise.reps} " + (exercise.reps.to_i > 1 ? "reps" : "rep") unless exercise.reps.to_s.empty?
+    sets_str = "#{exercise.sets} " + (exercise.sets.to_i > 1 ? "sets" : "set") unless exercise.sets.to_s.empty?
     [reps_str, sets_str].compact.join(", ")
   end
 

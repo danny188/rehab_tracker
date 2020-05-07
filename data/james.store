@@ -8,6 +8,10 @@
     record_of_days: !ruby/object:Set
       hash:
         '20200426': true
+        '20200504': true
+        '20200505': true
+        '20200506': true
+        '20200502': true
     image_links: []
     comment_by_therapist: ''
     comment_by_patient: ''
@@ -17,7 +21,10 @@
     reps: 30
     sets: 3
     record_of_days: !ruby/object:Set
-      hash: {}
+      hash:
+        '20200505': true
+        '20200501': true
+        '20200502': true
     image_links: []
   username: james
   pw: !ruby/string:BCrypt::Password

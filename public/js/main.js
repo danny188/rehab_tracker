@@ -8,8 +8,9 @@ $('.custom-control-input').change(function() {
  // alert($(this).prop('checked'));
   // alert($(this).is('checked'));
 
-  document.getElementById("save-change-spinner").style.display = "block";
-  document.getElementById("save-change-spinner-label").style.display = "block";
+  $("#save-change-spinner").show();
+  $("#save-change-spinner-label").show();
+
 
   this.form.submit();
 })
@@ -93,6 +94,12 @@ function loadDoc() {
 // }
 
 
+  $("#toast-btn").click(function(){
+    window.alert("HI");
+    $('.toast').toast('show');
+
+  });
+
 $(document).ready(function(){
   // enable bootstrap tooltip
   $('[data-toggle="tooltip"]').tooltip();
@@ -109,8 +116,20 @@ $(document).ready(function(){
   //       clickedItem.addClass( "active" );
   //   });
 
-  document.getElementById("save-change-spinner").style.display = "none";
-  document.getElementById("save-change-spinner-label").style.display = "none";
+  $("#save-change-spinner").hide();
+  $("#save-change-spinner-label").hide();
+
+  // document.getElementById("save-change-spinner").style.display = "none";
+  // document.getElementById("save-change-spinner-label").style.display = "none";
+
+
+  $('.toast').toast('show');
+
+  $("#toast-btn").click(function(){
+    window.alert("HI");
+    $('.toast').toast('show');
+
+  });
 
 });
 
