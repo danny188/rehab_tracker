@@ -67,7 +67,9 @@
 <% end %>
 
 <% if session[:success] %>
-<div class=" col-5 alert alert-success fade show text-center mx-auto" role="alert">
-  <span><%= session.delete(:success) %></span>
+<div class="row justify-content-center">
+  <div class="alert alert-success fade show text-center mx-auto" role="alert">
+    <span><%= session.delete(:success) %></span>
+  </div>
 </div>
 <% end %>
