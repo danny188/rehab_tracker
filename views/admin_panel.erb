@@ -44,7 +44,7 @@
         <td></td>
         <td>
           <a href="/users/<%= admin.username %>/profile">View Profile</a>
-          <a href="#" class="text-danger">Delete</a>
+          <a href="/users/<%= admin.username %>/deactivate_account" class="text-danger">Delete</a>
         </td>
       </tr>
     <% end %>
@@ -85,7 +85,7 @@
         <td></td>
         <td>
           <a href="/users/<%= therapist.username %>/profile">View Profile</a>
-          <a href="#" class="text-danger">Delete</a>
+          <a href="/users/<%= therapist.username %>/deactivate_account" class="text-danger">Delete</a>
         </td>
       </tr>
     <% end %>

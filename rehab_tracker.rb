@@ -272,6 +272,12 @@ post "/users/:username/deactivate_account" do
     end
   end
 
+  # need at least one admin account
+  if get_all_admins.size <= 1
+    session[:error] = "At least 1 Admin account need to exist."
+    redirect "/users/#{session[:user].username}/admin_panel"
+  end
+
   session.delete(:user) if deactivating_own_account
 
   # delete account from storage
@@ -706,7 +712,7 @@ def get_all_users
   files.each do |file_path|
     contents = YAML.load(File.read(file_path))
     user_obj = contents[:data]
-    result.push(user_obj)
+    result.push(user_obj) unless user_obj.account_status == :deactivated
   end
   result
 end

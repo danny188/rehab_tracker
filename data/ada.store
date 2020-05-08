@@ -34,3 +34,4 @@
   email: ada@gmail.com
   first_name: Ada
   last_name: Wong
+  account_status: :active

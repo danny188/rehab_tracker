@@ -44,3 +44,4 @@
   email: queenie@gmail.com
   first_name: queenie
   last_name: ho
+  account_status: :active

@@ -1,6 +1,6 @@
 ---
 :data: !ruby/object:Admin
-  username: admin_1
+  username: admin_2
   pw: !ruby/string:BCrypt::Password
     str: "$2a$12$FNA/yChx0ybyYln41o2aiOPMjMQRvG.HP0qJWV1pa/FFwVFKsFLY2"
     version: 2a
@@ -12,4 +12,4 @@
   last_name: San2
   email: ''
   change_pw_next_login: false
-  account_status: :active
+  account_status: :deactivated

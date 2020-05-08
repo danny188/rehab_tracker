@@ -31,7 +31,7 @@
         '20200430': true
         '20200503': true
     image_links: []
-    comment_by_therapist: 
+    comment_by_therapist:
     comment_by_patient: ''
     instructions: TesT
   - !ruby/object:Exercise
@@ -47,7 +47,7 @@
         '20200430': true
         '20200503': true
     image_links: []
-    comment_by_therapist: 
+    comment_by_therapist:
     comment_by_patient: ''
     instructions: ''
   - !ruby/object:Exercise
@@ -83,3 +83,4 @@
   first_name: Flora
   last_name: Bee
   last_updated: today
+  account_status: :active

@@ -12,3 +12,4 @@
   first_name: Jenny
   last_name: Lai
   last_updated: today
+  account_status: :active
