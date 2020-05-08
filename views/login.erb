@@ -57,4 +57,12 @@
 </div>
 <% end %>
 
+<% if session[:warning] %>
+<div class="row justify-content-center">
+  <div class="alert alert-warning fade show text-center mx-auto" role="alert">
+    <span><%= session.delete(:warning) %></span>
+  </div>
+</div>
+<% end %>
+
 

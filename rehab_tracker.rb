@@ -74,6 +74,14 @@ helpers do
     user.first_name || user.username
   end
 
+  def full_name_plus_username(user)
+    if nil_or_empty?(user.full_name)
+      user.username
+    else
+      user.full_name + ' (@' + user.username + ')'
+    end
+  end
+
   def check_value(test_date, dates_ary)
     "checked" if dates_ary.include?(test_date)
   end
@@ -293,7 +301,7 @@ post "/users/:username/deactivate_account" do
   # delete account from storage
   deactivate_user_obj(@deactivate_user)
 
-  session[:toast] = "Account '#{@deactivate_user.username}' has been deactivated."
+  session[:warning] = "Account '#{@deactivate_user.username}' has been deactivated."
   redirect_to_home_page(session[:user])
 end
 
