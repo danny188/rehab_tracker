@@ -138,7 +138,7 @@ def user_role(user_obj)
 end
 
 not_found do
-"page not found, return to home in 3 secs"
+  erb :custom_404
 end
 
 get "/users/:username/exercises" do

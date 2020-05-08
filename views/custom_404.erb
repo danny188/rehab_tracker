@@ -1,0 +1,19 @@
+
+
+
+<div class="col-5 text-center mx-auto">
+  <h5>
+  <% if session[:access_error] %>
+    <%= session.delete(:access_error) %>
+  <% else %>
+    Sorry, the requested page could not be found.
+  <% end %>
+  </h5>
+</div>
+
+<br>
+
+<div class="text-center">
+<h5><a class="btn btn-primary" href="/">Return to Home</a></h5>
+
+</div>
