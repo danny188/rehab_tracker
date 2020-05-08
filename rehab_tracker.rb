@@ -153,6 +153,16 @@ get "/users/:username/exercises" do
   erb :tracker
 end
 
+get "/users/:username/exercises/add_from_library" do
+  @patient = get_user_obj(params[:username])
+
+  unless verify_user_access(required_authorization: :therapist)
+    redirect "/access_error"
+  end
+
+  erb :exercise_library
+end
+
 post "/users/:username/exercises/add" do
   unless verify_user_access(required_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
@@ -162,7 +172,7 @@ post "/users/:username/exercises/add" do
   @new_exercise_name = params[:new_exercise_name]
 
   # validate exercise name
-  raise Patient::ExerciseNameNotUniqueErr if @patient.has_exercise(@new_exercise_name)
+  raise ExerciseTemplate::ExerciseNameNotUniqueErr if @patient.has_exercise(@new_exercise_name)
 
   @patient.add_exercise(params[:new_exercise_name])
 
@@ -170,7 +180,7 @@ post "/users/:username/exercises/add" do
 
   redirect "/users/#{@patient.username}/exercises"
 
-  rescue Patient::ExerciseNameNotUniqueErr
+  rescue ExerciseTemplate::ExerciseNameNotUniqueErr
     session[:error] = "An exercise called '#{@new_exercise_name}' already exists. Please pick a new name."
     redirect "/users/#{@patient.username}/exercises"
 end
@@ -207,8 +217,8 @@ post "/users/:username/exercises/:exercise_name/upload_file" do
       redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit"
     end
 
-    if @exercise.num_files >= Exercise::FILES_LIMIT
-      session[:error] = "Each exercise can only contain #{Exercise::FILES_LIMIT} files."
+    if @exercise.num_files >= ExerciseTemplate::FILES_LIMIT
+      session[:error] = "Each exercise can only contain #{ExerciseTemplate::FILES_LIMIT} files."
       redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit"
     end
 

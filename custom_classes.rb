@@ -2,22 +2,30 @@ require 'aws-sdk-s3'
 require 'stringio'
 require 'set'
 
-class Exercise
-  attr_accessor :name, :instructions, :reps, :sets, :duration,
-                :id, :added_date, :record_of_days,
-                :comment_by_patient, :comment_by_therapist,
-                :pictures, :image_links
+class ExerciseTemplate
+  attr_accessor :name, :instructions, :reps, :sets, :duration, :image_links
 
   FILES_LIMIT = 4
 
-  Comment = Struct.new(:author, :text, :last_modified)
+  class ExerciseNameNotUniqueErr < StandardError; end
 
   def initialize(name, reps = '30', sets = '3')
     @name = name
     @reps = reps
     @sets = sets
-    @record_of_days = Set.new
     @image_links = []
+  end
+
+end
+
+class Exercise < ExerciseTemplate
+  attr_accessor :added_date, :record_of_days, :comment_by_patient, :comment_by_therapist
+
+  Comment = Struct.new(:author, :text, :last_modified)
+
+  def initialize(name, reps = '30', sets = '3')
+    super
+    @record_of_days = Set.new
     @comment_by_therapist = ""
     @comment_by_patient = ""
   end
@@ -96,8 +104,6 @@ end
 
 class Patient < User
   attr_accessor :exercises, :wellness_ratings, :last_updated
-
-  class ExerciseNameNotUniqueErr < StandardError; end
 
   Wellness = Struct.new(:date, :rating)
 
