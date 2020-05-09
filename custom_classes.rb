@@ -4,7 +4,7 @@ require 'set'
 require 'yaml/store'
 require 'fileutils'
 
-module CanUpload
+module DataPersistance
   def upload_file(source:, dest:)
     # create directory if doesn't exist
     dir_name = File.dirname(dest)
@@ -19,16 +19,25 @@ module CanUpload
   def public_path
     File.expand_path("../public", __FILE__)
   end
+
+
+  def save()
+    store = YAML::Store.new(self.class.path(self.name))
+    store.transaction do
+      store[:data] = self
+    end
+  end
 end
 
 class ExerciseTemplate
-  include CanUpload
+  include DataPersistance
 
   attr_accessor :name, :instructions, :reps, :sets, :duration, :image_links
 
   FILES_LIMIT = 4
   DEFAULT_REPS = '30'
   DEFAULT_SETS = '3'
+  DEFAULT_EXERCISE_LIBRARY = 'main'
 
   class ExerciseNameNotUniqueErr < StandardError; end
 
@@ -78,9 +87,11 @@ class ExerciseTemplate
 end
 
 class ExerciseLibrary
+  include DataPersistance
+
   attr_accessor :name, :templates
 
-  def path(name)
+  def self.path(name)
     "./data/exercise_library_#{name}.store"
   end
 
@@ -108,12 +119,7 @@ class ExerciseLibrary
     exercise_lib_obj
   end
 
-  def save
-    store = YAML::Store.new(path(self.name))
-    store.transaction do
-      store[:data] = self
-    end
-  end
+
 
   def initialize(name)
     self.name = name
@@ -216,6 +222,8 @@ class User
   attr_accessor :username, :pw, :first_name, :last_name, :email,
                 :change_pw_next_login, :account_status
 
+  alias :name :username
+
   def initialize(username, pw)
     @username = username
     @pw = pw
@@ -223,7 +231,7 @@ class User
     @account_status = :active
   end
 
-  def path(username)
+  def self.path(username)
     "./data/#{username}.store"
   end
 
@@ -249,7 +257,7 @@ class User
   end
 
   def save
-    store = YAML::Store.new(path(self.username))
+    store = YAML::Store.new(self.class.path(self.username))
     store.transaction do
       store[:data] = self
     end

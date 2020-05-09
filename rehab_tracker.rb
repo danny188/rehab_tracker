@@ -289,7 +289,7 @@ post "/exercise_library/:template_name/upload_file" do
   template = exercise_library.get_template(params[:template_name])
 
   params[:images].each do |file_hash|
-    if template.has_file?(file_hash[:filename])
+    if template.has_file(file_hash[:filename])
       session[:error] = "This template already has an image called '#{file_hash[:filename]}'. Please upload an image with a different name."
       redirect "/exercise_library/#{template.name}/edit"
     end
@@ -300,10 +300,10 @@ post "/exercise_library/:template_name/upload_file" do
     end
 
     template.add_file(file: file_hash[:tempfile], filename: file_hash[:filename])
-    template.save
+    exercise_library.save
   end
 
-  redirect ("/exercise_library/#{template.name}/edit" + "?pt=#{params[:pt]}" if params[:pt])
+  redirect "/exercise_library/#{template.name}/edit#{'?pt=' + params[:pt] if params[:pt]}"
 end
 
 # upload image or other files associated with an exercise for a patient
@@ -466,9 +466,10 @@ post "/users/:username/exercises/:exercise_name/delete_file" do
     session[:error] = "File does not exist"
   end
 
-
   redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit"
 end
+
+
 
 post "/users/:username/exercises/mark_all" do
   unless verify_user_access(required_authorization: :patient, required_username: params[:username])
