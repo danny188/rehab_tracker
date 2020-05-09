@@ -233,6 +233,11 @@ get "/exercise_library/:template_name/edit" do
 end
 
 get "/exercise_library" do
+
+  exercise_library = ExerciseLibrary.load('main')
+  @all_templates = exercise_library.get_all_templates
+
+
   erb :exercise_library
 end
 
@@ -269,7 +274,14 @@ post "/exercise_library/:template_name/delete" do
     redirect "/access_error"
   end
 
+  exercise_library = ExerciseLibrary.load('main')
+  @delete_template = exercise_library.get_template(params[:template_name])
 
+  exercise_library.delete_template(@delete_template)
+
+  exercise_library.save
+
+  redirect "/exercise_library"
 end
 
 

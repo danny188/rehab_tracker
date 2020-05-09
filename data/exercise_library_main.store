@@ -15,3 +15,21 @@
     image_links:
     - "/images/exercise_library/modified plank/Imaginary-Wearable-Tech-Pilot (1).jpg"
     instructions: get on elbows and knees, hold position.
+  - !ruby/object:ExerciseTemplate
+    name: template 4
+    reps: '30'
+    sets: '3'
+    image_links: []
+    instructions: template 4 instructions
+  - !ruby/object:ExerciseTemplate
+    name: template 5
+    reps: '30'
+    sets: '3'
+    image_links: []
+    instructions: '5'
+  - !ruby/object:ExerciseTemplate
+    name: template 6
+    reps: '30'
+    sets: '3'
+    image_links: []
+    instructions: ''

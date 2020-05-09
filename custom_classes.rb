@@ -69,6 +69,10 @@ class ExerciseTemplate
     image_links.push(link)
   end
 
+  def get_image_link(idx)
+    image_links[idx]
+  end
+
   def delete_image_link(link)
     image_links.delete(link)
   end
@@ -132,6 +136,10 @@ class ExerciseLibrary
 
   def get_template(name)
     templates.find { |template| template.name == name }
+  end
+
+  def get_all_templates()
+    templates
   end
 
   def delete_template(template_to_delete)
