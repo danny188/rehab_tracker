@@ -232,9 +232,35 @@ get "/exercise_library/:template_name/edit" do
   erb :edit_exercise_template
 end
 
+get "/exercise_library" do
+  erb :exercise_library
+end
+
 # edit exercise template
 post "/exercise_library/:template_name/edit" do
+  unless verify_user_access(required_authorization: :therapist)
+    redirect "/access_error"
+  end
 
+  exercise_library = ExerciseLibrary.load('main')
+  @template = exercise_library.get_template(params[:template_name])
+  @new_template_name = params[:new_template_name].strip
+
+  @template.reps = params[:reps]
+  @template.sets = params[:sets]
+  @template.instructions = params[:instructions]
+
+  # ensuring not changing name to clash with another existing template
+  if exercise_library.has_template?(@new_template_name) && @new_template_name != @template.name
+    session[:error] = "Exercise Library already has a template named '#{@new_template_name}'. Please choose another name."
+    halt erb(:edit_exercise_template)
+  end
+
+  @template.name = @new_template_name
+
+  exercise_library.save
+
+  redirect "/exercise_library/#{@template.name}/edit"
 end
 
 # delete exercise template
@@ -417,17 +443,27 @@ post "/users/:username/exercises/:exercise_name/update" do
 
   @patient = get_user_obj(params[:username])
   @exercise = @patient.get_exercise(params[:exercise_name])
-  @exercise.name = params[:new_exercise_name]
   @exercise.reps = params[:reps]
   @exercise.sets = params[:sets]
   @exercise.instructions = params[:instructions]
   @exercise.comment_by_patient = params[:patient_comment]
   @exercise.comment_by_therapist = params[:therapist_comment]
 
+  # validate exercise name
+  exercise_name_not_unique = @patient.has_exercise(params[:new_exercise_name]) && @exercise.name != params[:new_exercise_name]
+
+  raise ExerciseTemplate::ExerciseNameNotUniqueErr if exercise_name_not_unique
+
+  @exercise.name = params[:new_exercise_name]
+
   save_user_obj(@patient)
 
   session[:success] = "Your changes have been saved"
   redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit"
+
+  rescue ExerciseTemplate::ExerciseNameNotUniqueErr
+    session[:error] = "An exercise called '#{@new_exercise_name}' already exists. Please pick a new name."
+    halt erb(:edit_exercise)
 end
 
 get "/about" do

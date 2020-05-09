@@ -34,7 +34,7 @@
         '20200503': true
     image_links: []
     comment_by_therapist: ''
-    comment_by_patient: ''
+    comment_by_patient: 'test '
     instructions: ''
   username: james
   pw: !ruby/string:BCrypt::Password
