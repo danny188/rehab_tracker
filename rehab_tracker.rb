@@ -239,6 +239,10 @@ end
 
 # delete exercise template
 post "/exercise_library/:template_name/delete" do
+  unless verify_user_access(required_authorization: :therapist)
+    redirect "/access_error"
+  end
+
 
 end
 
@@ -469,7 +473,27 @@ post "/users/:username/exercises/:exercise_name/delete_file" do
   redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit"
 end
 
+# Delete file associated with exercise template
+post "/exercise_library/:template_name/delete_file" do
+  unless verify_user_access(required_authorization: :therapist)
+    redirect "/access_error"
+  end
 
+  exercise_library = ExerciseLibrary.load('main')
+  template = exercise_library.get_template(params[:template_name])
+  @file_path = params[:file_path]
+  filename = File.basename(@file_path)
+
+  if template.has_file(filename)
+    template.delete_file(@file_path)
+    exercise_library.save
+    session[:success] = "File succcessfuly removed"
+  else
+    session[:error] = "File does not exist"
+  end
+
+  redirect "/exercise_library/#{template.name}/edit#{'?pt=' + params[:pt] if params[:pt]}"
+end
 
 post "/users/:username/exercises/mark_all" do
   unless verify_user_access(required_authorization: :patient, required_username: params[:username])
