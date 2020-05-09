@@ -32,7 +32,8 @@
     record_of_days: !ruby/object:Set
       hash:
         '20200503': true
-    image_links: []
+    image_links:
+    - "/images/james/star jump/04.jpeg"
     comment_by_therapist: ''
     comment_by_patient: ''
     instructions: ''

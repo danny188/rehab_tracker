@@ -2,8 +2,28 @@ require 'aws-sdk-s3'
 require 'stringio'
 require 'set'
 require 'yaml/store'
+require 'fileutils'
+
+module CanUpload
+  def upload_file(source:, dest:)
+    # create directory if doesn't exist
+    dir_name = File.dirname(dest)
+
+    unless File.directory?(dir_name)
+      FileUtils.mkdir_p(dir_name)
+    end
+
+    FileUtils.cp(source, dest)
+  end
+
+  def public_path
+    File.expand_path("../public", __FILE__)
+  end
+end
 
 class ExerciseTemplate
+  include CanUpload
+
   attr_accessor :name, :instructions, :reps, :sets, :duration, :image_links
 
   FILES_LIMIT = 4
@@ -20,7 +40,36 @@ class ExerciseTemplate
     @instructions = ''
   end
 
-  def self.upload_file_s3
+  def files_path(filename)
+    File.join(public_path + "/images/exercise_library/#{self.name}", filename)
+  end
+
+  def image_link_path(filename)
+    File.join("/images/exercise_library/#{self.name}", filename)
+  end
+
+  def has_file(filename)
+    image_links.any? { |image_link| File.basename(image_link) == filename }
+  end
+
+  def num_files
+    image_links.size
+  end
+
+  def add_image_link(link)
+    image_links.push(link)
+  end
+
+  def delete_image_link(link)
+    image_links.delete(link)
+  end
+
+  def add_file(file:, filename:)
+    self.add_image_link(image_link_path(filename))
+    upload_file(source: file, dest: files_path(filename))
+  end
+
+  def delete_file(file, link)
 
   end
 end
@@ -109,14 +158,6 @@ class Exercise < ExerciseTemplate
     @comment_by_patient = ""
   end
 
-  def has_file(filename)
-    image_links.any? { |image_link| File.basename(image_link) == filename }
-  end
-
-  def num_files
-    image_links.size
-  end
-
   def add_date(date)
     record_of_days << date
   end
@@ -146,6 +187,19 @@ class Exercise < ExerciseTemplate
   def has_not_been_started?
     first_day == nil && last_day == nil
   end
+
+  def files_path(filename:, username:, exercise_name:)
+    File.join(public_path + "/images/#{username}/#{exercise_name}", filename)
+  end
+
+  def image_link_path(filename:, username:, exercise_name:)
+    File.join("/images/#{username}/#{exercise_name}", filename)
+  end
+
+  def add_file(file:, filename:, username:, exercise_name:)
+    self.add_image_link(image_link_path(filename: filename, username: username, exercise_name: exercise_name))
+    upload_file(source: file, dest: files_path(filename: filename, username: username, exercise_name: exercise_name))
+  end
 end
 
 class User
@@ -157,6 +211,10 @@ class User
     @pw = pw
     @change_pw_next_login = false
     @account_status = :active
+  end
+
+  def self.path(username)
+    "./data/#{username}.store"
   end
 
   def full_name
