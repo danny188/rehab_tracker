@@ -40,6 +40,7 @@ class ExerciseTemplate
   DEFAULT_EXERCISE_LIBRARY = 'main'
 
   class ExerciseNameNotUniqueErr < StandardError; end
+  class ExerciseNameEmpty < StandardError; end
 
   def initialize(name, reps = DEFAULT_REPS, sets = DEFAULT_SETS)
     @name = name
@@ -282,10 +283,14 @@ class Patient < User
     super
   end
 
-  def add_exercise(exercise_name)
+  def add_exercise_by_name(exercise_name)
     raise ExerciseNameNotUniqueErr if exercises.any? { |exercise| exercise.name == exercise_name }
 
     exercises.push(Exercise.new(exercise_name))
+  end
+
+  def add_exercise(exercise)
+    exercises.push(exercise)
   end
 
   def get_exercise(exercise_name)

@@ -164,12 +164,39 @@ get "/users/:username/exercises/add_from_library" do
   end
 
   @patient = get_user_obj(params[:username])
+  exercise_library = ExerciseLibrary.load('main')
+  @all_templates = exercise_library.get_all_templates
 
   unless verify_user_access(required_authorization: :therapist)
     redirect "/access_error"
   end
 
   erb :exercise_library
+end
+
+# add selected template as exercise for a patient
+post "/users/:username/exercises/add_from_library" do
+
+  patient = get_user_obj(params[:username])
+  exercise_library = ExerciseLibrary.load('main')
+  template = exercise_library.get_template(params[:template_name])
+
+  exercise = Exercise.new_from_template(template)
+
+  if patient.has_exercise(template.name)
+    session[:error] = "#{full_name_plus_username(patient)} already has an exercise called '#{template.name}'. Please change either the name of the template or the patient's exercise."
+    redirect "/users/#{patient.username}/exercises/add_from_library"
+  end
+
+  patient.add_exercise(exercise)
+
+  save_user_obj(patient)
+
+  # # session[:success] = "Successfully added template #{template.name} for #{full_name_plus_username(patient)}"
+  # session[:toast_title] = "Template Added"
+  # session[:toast] = "Successfully added template #{template.name} for #{full_name_plus_username(patient)}"
+  { toast_title: "Template Added",
+    toast_msg: "Successfully added template #{template.name} for #{full_name_plus_username(patient)}" }.to_json
 end
 
 # display page for creating exercise template
@@ -193,7 +220,7 @@ post "/exercise_library/add_template" do
     redirect "/access_error"
   end
 
-  @new_template_name = params[:new_template_name]
+  @new_template_name = params[:new_template_name].to_s.strip
 
   @template = ExerciseTemplate.new(@new_template_name, params[:reps], params[:sets])
   @template.instructions = params[:instructions]
@@ -202,6 +229,11 @@ post "/exercise_library/add_template" do
 
   if exercise_library.has_template?(@new_template_name)
     session[:error] = "Exercise Library already has a template named '#{@new_template_name}'. Please choose another name."
+    halt erb(:new_exercise_template)
+  end
+
+  if @new_template_name.empty?
+    session[:error] = "Template name cannot be empty."
     halt erb(:new_exercise_template)
   end
 
@@ -236,6 +268,7 @@ get "/exercise_library" do
 
   exercise_library = ExerciseLibrary.load('main')
   @all_templates = exercise_library.get_all_templates
+
 
 
   erb :exercise_library
@@ -281,7 +314,11 @@ post "/exercise_library/:template_name/delete" do
 
   exercise_library.save
 
-  redirect "/exercise_library"
+  if params[:pt]
+    redirect "/users/#{params[:pt]}/exercises/add_from_library"
+  else
+    redirect "/exercise_library"
+  end
 end
 
 
@@ -291,12 +328,14 @@ post "/users/:username/exercises/add" do
   end
 
   @patient = get_user_obj(params[:username])
-  @new_exercise_name = params[:new_exercise_name]
+  @new_exercise_name = params[:new_exercise_name].strip
 
   # validate exercise name
   raise ExerciseTemplate::ExerciseNameNotUniqueErr if @patient.has_exercise(@new_exercise_name)
 
-  @patient.add_exercise(params[:new_exercise_name])
+  raise ExerciseTemplate::ExerciseNameEmpty if @new_exercise_name.empty?
+
+  @patient.add_exercise_by_name(params[:new_exercise_name])
 
   save_user_obj(@patient)
 
@@ -304,6 +343,9 @@ post "/users/:username/exercises/add" do
 
   rescue ExerciseTemplate::ExerciseNameNotUniqueErr
     session[:error] = "An exercise called '#{@new_exercise_name}' already exists. Please pick a new name."
+    redirect "/users/#{@patient.username}/exercises"
+  rescue ExerciseTemplate::ExerciseNameEmpty
+    session[:error] = "Exercise name cannot be blank"
     redirect "/users/#{@patient.username}/exercises"
 end
 
@@ -903,8 +945,10 @@ def get_all_users
   result = []
   files.each do |file_path|
     contents = YAML.load(File.read(file_path))
-    user_obj = contents[:data]
-    result.push(user_obj) unless user_obj.account_status == :deactivated
+    if contents[:data].is_a?(User)
+      user_obj = contents[:data]
+      result.push(user_obj) unless user_obj.account_status == :deactivated
+    end
   end
   result
 end

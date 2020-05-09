@@ -3,6 +3,9 @@ const timeout = 1500
 
 var weatherPopoverVisible = false;
 
+
+
+
 // checkbox - on change
 $('.custom-control-input').change(function() {
  // alert($(this).prop('checked'));
@@ -37,9 +40,9 @@ function logOut() {
     type: "POST",
     url: "/user/logout",
     data: {},
-      success: function(data){
-        window.location.href = data;
-      }
+    success: function(data){
+      window.location.href = data;
+    }
   });
 }
 
@@ -48,13 +51,13 @@ function getWeather() {
     type: "get",
     url: "/weather",
     data: {},
-      success: function(data){
-        document.getElementById("weather_btn").setAttribute("data-content", data);
+    success: function(data){
+      document.getElementById("weather_btn").setAttribute("data-content", data);
 
-        if (weatherPopoverVisible == true) {
-          $('#weather_btn').popover('show');
-        }
+      if (weatherPopoverVisible == true) {
+        $('#weather_btn').popover('show');
       }
+    }
   });
 }
 
@@ -72,18 +75,18 @@ function loadDoc() {
   var xhttp = new XMLHttpRequest();
 
   setTimeout(function() {
-  $('.alert').alert('close');
+    $('.alert').alert('close');
 
   }, timeout);
 
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
      document.getElementById("demo").innerHTML = this.responseText;
-    }
-  };
+   }
+ };
 
-  xhttp.open("post", "/save_changes_tracker", true);
-  xhttp.send();
+ xhttp.open("post", "/save_changes_tracker", true);
+ xhttp.send();
 }
 
 // function reloadDates(endDate_str) {
@@ -96,6 +99,28 @@ function loadDoc() {
 
 
 $(document).ready(function(){
+
+  $(".template-form").on('submit', function(e) {
+     e.preventDefault(); // avoid to execute the actual submit of the form.
+
+     var form = $(this);
+     var url = form.attr('action');
+
+     $.ajax({
+       type: "POST",
+       url: url,
+           data: form.serialize(), // serializes the form's elements.
+           success: function(data)
+           {
+              var json = JSON.parse(data);
+              $('.toast-header-text').html(json.toast_title);
+              $('.toast-body').html(json.toast_msg);
+               $('.toast').toast('show');
+             }
+           });
+
+   });
+
   // enable bootstrap tooltip
   $('[data-toggle="tooltip"]').tooltip();
 
@@ -125,9 +150,38 @@ $(document).ready(function(){
   //   $('.deactivate-user-success').toast('show');
   // });
 
+
+
+
+
+
 });
 
 $(function () {
   $('[data-toggle="popover"]').popover({html:true});
 })
+
+
+
+
+
+// $("#add-template-for-patient").on('submit', function(e) {
+
+//     window.alert("HI");
+//     e.preventDefault(); // avoid to execute the actual submit of the form.
+
+//     var form = $(this);
+//     var url = form.attr('action');
+
+//     $.ajax({
+//      type: "POST",
+//      url: url,
+//      success: function(data)
+//      {
+//                alert(data); // show response from the php script.
+//              }
+//            });
+
+//     return false;
+//   });
 

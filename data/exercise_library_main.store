@@ -33,3 +33,21 @@
     sets: '3'
     image_links: []
     instructions: ''
+  - !ruby/object:ExerciseTemplate
+    name: template 7
+    reps: '30'
+    sets: '3'
+    image_links: []
+    instructions: ''
+  - !ruby/object:ExerciseTemplate
+    name: template 8
+    reps: '30'
+    sets: '3'
+    image_links: []
+    instructions: ''
+  - !ruby/object:ExerciseTemplate
+    name: cat camel
+    reps: '30'
+    sets: '3'
+    image_links: []
+    instructions: ''
