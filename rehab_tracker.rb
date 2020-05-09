@@ -476,7 +476,7 @@ post "/users/:username/deactivate_account" do
 
   # need at least one admin account
   if get_all_admins.size <= 1
-    session[:error] = "At least 1 Admin account need to exist."
+    session[:error] = "At least 1 Admin account need to exist. Cannot delete last Admin account."
     redirect "/users/#{session[:user].username}/admin_panel"
   end
 

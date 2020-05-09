@@ -1,0 +1,15 @@
+---
+:data: !ruby/object:Patient
+  exercises: []
+  username: jerry
+  pw: !ruby/string:BCrypt::Password
+    str: "$2a$12$e0fhceTkRxdF9a8kL95zBOsI9az4.T9PqBm/ajI4KinRZ9Q5FAV0e"
+    version: 2a
+    cost: 12
+    salt: "$2a$12$e0fhceTkRxdF9a8kL95zBO"
+    checksum: sI9az4.T9PqBm/ajI4KinRZ9Q5FAV0e
+  email: jerr@d.com
+  first_name: Jerry
+  last_name: Wong
+  account_status: :active
+  change_pw_next_login: false

@@ -61,7 +61,7 @@
         <!-- Admin Panel -->
         <li class="nav-item <%= active_class("/users/#{session[:user].username if session[:user]}/admin_panel")%>">
           <% if session[:user] && session[:user].role == :admin %>
-          <a class="nav-link" href="/admin_panel">Admin Panel</a>
+          <a class="nav-link" href="/users/<%= session[:user].username %>/admin_panel">Admin Panel</a>
           <% end %>
         </li>
 
