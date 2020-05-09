@@ -455,11 +455,12 @@ post "/users/:username/exercises/:exercise_name/delete_file" do
   @patient = get_user_obj(params[:username])
   @exercise = @patient.get_exercise(params[:exercise_name])
   @file_path = params[:file_path]
+  filename = File.basename(@file_path)
 
-  if @exercise.delete_image_link(@file_path)
+  if @exercise.has_file(filename)
+    # delete_file(public_path + "/images/#{params[:username]}/#{params[:exercise_name]}/#{filename}")
+    @exercise.delete_file(link: @file_path, username: @patient.username, exercise_name: @exercise.name)
     save_user_obj(@patient)
-    filename = File.basename(@file_path)
-    delete_file(public_path + "/images/#{params[:username]}/#{params[:exercise_name]}/#{filename}")
     session[:success] = "File succcessfuly removed"
   else
     session[:error] = "File does not exist"

@@ -69,8 +69,11 @@ class ExerciseTemplate
     upload_file(source: file, dest: files_path(filename))
   end
 
-  def delete_file(file, link)
+  def delete_file(link)
+    filename = File.basename(link)
 
+    self.delete_image_link(link)
+    FileUtils.rm(files_path(filename))
   end
 end
 
@@ -199,6 +202,13 @@ class Exercise < ExerciseTemplate
   def add_file(file:, filename:, username:, exercise_name:)
     self.add_image_link(image_link_path(filename: filename, username: username, exercise_name: exercise_name))
     upload_file(source: file, dest: files_path(filename: filename, username: username, exercise_name: exercise_name))
+  end
+
+  def delete_file(link:, username:, exercise_name:)
+    filename = File.basename(link)
+
+    self.delete_image_link(link)
+    FileUtils.rm(files_path(filename: filename, username: username, exercise_name: exercise_name))
   end
 end
 
