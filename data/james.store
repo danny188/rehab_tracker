@@ -25,6 +25,17 @@
         '20200505': true
         '20200501': true
     image_links: []
+  - !ruby/object:Exercise
+    name: star jump
+    reps: '30'
+    sets: '3'
+    record_of_days: !ruby/object:Set
+      hash:
+        '20200503': true
+    image_links: []
+    comment_by_therapist: ''
+    comment_by_patient: ''
+    instructions: ''
   username: james
   pw: !ruby/string:BCrypt::Password
     str: "$2a$12$kpjpcsXf4pPUlnfMwtaoPuUllbK.5vUp4bXW7iRpiuK5hb1q0YuhO"

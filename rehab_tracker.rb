@@ -161,6 +161,7 @@ get "/users/:username/exercises" do
   erb :tracker
 end
 
+# add exercise for patient from library
 get "/users/:username/exercises/add_from_library" do
   @patient = get_user_obj(params[:username])
 
@@ -170,6 +171,38 @@ get "/users/:username/exercises/add_from_library" do
 
   erb :exercise_library
 end
+
+# display page for creating exercise template
+get "/exercise_library/add_template" do
+  @patient = get_user_obj(params[:pt]) if params[:pt]
+
+  @new_template = true
+
+  erb :new_exercise_template
+end
+
+# add exercise template
+post "/exercise_library/add_template" do
+
+end
+
+# display exercise template edit page
+get "/exercise_library/:template_name/edit" do
+
+
+  erb :edit_exercise_template
+end
+
+# edit exercise template
+post "/exercise_library/:template_name/edit" do
+
+end
+
+# delete exercise template
+post "/exercise_library/:template_name/delete" do
+
+end
+
 
 post "/users/:username/exercises/add" do
   unless verify_user_access(required_authorization: :patient, required_username: params[:username])

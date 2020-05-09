@@ -1,0 +1,22 @@
+<div class="d-flex justify-content-start">
+<span class="d-inline">
+  <h2 class="mr-5 d-inline">Exercise Library</h2>
+
+
+  <a href="/exercise_library/add_template<%= '?pt=' + @patient.username if @patient %>" class="mx-2 btn btn-outline-primary">Create New Exercise Template</a>
+
+  <% if @patient %>
+  <a href="/users/<%= @patient.username %>/exercises" class="mx-2 btn btn-outline-secondary">Return to Exercise Page of <%= full_name_plus_username(@patient) %></a>
+  <% end %>
+
+</div>
+</span>
+<br>
+
+
+<br>
+<div class="row">
+  <div class="col">
+
+  </div>
+</div>

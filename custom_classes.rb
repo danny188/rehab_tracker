@@ -14,6 +14,7 @@ class ExerciseTemplate
     @reps = reps
     @sets = sets
     @image_links = []
+    @instructions = ''
   end
 
 end
@@ -22,6 +23,14 @@ class Exercise < ExerciseTemplate
   attr_accessor :added_date, :record_of_days, :comment_by_patient, :comment_by_therapist
 
   Comment = Struct.new(:author, :text, :last_modified)
+
+  def self.new_from_template(template)
+    new_ex = Exercise.new(template.name, template.reps, template.sets)
+    new_ex.image_links = template.image_links
+    new_ex.instructions = template.instructions
+
+    new_ex
+  end
 
   def initialize(name, reps = '30', sets = '3')
     super
