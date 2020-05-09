@@ -50,12 +50,36 @@
         <li class="nav-item <%= active_class(home_page_for(session[:user])) %>">
           <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
         </li>
+
+        <!-- Patient list -->
+        <li class="nav-item <%= active_class("/patient_list") %>">
+          <% if session[:user] && session[:user].role == :therapist %>
+          <a class="nav-link" href="/patient_list">Patient List</a>
+          <% end %>
+        </li>
+
+        <!-- Admin Panel -->
+        <li class="nav-item <%= active_class("/users/#{session[:user].username if session[:user]}/admin_panel")%>">
+          <% if session[:user] && session[:user].role == :admin %>
+          <a class="nav-link" href="/admin_panel">Admin Panel</a>
+          <% end %>
+        </li>
+
+        <!-- Exercise page -->
         <li class="nav-item <%= active_class("/users/#{session[:user].username if session[:user] }/exercises") %>">
           <% if session[:user] && session[:user].role == :patient %>
           <a class="nav-link" href="/users/<%= session[:user].username if session[:user] %>/exercises">Exercises</a>
           <% end %>
         </li>
 
+        <!-- Exercise Library -->
+        <li class="nav-item <%= active_class('/exercise_library') %>">
+          <% if session[:user] && STAFF_ROLES.include?(session[:user].role) %>
+          <a class="nav-link" href="/exercise_library">Exercises Library</a>
+          <% end %>
+        </li>
+
+        <!-- Exercise Stats  -->
         <li class="nav-item <%= active_class("/users/#{ session[:user].username if session[:user] }/stats") %>">
           <% if session[:user] && session[:user].role == :patient %>
           <a class="nav-link" href="/users/<%= session[:user].username if session[:user] %>/stats">Stats</a>
@@ -64,13 +88,15 @@
       <!-- <li class="nav-item">
         <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
       </li> -->
+
+      <!-- Profile page -->
       <% if session[:user] %>
       <li class="nav-item <%= active_class("/users/#{ session[:user].username if session[:user] }/profile")%>">
         <a class="nav-link" href="/users/<%= session[:user].username if session[:user] %>/profile">Profile</a>
       </li>
       <% end %>
 
-      <li class="nav-item  <%= active_class("/about")%>">
+      <li class="nav-item">
         <form method="get" action="/weather">
           <a tabindex="-1" id="weather_btn" onclick="getWeather()" class="nav-link"  data-container="body" data-toggle="popover" data-trigger="focus" title="<div class='text-center'><b>Current Sydney Weather</b></div>" data-placement="right" data-content="Loading...">
             Weather
