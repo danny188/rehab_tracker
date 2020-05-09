@@ -1,0 +1,87 @@
+<div class="row">
+  <h2 class="col-5">Exercise Details</h2>
+
+
+</div>
+
+
+<hr/>
+
+<div class="row"></div>
+<div class="row"></div>
+
+<div class="row">
+
+  <div class="col-6">
+    <form action="/exercise_library/add_template" method="post">
+      <div class="form-group row">
+        <label for="new_template_name" class="col-3 col-form-label"><b>Name of Exercise</b></label>
+        <input type="text" class="form-control col-6" id="new_template_name" name="new_template_name" value="<%= @template.name if @template %>">
+      </div>
+      <div class="form-group row">
+        <label for="reps" class="col-3 col-form-label"><b>Repetitions</b></label>
+        <input name="reps" list="reps" class="col-2 form-control" value="<%= @template ? @template.reps : ExerciseTemplate::DEFAULT_REPS %>">
+        <datalist id="reps">
+         <option value="5"></option>
+         <option value="10"></option>
+         <option value="20"></option>
+         <option value="30"></option>
+         <option value="40"></option>
+         <option value="50"></option>
+         <option value="100"></option>
+       </datalist>
+
+       <label for="sets" class="col-1 offset-1 col-form-label"><b>Sets</b></label>
+       <input name="sets" list="sets" class="col-2 form-control" value="<%= @template ? @template.sets : ExerciseTemplate::DEFAULT_SETS %>">
+       <datalist id="sets">
+         <option value="1"></option>
+         <option value="2"></option>
+         <option value="3"></option>
+         <option value="4"></option>
+         <option value="5"></option>
+       </datalist>
+     </div>
+     <div class="form-group row">
+      <label for="instructions" class="col-3 col-form-label"><b>Instructions</b></label>
+      <textarea class="form-control col-8" id="instructions" name="instructions" rows="3"><%= @template.instructions if @template %></textarea>
+    </div>
+
+    <div class="row">
+
+      <label class="col-3 col-form-label" id="empty-label"></label>
+      <div class="col-8">
+        <div class="row">
+          <div class="col mx-1 px-0">
+            <div class="form-group">
+
+              <button type="submit" class="ml-0 btn btn-outline-primary form-control">Add</button>
+
+            </form>
+          </div>
+        </div>
+        <div class="col mx-1 px-0">
+          <% if @patient %>
+          <a href="/users/<%= @patient.username %>/exercises/add_from_library" class="btn btn-outline-secondary form-control">Discard</a>
+          <% else %>
+          <a href="/exercise_library" class="btn btn-outline-secondary form-control">Discard</a>
+          <% end %>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <label class="col-3 col-form-label"></label>
+
+  <!-- success/error messages -->
+
+  <% if session[:success] %>
+  <div class="offset-3 col-8 alert alert-success fade show text-center" role="alert"><%= session.delete(:success) %></div>
+  <% end %>
+
+  <% if session[:error] %>
+  <div class="offset-3 col-8 alert alert-danger fade show text-center" role="alert">
+    <%= session.delete(:error) %>
+  </div>
+  <% end %>
+</div>

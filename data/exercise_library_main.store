@@ -1,0 +1,16 @@
+---
+:data: !ruby/object:ExerciseLibrary
+  name: main
+  templates:
+  - !ruby/object:ExerciseTemplate
+    name: step taps
+    reps: '30'
+    sets: '3'
+    image_links: []
+    instructions: repeatedly touch a step with alternate legs
+  - !ruby/object:ExerciseTemplate
+    name: modified plank
+    reps: '30'
+    sets: '3'
+    image_links: []
+    instructions: get on elbows and knees, hold position.

@@ -1,15 +1,18 @@
 require 'aws-sdk-s3'
 require 'stringio'
 require 'set'
+require 'yaml/store'
 
 class ExerciseTemplate
   attr_accessor :name, :instructions, :reps, :sets, :duration, :image_links
 
   FILES_LIMIT = 4
+  DEFAULT_REPS = '30'
+  DEFAULT_SETS = '3'
 
   class ExerciseNameNotUniqueErr < StandardError; end
 
-  def initialize(name, reps = '30', sets = '3')
+  def initialize(name, reps = DEFAULT_REPS, sets = DEFAULT_SETS)
     @name = name
     @reps = reps
     @sets = sets
@@ -17,6 +20,73 @@ class ExerciseTemplate
     @instructions = ''
   end
 
+  def self.upload_file_s3
+
+  end
+end
+
+class ExerciseLibrary
+  attr_accessor :name, :templates
+
+  def self.path(name)
+    "./data/exercise_library_#{name}.store"
+  end
+
+  def self.create(name)
+
+    # do not overwrite
+    return nil if File.exists?(path(name))
+
+    store = YAML::Store.new(path(name))
+    store.transaction do
+      store[:data] = ExerciseLibrary.new(name)
+    end
+  end
+
+  def self.load(name)
+    return nil unless File.exists?(path(name))
+
+    exercise_lib_obj = nil
+
+    store = YAML::Store.new(path(name))
+    store.transaction do
+      exercise_lib_obj = store[:data]
+    end
+
+    exercise_lib_obj
+  end
+
+  def save
+    store = YAML::Store.new(self.class.path(self.name))
+    store.transaction do
+      store[:data] = self
+    end
+  end
+
+  def initialize(name)
+    self.name = name
+    @templates = []
+  end
+
+  def add_template(template)
+    templates.push(template)
+  end
+
+  def get_template(name)
+    templates.find { |template| template.name == name }
+  end
+
+  def delete_template(template_to_delete)
+    templates.delete_if { |template| template.name == template_to_delete.name }
+  end
+
+  def save_to_s3
+
+  end
+
+  def has_template?(test_template_name)
+    templates.any? { |template| template.name == test_template_name }
+  end
 end
 
 class Exercise < ExerciseTemplate
@@ -32,7 +102,7 @@ class Exercise < ExerciseTemplate
     new_ex
   end
 
-  def initialize(name, reps = '30', sets = '3')
+  def initialize(name, reps = DEFAULT_REPS, sets = DEFAULT_REPS)
     super
     @record_of_days = Set.new
     @comment_by_therapist = ""
@@ -85,8 +155,8 @@ class User
   def initialize(username, pw)
     @username = username
     @pw = pw
-    change_pw_next_login = false
-    account_status = :active
+    @change_pw_next_login = false
+    @account_status = :active
   end
 
   def full_name
@@ -155,6 +225,8 @@ class Patient < User
     exercises.all? { |exercise| exercise.done_on?(date) }
   end
 
+  # todo: change this to be day specific. num of exercises according to how many
+  # active exercises there are on a day, discount
   def num_of_exercises
     exercises.size
   end
@@ -178,6 +250,7 @@ class Patient < User
     exercises.select { |exercise| exercise.done_on?(date) }.count
   end
 
+  # returns 2d array of [day, completion rate]
   def exercise_completion_rates_by_day
     return nil if num_of_exercises <= 0 || has_not_started_exercising
 

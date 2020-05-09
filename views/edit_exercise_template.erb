@@ -16,7 +16,7 @@
     <form action="/exercise_library/<%= @template.name %>/edit" method="post">
       <div class="form-group row">
         <label for="new_template_name" class="col-3 col-form-label"><b>Name of Exercise</b></label>
-        <input type="text" class="form-control col-6" id="new_template_name" name="new_template_name" value="<%= @template.name if @template %>">
+        <input type="text" class="form-control col-6" id="new_template_name" name="new_template_name" value="<%= @template.name %>">
       </div>
       <div class="form-group row">
         <label for="reps" class="col-3 col-form-label"><b>Repetitions</b></label>
@@ -61,9 +61,9 @@
         </div>
         <div class="col mx-1 px-0">
           <% if @patient %>
-          <a href="/users/<%= @patient.username %>/exercises/add_from_library" class="btn btn-outline-secondary form-control">Back to Exercise Library</a>
+          <a href="/users/<%= @patient.username %>/exercises/add_from_library" class="btn btn-outline-secondary form-control">Back to Library</a>
           <% else %>
-          <a href="/exercise_library" class="btn btn-outline-secondary form-control">Back to Exercise Library</a>
+          <a href="/exercise_library" class="btn btn-outline-secondary form-control">Back to Library</a>
           <% end %>
 
         </div>

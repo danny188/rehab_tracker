@@ -2,7 +2,6 @@ require "sinatra"
 require "sinatra/reloader" if development?
 require "tilt/erubis"
 require "sinatra/content_for"
-require 'yaml/store'
 require 'date'
 require 'bcrypt'
 require 'fileutils'
@@ -163,6 +162,10 @@ end
 
 # add exercise for patient from library
 get "/users/:username/exercises/add_from_library" do
+  unless verify_user_access(required_authorization: :therapist)
+    redirect "/access_error"
+  end
+
   @patient = get_user_obj(params[:username])
 
   unless verify_user_access(required_authorization: :therapist)
@@ -174,21 +177,60 @@ end
 
 # display page for creating exercise template
 get "/exercise_library/add_template" do
+  unless verify_user_access(required_authorization: :therapist)
+    redirect "/access_error"
+  end
+
   @patient = get_user_obj(params[:pt]) if params[:pt]
 
   @new_template = true
+
+  ExerciseLibrary.create('main')
 
   erb :new_exercise_template
 end
 
 # add exercise template
 post "/exercise_library/add_template" do
+  unless verify_user_access(required_authorization: :therapist)
+    redirect "/access_error"
+  end
 
+  @new_template_name = params[:new_template_name]
+
+  @template = ExerciseTemplate.new(@new_template_name, params[:reps], params[:sets])
+  @template.instructions = params[:instructions]
+
+  exercise_library = ExerciseLibrary.load('main')
+
+  if exercise_library.has_template?(@new_template_name)
+    session[:error] = "Exercise Library already has a template named '#{@new_template_name}'. Please choose another name."
+    halt erb(:new_exercise_template)
+  end
+
+  exercise_library.add_template(@template)
+  exercise_library.save
+
+  redirect "/exercise_library/#{@template.name}/edit"
 end
 
 # display exercise template edit page
 get "/exercise_library/:template_name/edit" do
+  unless verify_user_access(required_authorization: :therapist)
+    redirect "/access_error"
+  end
 
+  exercise_library = ExerciseLibrary.load('main')
+  @template = exercise_library.get_template(params[:template_name])
+
+  unless @template # requested template not found
+    session[:error] = "Exercise template '#{params[:template_name]}' not found."
+    if @patient
+      redirect "/users/#{@patient.username}/exercises/add_from_library"
+    else
+      redirect "/exercise_library"
+    end
+  end
 
   erb :edit_exercise_template
 end
@@ -238,6 +280,15 @@ end
 
 def delete_file(path)
   FileUtils.rm(path)
+end
+
+# upload image/files for exercise template
+post "/exercise_library/:template_name/upload_file" do
+  unless verify_user_access(required_authorization: :therapist)
+    redirect "/access_error"
+  end
+
+
 end
 
 # upload image or other files associated with an exercise for a patient
