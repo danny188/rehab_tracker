@@ -77,7 +77,7 @@ end
 class ExerciseLibrary
   attr_accessor :name, :templates
 
-  def self.path(name)
+  def path(name)
     "./data/exercise_library_#{name}.store"
   end
 
@@ -106,7 +106,7 @@ class ExerciseLibrary
   end
 
   def save
-    store = YAML::Store.new(self.class.path(self.name))
+    store = YAML::Store.new(path(self.name))
     store.transaction do
       store[:data] = self
     end
@@ -213,7 +213,7 @@ class User
     @account_status = :active
   end
 
-  def self.path(username)
+  def path(username)
     "./data/#{username}.store"
   end
 
@@ -236,6 +236,13 @@ class User
     self.last_name = another_user.last_name
     self.email = another_user.email
     self.change_pw_next_login = another_user.change_pw_next_login
+  end
+
+  def save
+    store = YAML::Store.new(path(self.username))
+    store.transaction do
+      store[:data] = self
+    end
   end
 end
 
