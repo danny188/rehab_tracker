@@ -83,5 +83,5 @@
   email: flora@gmail.com
   first_name: Flora
   last_name: Bee
-  last_updated: today
   account_status: :active
+  last_updated: today

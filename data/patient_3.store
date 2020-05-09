@@ -18,5 +18,5 @@
   email: 3@gmail.com
   first_name: first name 3
   last_name: last name 3
-  change_pw_next_login: true
   account_status: :active
+  change_pw_next_login: true
