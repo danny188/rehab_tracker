@@ -437,9 +437,10 @@ class Amazon_AWS
   REGION = "ap-southeast-2"
 
   BUCKETS = { data: 'rehab-buddy-data', images: 'rehab-buddy-images'}
+  TEST_BUCKETS = { data: 'test-rehab-buddy-data', images: 'test-rehab-buddy-images'}
 
   def self.bucket_name(bucket)
-    BUCKETS[bucket]
+    ENV['s3_env'] == 'testing' ? TEST_BUCKETS[bucket] : BUCKETS[bucket]
   end
 
   def self.upload_obj(source_obj:, bucket:, dest_path:)
