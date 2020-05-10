@@ -190,7 +190,7 @@ post "/users/:username/exercises/add_from_library" do
 
   patient.add_exercise(exercise)
 
-  save_user_obj(patient)
+  patient.save
 
   # # session[:success] = "Successfully added template #{template.name} for #{full_name_plus_username(patient)}"
   # session[:toast_title] = "Template Added"
@@ -337,7 +337,7 @@ post "/users/:username/exercises/add" do
 
   @patient.add_exercise_by_name(params[:new_exercise_name])
 
-  save_user_obj(@patient)
+  @patient.save
 
   redirect "/users/#{@patient.username}/exercises"
 
@@ -417,7 +417,7 @@ post "/users/:username/exercises/:exercise_name/upload_file" do
 
     # @exercise.add_image_link(image_link)
     @exercise.add_file(file: file_hash[:tempfile], filename: file_hash[:filename], username: @patient.username, exercise_name: @exercise.name)
-    save_user_obj(@patient)
+    @patient.save
   end
 
   # todo: validate file sizes
@@ -510,7 +510,7 @@ post "/users/:username/exercises/:exercise_name/update" do
 
   @exercise.name = params[:new_exercise_name]
 
-  save_user_obj(@patient)
+  @patient.save
 
   session[:success] = "Your changes have been saved"
   redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit"
@@ -535,7 +535,7 @@ post "/users/:username/exercises/:exercise_name/delete" do
 
   @patient.delete_exercise(params[:exercise_name])
 
-  save_user_obj(@patient)
+  @patient.save
 
   redirect "/users/#{@patient.username}/exercises"
 end
@@ -554,7 +554,7 @@ post "/users/:username/exercises/:exercise_name/delete_file" do
   if @exercise.has_file(filename)
     # delete_file(public_path + "/images/#{params[:username]}/#{params[:exercise_name]}/#{filename}")
     @exercise.delete_file(link: @file_path, username: @patient.username, exercise_name: @exercise.name)
-    save_user_obj(@patient)
+    @patient.save
     session[:success] = "File succcessfuly removed"
   else
     session[:error] = "File does not exist"
@@ -600,7 +600,7 @@ post "/users/:username/exercises/mark_all" do
     @patient.mark_undone_all_exercises(@mark_date)
   end
 
-  save_user_obj(@patient)
+  @patient.save
 
   redirect "/users/#{@patient.username}/exercises"
 end
@@ -622,7 +622,7 @@ post "/users/:username/update_tracker" do
     @exercise.delete_date(@check_date)
   end
 
-  save_user_obj(@patient)
+  @patient.save
 
   # result = "updating #{@exercise_name} for #{params[:username]}. Date is #{@check_date}. Tick value is #{!!@ticked}"
 
@@ -701,7 +701,7 @@ post "/new_account" do
     halt erb(:new_account)
   end
 
-  save_user_obj(new_user)
+  new_user.save
   # store = YAML::Store.new("./data/#{@username}.store")
   # store.transaction do
   #   store[:data] = new_user
@@ -771,7 +771,7 @@ post "/users/:username/profile/update" do
     halt erb(:profile)
   end
 
-  save_user_obj(@user)
+  @user.save
 
   session[:success] = "Changes have been saved."
   redirect "/users/#{@user.username}/profile"
@@ -871,7 +871,7 @@ def deactivate_user_obj(user)
 
   # move user file + image file folder to deactivated folder
 
-  save_user_obj(user)
+  user.save
 end
 
 def save_exercises(patient)
