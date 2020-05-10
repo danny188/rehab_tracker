@@ -464,10 +464,12 @@ class Amazon_AWS
     s3.bucket(bucket).object(key).exists?
   end
 
-  def self.download_obj(local_path:, key:)
+  def self.download_obj(local_path: nil, key:, bucket:)
+    return nil unless obj_exists?(key: key, bucket: bucket)
+
     s3 = Aws::S3::Resource.new(region: REGION)
 
-    obj = s3.bucket(BUCKET).object(key)
+    obj = s3.bucket(bucket).object(key)
 
     if local_path
       obj.get(response_target: local_path)
