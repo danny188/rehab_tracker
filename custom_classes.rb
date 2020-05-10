@@ -21,11 +21,17 @@ module DataPersistance
   end
 
 
-  def save()
+  def save_to_local_filesystem()
     store = YAML::Store.new(self.class.path(self.name))
     store.transaction do
       store[:data] = self
     end
+  end
+
+  def save
+    # save_to_local_filesystem
+
+
   end
 end
 
@@ -243,25 +249,38 @@ class User
   def self.get(username)
     # get_user_obj(username) # uncomment this to get from local filesystem
 
-    obj = Amazon_AWS.download_obj(key: username.concat('.store'),
+    return nil unless exists?(username)
+
+    obj = Amazon_AWS.download_obj(key: "user_#{username}.store",
                             bucket: :data)
 
     YAML.load(obj)
   end
 
-  def self.path(username)
-    "./data/#{username}.store"
+  def self.get_all()
+    result = Amazon_AWS.download_all_objs(bucket: :data, prefix: 'user_')
+
+    result.map! { |obj| YAML.load(obj) }
+    result.select! { |user| user.account_status == :active }
   end
 
-  def user_exists?(username)
-    File.exists?("./data/#{username}.store")
+  def exists?(username)
+    Amazon_AWS.obj_exists(key: "user_#{username}.store", bucket: :data)
+  end
+
+  def self.path(username)
+    "./data/user_#{username}.store"
+  end
+
+  def user_exists_locally?(username)
+    File.exists?("./data/user_#{username}.store")
   end
 
   def get_user_obj(username)
-    return nil unless user_exists?(username)
+    return nil unless user_exists_locally?(username)
 
     user_obj = nil
-    store = YAML::Store.new("./data/#{username}.store")
+    store = YAML::Store.new("./data/user_#{username}.store")
     store.transaction do
       user_obj = store[:data]
     end
@@ -301,7 +320,7 @@ class User
 
     Amazon_AWS.upload_obj(source_obj: self.to_yaml,
       bucket: :data,
-      dest_path: self.name.concat('.store'))
+      dest_path: "user_#{self.name}.store")
 
   end
 end
@@ -441,6 +460,19 @@ class Amazon_AWS
 
   def self.bucket_name(bucket)
     ENV['s3_env'] == 'testing' ? TEST_BUCKETS[bucket] : BUCKETS[bucket]
+  end
+
+  # returns an array of objects downloaded
+  def self.download_all_objs(bucket:, prefix: "")
+
+    s3 = Aws::S3::Resource.new(region: REGION)
+
+    result = []
+    s3.bucket(bucket_name(bucket)).objects(prefix: prefix).each do |obj|
+
+      result.push(obj.get.body.string)
+    end
+    result
   end
 
   def self.upload_obj(source_obj:, bucket:, dest_path:)
