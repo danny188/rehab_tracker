@@ -211,8 +211,6 @@ get "/exercise_library/add_template" do
 
   @new_template = true
 
-  ExerciseLibrary.create('main')
-
   erb :new_exercise_template
 end
 
@@ -946,5 +944,7 @@ get "/test" do
 
   # Amazon_AWS.s3_env
 
-  User.get_all.map(&:username).inspect
+  # ary = Amazon_AWS.download_all_objs(bucket: :data, prefix: 'user_')
+  # YAML.load(ary[0]).first_name
+  ExerciseLibrary.load('main').inspect
 end

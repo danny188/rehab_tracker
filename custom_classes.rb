@@ -31,9 +31,9 @@ module DataPersistance
   def save
     # save_to_local_filesystem
 
-    Amazon_AWS.upload(source_obj: self,
+    Amazon_AWS.upload_obj(source_obj: self.to_yaml,
                       bucket: :data,
-                      dest_path: "#{self.name}.store")
+                      dest_path: "#{file_prefix + self.name}.store")
 
   end
 end
@@ -109,7 +109,7 @@ class ExerciseLibrary
     "./data/exercise_library_#{name}.store"
   end
 
-  def self.create(name)
+  def self.create_locally(name)
 
     # do not overwrite
     return nil if File.exists?(path(name))
@@ -120,7 +120,17 @@ class ExerciseLibrary
     end
   end
 
-  def self.load(name)
+  def self.create(name)
+    new_exercise_library = ExerciseLibrary.new(name)
+
+    Amazon_AWS.upload_obj(source_obj: new_exercise_library.to_yaml,
+                          bucket: :data,
+                          dest_path: "exercise_library_#{name}.store")
+
+    new_exercise_library
+  end
+
+  def self.load_locally(name)
     return nil unless File.exists?(path(name))
 
     exercise_lib_obj = nil
@@ -133,11 +143,23 @@ class ExerciseLibrary
     exercise_lib_obj
   end
 
+  def self.load(name)
+    obj = Amazon_AWS.download_obj(key: "exercise_library_#{name}.store",
+                            bucket: :data)
+
+    exercise_library = YAML.load(obj.to_s)
+
+    exercise_library || create(name)
+  end
 
 
   def initialize(name)
     self.name = name
     @templates = []
+  end
+
+  def file_prefix
+    "exercise_library_"
   end
 
   def add_template(template)
@@ -260,7 +282,7 @@ class User
     result = Amazon_AWS.download_all_objs(bucket: :data, prefix: 'user_')
 
     result.map! { |obj| YAML.load(obj) }
-    result.select! { |user| user.account_status == :active }
+    result.select { |user| user.account_status == :active }
   end
 
   def self.exists?(username)
@@ -328,13 +350,8 @@ class User
     end
   end
 
-  def save
-    # save_to_local_filesystem
-
-    Amazon_AWS.upload_obj(source_obj: self.to_yaml,
-      bucket: :data,
-      dest_path: "user_#{self.name}.store")
-
+  def file_prefix
+    "user_"
   end
 
   def deactivate
@@ -352,8 +369,8 @@ class Patient < User
   Wellness = Struct.new(:date, :rating)
 
   def initialize(username, pw)
-    @exercises = []
     super
+    @exercises = []
   end
 
   def self.get_all
