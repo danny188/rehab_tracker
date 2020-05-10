@@ -156,10 +156,6 @@ class ExerciseLibrary
     templates.delete_if { |template| template.name == template_to_delete.name }
   end
 
-  def save_to_s3
-
-  end
-
   def has_template?(test_template_name)
     templates.any? { |template| template.name == test_template_name }
   end
@@ -339,6 +335,14 @@ class User
       bucket: :data,
       dest_path: "user_#{self.name}.store")
 
+  end
+
+  def deactivate
+    self.account_status = :deactivated
+  end
+
+  def activate
+    self.account_status = :active
   end
 end
 

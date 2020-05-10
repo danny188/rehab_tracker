@@ -11,6 +11,8 @@ require 'json'
 
 require_relative 'custom_classes'
 
+ENV['s3_env'] = 'testing'
+
 ROLES = [:public, :patient, :therapist, :admin]
 STAFF_ROLES = [:therapist, :admin]
 
@@ -153,7 +155,7 @@ get "/users/:username/exercises" do
   @end_date = params[:end_date] ? Date.parse(params[:end_date]) : Date.today
 
   @dates = past_num_days(from: @end_date)
-  @patient = get_user_obj(params[:username])
+  @patient = User.get(params[:username])
   erb :tracker
 end
 
@@ -163,7 +165,7 @@ get "/users/:username/exercises/add_from_library" do
     redirect "/access_error"
   end
 
-  @patient = get_user_obj(params[:username])
+  @patient = User.get(params[:username])
   exercise_library = ExerciseLibrary.load('main')
   @all_templates = exercise_library.get_all_templates
 
@@ -177,7 +179,7 @@ end
 # add selected template as exercise for a patient
 post "/users/:username/exercises/add_from_library" do
 
-  patient = get_user_obj(params[:username])
+  patient = User.get(params[:username])
   exercise_library = ExerciseLibrary.load('main')
   template = exercise_library.get_template(params[:template_name])
 
@@ -205,7 +207,7 @@ get "/exercise_library/add_template" do
     redirect "/access_error"
   end
 
-  @patient = get_user_obj(params[:pt]) if params[:pt]
+  @patient = User.get(params[:pt]) if params[:pt]
 
   @new_template = true
 
@@ -327,7 +329,7 @@ post "/users/:username/exercises/add" do
     redirect "/access_error"
   end
 
-  @patient = get_user_obj(params[:username])
+  @patient = User.get(params[:username])
   @new_exercise_name = params[:new_exercise_name].strip
 
   # validate exercise name
@@ -354,7 +356,7 @@ get "/users/:username/exercises/:exercise_name/edit" do
     redirect "/access_error"
   end
 
-  @patient = get_user_obj(params[:username])
+  @patient = User.get(params[:username])
   @exercise = @patient.get_exercise(params[:exercise_name])
   erb :edit_exercise
 end
@@ -396,7 +398,7 @@ post "/users/:username/exercises/:exercise_name/upload_file" do
     redirect "/access_error"
   end
 
-  @patient = get_user_obj(params[:username])
+  @patient = User.get(params[:username])
   @exercise = @patient.get_exercise(params[:exercise_name])
 
   params[:images].each do |file_hash|
@@ -425,7 +427,7 @@ post "/users/:username/exercises/:exercise_name/upload_file" do
 end
 
 get "/users/:username/deactivate_account" do
-  @deactivate_user = get_user_obj(params[:username])
+  @deactivate_user = User.get(params[:username])
 
   if @deactivate_user.username == session[:user].username
     if @deactivate_user.role == :therapist
@@ -440,7 +442,7 @@ get "/users/:username/deactivate_account" do
 end
 
 post "/users/:username/deactivate_account" do
-  @deactivate_user = get_user_obj(params[:username])
+  @deactivate_user = User.get(params[:username])
   @confirm_username = params[:confirm_username]
   @confirm_password = params[:confirm_password]
   @understand_check = params[:understand_check]
@@ -475,7 +477,7 @@ post "/users/:username/deactivate_account" do
   end
 
   # need at least one admin account
-  if get_all_admins.size <= 1
+  if Admin.get_all.size <= 1
     session[:error] = "At least 1 Admin account need to exist. Cannot delete last Admin account."
     redirect "/users/#{session[:user].username}/admin_panel"
   end
@@ -483,7 +485,8 @@ post "/users/:username/deactivate_account" do
   session.delete(:user) if deactivating_own_account
 
   # delete account from storage
-  deactivate_user_obj(@deactivate_user)
+  @deactivate_user.deactivate
+  @deactivate_user.save
 
   session[:warning] = "Account '#{@deactivate_user.username}' has been deactivated."
   redirect_to_home_page(session[:user])
@@ -495,7 +498,7 @@ post "/users/:username/exercises/:exercise_name/update" do
     redirect "/access_error"
   end
 
-  @patient = get_user_obj(params[:username])
+  @patient = User.get(params[:username])
   @exercise = @patient.get_exercise(params[:exercise_name])
   @exercise.reps = params[:reps]
   @exercise.sets = params[:sets]
@@ -531,7 +534,7 @@ post "/users/:username/exercises/:exercise_name/delete" do
     redirect "/access_error"
   end
 
-  @patient = get_user_obj(params[:username])
+  @patient = User.get(params[:username])
 
   @patient.delete_exercise(params[:exercise_name])
 
@@ -546,7 +549,7 @@ post "/users/:username/exercises/:exercise_name/delete_file" do
     redirect "/access_error"
   end
 
-  @patient = get_user_obj(params[:username])
+  @patient = User.get(params[:username])
   @exercise = @patient.get_exercise(params[:exercise_name])
   @file_path = params[:file_path]
   filename = File.basename(@file_path)
@@ -590,7 +593,7 @@ post "/users/:username/exercises/mark_all" do
     redirect "/access_error"
   end
 
-  @patient = get_user_obj(params[:username])
+  @patient = User.get(params[:username])
   @mark_date = params[:date]
   @mark_all_done = params[:select_all_none]
 
@@ -611,7 +614,7 @@ post "/users/:username/update_tracker" do
     redirect "/access_error"
   end
 
-  @patient = get_user_obj(params[:username])
+  @patient = User.get(params[:username])
   @exercise = @patient.get_exercise(params[:exercise_name])
   @check_date = params[:date]
   @ticked = params[:checkbox_value]
@@ -695,7 +698,9 @@ post "/new_account" do
   new_user.last_name = @last_name
   new_user.change_pw_next_login = true if params[:prompt_change_pw]
 
-  if user_exists?(@username)
+
+
+  if User.exists?(@username)
     session[:error] = "Username already exists. Please pick another."
 
     halt erb(:new_account)
@@ -726,7 +731,7 @@ post "/users/:username/profile/update" do
     redirect "/access_error"
   end
 
-  @user = get_user_obj(params[:username])
+  @user = User.get(params[:username])
   @current_password = params[:current_password]
 
   if authenticate_user(@user.username, @current_password) || session[:user].role == :admin
@@ -810,7 +815,7 @@ post "/login" do
   @password = params[:password]
 
   if authenticate_user(@username, @password)
-    @user = get_user_obj(@username)
+    @user = User.get(@username)
 
     session[:user] = @user
 
@@ -830,34 +835,23 @@ get "/users/:username/admin_panel" do
   unless verify_user_access(required_authorization: :admin)
     redirect "/access_error"
   end
-  @user = get_user_obj(params[:username])
-  @all_patients = get_all_patients
-  @all_therapists = get_all_therapists
-  @all_admins = get_all_admins
+  @user = User.get(params[:username])
+  @all_patients = Patient.get_all
+  @all_therapists = Therapist.get_all
+  @all_admins = Admin.get_all
 
   erb :admin_panel
 end
 
-def user_exists?(username)
-  File.exists?("./data/#{username}.store")
-end
+
 
 # returns true only if username exists and password is valid
 def authenticate_user(username, test_pw)
-  user = get_user_obj(username) # returns nil if user_exists? == false
+  user = User.get(username) # returns nil if user_exists? == false
   user && BCrypt::Password.new(user.pw) == test_pw
 end
 
-def get_user_obj(username)
-  return nil unless user_exists?(username)
 
-  user_obj = nil
-  store = YAML::Store.new("./data/#{username}.store")
-  store.transaction do
-    user_obj = store[:data]
-  end
-  user_obj
-end
 
 def save_user_obj(user)
   store = YAML::Store.new("./data/#{user.username}.store")
@@ -866,13 +860,7 @@ def save_user_obj(user)
   end
 end
 
-def deactivate_user_obj(user)
-  user.account_status = :deactivated
 
-  # move user file + image file folder to deactivated folder
-
-  user.save
-end
 
 def save_exercises(patient)
   store = YAML::Store.new("./data/patient/#{patient.username}.store")
@@ -910,7 +898,7 @@ get "/patient_list" do
     redirect "/access_error"
   end
   @user = session[:user]
-  @all_patients = get_all_patients
+  @all_patients = Patient.get_all
   erb :patient_list
 end
 
@@ -919,7 +907,7 @@ get "/users/:username/profile" do
     redirect "/access_error"
   end
 
-  @user = get_user_obj(params[:username])
+  @user = User.get(params[:username])
 
   erb :profile
 end
@@ -931,38 +919,11 @@ get "/users/:username/stats" do
 
 
 
-  @patient = get_user_obj(params[:username])
+  @patient = User.get(params[:username])
   erb :stats
   # @patient.exercise_completion_rates_by_day.inspect
   # rate = @patient.num_of_exercises_done_on('20200501') / @patient.num_of_exercises.to_f
   # rate.to_s
-end
-
-# returns array of all user data objects
-def get_all_users
-  files = Dir.glob("./data/**/*.store")
-
-  result = []
-  files.each do |file_path|
-    contents = YAML.load(File.read(file_path))
-    if contents[:data].is_a?(User)
-      user_obj = contents[:data]
-      result.push(user_obj) unless user_obj.account_status == :deactivated
-    end
-  end
-  result
-end
-
-def get_all_patients
-  get_all_users.select { |user| user_role(user) == :patient }
-end
-
-def get_all_therapists
-  get_all_users.select { |user| user_role(user) == :therapist }
-end
-
-def get_all_admins
-  get_all_users.select { |user| user_role(user) == :admin }
 end
 
 def upload_file(source:, dest:)
@@ -976,3 +937,14 @@ def upload_file(source:, dest:)
   FileUtils.cp(source, dest)
 end
 
+get "/test" do
+  # patient = Amazon_AWS.download_obj(key: 'starfish.store', bucket: :data)
+
+  # patient = User.get('starfish')
+
+  # patient.first_name
+
+  # Amazon_AWS.s3_env
+
+  User.get_all.map(&:username).inspect
+end
