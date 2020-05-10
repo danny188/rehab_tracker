@@ -5,7 +5,7 @@ require 'yaml/store'
 require 'fileutils'
 
 module DataPersistance
-  def upload_file(source:, dest:)
+  def upload_file_to_local(source:, dest:)
     # create directory if doesn't exist
     dir_name = File.dirname(dest)
 
@@ -14,6 +14,13 @@ module DataPersistance
     end
 
     FileUtils.cp(source, dest)
+  end
+
+  # upload public files associated with exercise library or patient's exercises
+  def upload_file(file_obj:, dest_path:)
+    Amazon_AWS.upload_obj(source_obj: file_obj,
+                      bucket: :images,
+                      dest_path: dest_path)
   end
 
   def public_path
@@ -41,7 +48,7 @@ end
 class ExerciseTemplate
   include DataPersistance
 
-  attr_accessor :name, :instructions, :reps, :sets, :duration, :image_links
+  attr_accessor :name, :instructions, :reps, :sets, :duration, :image_links, :exercise_library
 
   FILES_LIMIT = 4
   DEFAULT_REPS = '30'
@@ -59,12 +66,19 @@ class ExerciseTemplate
     @instructions = ''
   end
 
-  def files_path(filename)
+  def files_path_local(filename)
     File.join(public_path + "/images/exercise_library/#{self.name}", filename)
   end
 
   def image_link_path(filename)
-    File.join("/images/exercise_library/#{self.name}", filename)
+    case ENV["custom_env"]
+    when 'testing_local'
+      File.join("/images/exercise_library/#{self.name}", filename)
+    when 'testing_s3'
+      "https://test-rehab-buddy-images.s3-ap-southeast-2.amazonaws.com/#{filename}"
+    when 'production_s3'
+      "https://rehab-buddy-images.s3-ap-southeast-2.amazonaws.com/#{filename}"
+    end
   end
 
   def has_file(filename)
@@ -88,15 +102,23 @@ class ExerciseTemplate
   end
 
   def add_file(file:, filename:)
-    self.add_image_link(image_link_path(filename))
-    upload_file(source: file, dest: files_path(filename))
+    case ENV['custom_env']
+    when 'testing_local'
+      upload_file_to_local(source: file, dest: files_path_local(filename))
+      dest_path = filename
+    else
+      dest_path = "images/exercise_library_#{exercise_library}/#{self.name}/#{filename}"
+      upload_file(file_obj: file, dest_path: "images/exercise_library_#{exercise_library}/#{self.name}/#{filename}")
+    end
+
+    self.add_image_link(image_link_path(dest_path))
   end
 
   def delete_file(link)
     filename = File.basename(link)
 
     self.delete_image_link(link)
-    FileUtils.rm(files_path(filename))
+    FileUtils.rm(files_path_local(filename))
   end
 end
 
@@ -163,6 +185,7 @@ class ExerciseLibrary
   end
 
   def add_template(template)
+    template.exercise_library = self.name
     templates.push(template)
   end
 
@@ -233,7 +256,7 @@ class Exercise < ExerciseTemplate
     first_day == nil && last_day == nil
   end
 
-  def files_path(filename:, username:, exercise_name:)
+  def files_path_local(filename:, username:, exercise_name:)
     File.join(public_path + "/images/#{username}/#{exercise_name}", filename)
   end
 
@@ -519,7 +542,7 @@ class Amazon_AWS
   TEST_BUCKETS = { data: 'test-rehab-buddy-data', images: 'test-rehab-buddy-images'}
 
   def self.bucket_name(bucket)
-    ENV['s3_env'] == 'testing' ? TEST_BUCKETS[bucket] : BUCKETS[bucket]
+    ENV['custom_env'] == 'testing_s3' ? TEST_BUCKETS[bucket] : BUCKETS[bucket]
   end
 
   # returns an array of objects downloaded

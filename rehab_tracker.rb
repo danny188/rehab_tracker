@@ -11,7 +11,7 @@ require 'json'
 
 require_relative 'custom_classes'
 
-ENV['s3_env'] = 'testing'
+ENV['custom_env'] = 'testing_s3'
 
 ROLES = [:public, :patient, :therapist, :admin]
 STAFF_ROLES = [:therapist, :admin]
@@ -270,8 +270,8 @@ get "/exercise_library" do
   @all_templates = exercise_library.get_all_templates
 
 
-
   erb :exercise_library
+
 end
 
 # edit exercise template
@@ -415,7 +415,7 @@ post "/users/:username/exercises/:exercise_name/upload_file" do
     # upload_file(source: file_hash[:tempfile], dest: dest_path)
     # image_link = File.join("/images/#{params[:username]}/#{params[:exercise_name]}", file_hash[:filename])
 
-    # @exercise.add_image_link(image_link)
+    # @exercise.add_file_link(image_link)
     @exercise.add_file(file: file_hash[:tempfile], filename: file_hash[:filename], username: @patient.username, exercise_name: @exercise.name)
     @patient.save
   end
