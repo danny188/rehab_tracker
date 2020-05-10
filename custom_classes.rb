@@ -31,6 +31,9 @@ module DataPersistance
   def save
     # save_to_local_filesystem
 
+    Amazon_AWS.upload(source_obj: self,
+                      bucket: :data,
+                      dest_path: "#{self.name}.store")
 
   end
 end
@@ -247,12 +250,12 @@ class User
   end
 
   def self.get(username)
-    # get_user_obj(username) # uncomment this to get from local filesystem
+    # get_user_obj_locally(username) # uncomment this to get from local filesystem
 
     return nil unless exists?(username)
 
     obj = Amazon_AWS.download_obj(key: "user_#{username}.store",
-                            bucket: :data)
+      bucket: :data)
 
     YAML.load(obj)
   end
@@ -272,11 +275,11 @@ class User
     "./data/user_#{username}.store"
   end
 
-  def user_exists_locally?(username)
+  def self.user_exists_locally?(username)
     File.exists?("./data/user_#{username}.store")
   end
 
-  def get_user_obj(username)
+  def self.get_user_obj_locally(username)
     return nil unless user_exists_locally?(username)
 
     user_obj = nil
@@ -285,6 +288,20 @@ class User
       user_obj = store[:data]
     end
     user_obj
+  end
+
+  def self.get_all_users_locally
+    files = Dir.glob("./data/**/*.store")
+
+    result = []
+    files.each do |file_path|
+      contents = YAML.load(File.read(file_path))
+      if contents[:data].is_a?(User)
+        user_obj = contents[:data]
+        result.push(user_obj) unless user_obj.account_status == :deactivated
+      end
+    end
+    result
   end
 
   def full_name
@@ -333,6 +350,14 @@ class Patient < User
   def initialize(username, pw)
     @exercises = []
     super
+  end
+
+  def self.get_all
+    super.select { |user| user.role == :patient }
+  end
+
+  def self.get_all_patients_locally
+    get_all_users_locally.select { |user| user_role(user) == :patient }
   end
 
   def add_exercise_by_name(exercise_name)
@@ -447,9 +472,23 @@ class Patient < User
 end
 
 class Therapist < User
+  def self.get_all
+    super.select { |user| user.role == :therapist }
+  end
+
+  def self.get_all_therapists_locally
+    get_all_users_locally.select { |user| user.role == :therapist }
+  end
 end
 
 class Admin < User
+  def self.get_all
+    super.select { |user| user.role == :admin }
+  end
+
+  def self.get_all_therapists_locally
+    get_all_users_locally.select { |user| user.role == :therapist }
+  end
 end
 
 class Amazon_AWS
