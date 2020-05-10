@@ -50,9 +50,9 @@ end
 # returns array of dates of past 'n' days starting from given date (as Date object)
 def past_num_days(num: 7, from:)
   result = []
-    (num).times do |n|
-      result.unshift(from - n)
-    end
+  (num).times do |n|
+    result.unshift(from - n)
+  end
   result
 end
 
@@ -199,7 +199,7 @@ post "/users/:username/exercises/add_from_library" do
   # session[:toast] = "Successfully added template #{template.name} for #{full_name_plus_username(patient)}"
   { toast_title: "Template Added",
     toast_msg: "Successfully added template #{template.name} for #{full_name_plus_username(patient)}" }.to_json
-end
+  end
 
 # display page for creating exercise template
 get "/exercise_library/add_template" do
@@ -341,12 +341,12 @@ post "/users/:username/exercises/add" do
 
   redirect "/users/#{@patient.username}/exercises"
 
-  rescue ExerciseTemplate::ExerciseNameNotUniqueErr
-    session[:error] = "An exercise called '#{@new_exercise_name}' already exists. Please pick a new name."
-    redirect "/users/#{@patient.username}/exercises"
-  rescue ExerciseTemplate::ExerciseNameEmpty
-    session[:error] = "Exercise name cannot be blank"
-    redirect "/users/#{@patient.username}/exercises"
+rescue ExerciseTemplate::ExerciseNameNotUniqueErr
+  session[:error] = "An exercise called '#{@new_exercise_name}' already exists. Please pick a new name."
+  redirect "/users/#{@patient.username}/exercises"
+rescue ExerciseTemplate::ExerciseNameEmpty
+  session[:error] = "Exercise name cannot be blank"
+  redirect "/users/#{@patient.username}/exercises"
 end
 
 get "/users/:username/exercises/:exercise_name/edit" do
@@ -468,23 +468,27 @@ post "/users/:username/deactivate_account" do
       redirect "/access_error"
     end
 
-  when :therapist, :admin
+  when :therapist
     unless verify_user_access(required_authorization: :admin)
       redirect "/access_error"
     end
-  end
 
-  # need at least one admin account
-  if Admin.get_all.size <= 1
-    session[:error] = "At least 1 Admin account need to exist. Cannot delete last Admin account."
-    redirect "/users/#{session[:user].username}/admin_panel"
+  when :admin
+    unless verify_user_access(required_authorization: :admin)
+      redirect "/access_error"
+    end
+
+    # need at least one admin account
+    if Admin.get_all.size <= 1
+      session[:error] = "At least 1 Admin account need to exist. Cannot delete last Admin account."
+      redirect "/users/#{session[:user].username}/admin_panel"
+    end
   end
 
   session.delete(:user) if deactivating_own_account
 
   # delete account from storage
   @deactivate_user.deactivate
-  @deactivate_user.save
 
   session[:warning] = "Account '#{@deactivate_user.username}' has been deactivated."
   redirect_to_home_page(session[:user])
@@ -516,9 +520,9 @@ post "/users/:username/exercises/:exercise_name/update" do
   session[:success] = "Your changes have been saved"
   redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit"
 
-  rescue ExerciseTemplate::ExerciseNameNotUniqueErr
-    session[:error] = "An exercise called '#{@new_exercise_name}' already exists. Please pick a new name."
-    halt erb(:edit_exercise)
+rescue ExerciseTemplate::ExerciseNameNotUniqueErr
+  session[:error] = "An exercise called '#{@new_exercise_name}' already exists. Please pick a new name."
+  halt erb(:edit_exercise)
 end
 
 get "/about" do
@@ -795,12 +799,12 @@ def home_page_for(user)
   return "/login" unless user
 
   case user.role
-    when :patient
-      "/users/#{user.username}/exercises"
-    when :therapist
-      "/patient_list"
-    when :admin
-      "/users/#{user.username}/admin_panel"
+  when :patient
+    "/users/#{user.username}/exercises"
+  when :therapist
+    "/patient_list"
+  when :admin
+    "/users/#{user.username}/admin_panel"
   end
 end
 
@@ -876,49 +880,49 @@ def verify_user_access(required_authorization: :public, required_username: nil)
   access_level_diff = ROLES.index(current_role) - ROLES.index(required_authorization)
   role_ok = access_level_diff >= 0
   username_ok = if required_username
-                  session[:user].username == required_username ||
-                    access_level_diff > 0
+    session[:user].username == required_username ||
+    access_level_diff > 0
                  # if required_username is provided, access is only granted
                  # if username matches, OR logged-in user has higher access level than required
-                else
-                  true
-                end
+               else
+                true
+              end
 
-  role_ok && username_ok
-end
+              role_ok && username_ok
+            end
 
-get "/access_error" do
-  erb :access_error
-end
+            get "/access_error" do
+              erb :access_error
+            end
 
-get "/patient_list" do
-  unless verify_user_access(required_authorization: :therapist)
-    redirect "/access_error"
-  end
-  @user = session[:user]
-  @all_patients = Patient.get_all
-  erb :patient_list
-end
+            get "/patient_list" do
+              unless verify_user_access(required_authorization: :therapist)
+                redirect "/access_error"
+              end
+              @user = session[:user]
+              @all_patients = Patient.get_all
+              erb :patient_list
+            end
 
-get "/users/:username/profile" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
-    redirect "/access_error"
-  end
+            get "/users/:username/profile" do
+              unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+                redirect "/access_error"
+              end
 
-  @user = User.get(params[:username])
+              @user = User.get(params[:username])
 
-  erb :profile
-end
+              erb :profile
+            end
 
-get "/users/:username/stats" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
-    redirect "/access_error"
-  end
+            get "/users/:username/stats" do
+              unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+                redirect "/access_error"
+              end
 
 
 
-  @patient = User.get(params[:username])
-  erb :stats
+              @patient = User.get(params[:username])
+              erb :stats
   # @patient.exercise_completion_rates_by_day.inspect
   # rate = @patient.num_of_exercises_done_on('20200501') / @patient.num_of_exercises.to_f
   # rate.to_s
@@ -946,5 +950,6 @@ get "/test" do
 
   # ary = Amazon_AWS.download_all_objs(bucket: :data, prefix: 'user_')
   # YAML.load(ary[0]).first_name
-  Amazon_AWS.delete_obj(key: "gdrive.png", bucket: :data)
+  Amazon_AWS.copy_obj(source_bucket: :images, target_bucket: :images,
+    source_key: "girl.png", target_key: "girl_copied.png")
 end

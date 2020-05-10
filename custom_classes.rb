@@ -40,12 +40,14 @@ module DataPersistence
   end
 
   def save
-    # save_to_local_filesystem
-
-    Amazon_AWS.upload_obj(source_obj: self.to_yaml,
+    case ENV["custom_env"]
+    when 'testing_local'
+      save_to_local_filesystem
+    when 'testing_s3', 'production_s3'
+      Amazon_AWS.upload_obj(source_obj: self.to_yaml,
       bucket: :data,
       dest_path: "#{file_prefix + self.name}.store")
-
+    end
   end
 end
 
@@ -414,6 +416,15 @@ class User
 
   def deactivate
     self.account_status = :deactivated
+    self.save
+
+    source_key = "#{file_prefix + self.name}.store"
+    # rename user file on s3
+    Amazon_AWS.copy_obj(source_bucket: :data,
+                        target_bucket: :data,
+                        source_key: source_key,
+                        target_key: "deactivated_#{file_prefix + self.name}.store")
+    Amazon_AWS.delete_obj(bucket: :data, key: source_key)
   end
 
   def activate
