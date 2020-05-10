@@ -229,7 +229,7 @@ end
 
 class User
   attr_accessor :username, :pw, :first_name, :last_name, :email,
-                :change_pw_next_login, :account_status
+  :change_pw_next_login, :account_status
 
   alias :name :username
 
@@ -240,8 +240,30 @@ class User
     @account_status = :active
   end
 
+  def self.download(username)
+    # get_user_obj(username) # uncomment to get from local filesystem
+
+
+
+  end
+
   def self.path(username)
     "./data/#{username}.store"
+  end
+
+  def user_exists?(username)
+    File.exists?("./data/#{username}.store")
+  end
+
+  def get_user_obj(username)
+    return nil unless user_exists?(username)
+
+    user_obj = nil
+    store = YAML::Store.new("./data/#{username}.store")
+    store.transaction do
+      user_obj = store[:data]
+    end
+    user_obj
   end
 
   def full_name
@@ -265,11 +287,20 @@ class User
     self.change_pw_next_login = another_user.change_pw_next_login
   end
 
-  def save
+  def save_to_local_filesystem
     store = YAML::Store.new(self.class.path(self.username))
     store.transaction do
       store[:data] = self
     end
+  end
+
+  def save
+    # save_to_local_filesystem
+
+    Amazon_AWS.upload_obj(source_obj: self.to_yaml,
+      bucket: Amazon_AWS::BUCKETS[:data],
+      dest_path: self.name.concat('.store'))
+
   end
 end
 
@@ -402,29 +433,41 @@ end
 
 class Amazon_AWS
   REGION = "ap-southeast-2"
-  BUCKET = "rehab.tracker"
 
-  def self.upload_file(local_path:, target_folder:)
+  BUCKETS = { data: 'rehab-buddy-data', images: 'rehab-buddy-images'}
+
+  def self.upload_obj(source_obj:, bucket:, dest_path:)
+
     s3 = Aws::S3::Resource.new(region: REGION)
 
-    key = File.basename(local_path).prepend(target_folder)
+    key = dest_path
+    obj = s3.bucket(bucket).object(key)
 
-    obj = s3.bucket(BUCKET).object(key)
+    # upload file
+    # key = File.basename(local_path).prepend(target_folder)
+    # obj.upload_file(local_path)
 
-    obj.upload_file(local_path)
+    obj.put(body: source_obj)
   end
 
-  def self.upload_obj(key:, body:, target_folder: "")
-    s3 = Aws::S3::Client.new(region: REGION)
+  # def self.upload_obj(key:, body:, target_folder: "")
+  #   s3 = Aws::S3::Client.new(region: REGION)
 
-    s3.put_object(bucket: BUCKET, key: target_folder + key, body: body)
-  end
+  #   s3.put_object(bucket: BUCKET, key: target_folder + key, body: body)
+  # end
 
   # saves file to local_path, or returns contents of file as string if local_path not specified
-  def self.download(local_path:, key:, from_folder:)
+
+  def self.obj_exists?(key:, bucket:)
     s3 = Aws::S3::Resource.new(region: REGION)
 
-    obj = s3.bucket(BUCKET).object(from_folder + key)
+    s3.bucket(bucket).object(key).exists?
+  end
+
+  def self.download_obj(local_path:, key:)
+    s3 = Aws::S3::Resource.new(region: REGION)
+
+    obj = s3.bucket(BUCKET).object(key)
 
     if local_path
       obj.get(response_target: local_path)
