@@ -641,4 +641,9 @@ class Amazon_AWS
 
     s3.bucket(bucket_name(bucket)).object(key).delete
   end
+
+  def self.copy_obj(source_bucket:, source_key:, target_bucket:, target_key:)
+    s3 = Aws::S3::Client.new(region: REGION)
+    s3.copy_object(bucket: bucket_name(target_bucket), copy_source: bucket_name(source_bucket) + '/' + source_key, key: target_key)
+  end
 end
