@@ -416,7 +416,7 @@ post "/users/:username/exercises/:exercise_name/upload_file" do
     # image_link = File.join("/images/#{params[:username]}/#{params[:exercise_name]}", file_hash[:filename])
 
     # @exercise.add_file_link(image_link)
-    @exercise.add_file(file: file_hash[:tempfile], filename: file_hash[:filename], username: @patient.username, exercise_name: @exercise.name)
+    @exercise.add_file(file: file_hash[:tempfile], filename: file_hash[:filename])
     @patient.save
   end
 

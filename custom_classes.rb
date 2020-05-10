@@ -4,7 +4,7 @@ require 'set'
 require 'yaml/store'
 require 'fileutils'
 
-module DataPersistance
+module DataPersistence
   def upload_file_to_local(source:, dest:)
     # create directory if doesn't exist
     dir_name = File.dirname(dest)
@@ -19,8 +19,8 @@ module DataPersistance
   # upload public files associated with exercise library or patient's exercises
   def upload_file(file_obj:, dest_path:)
     Amazon_AWS.upload_obj(source_obj: file_obj,
-                      bucket: :images,
-                      dest_path: dest_path)
+      bucket: :images,
+      dest_path: dest_path)
   end
 
   def public_path
@@ -39,14 +39,14 @@ module DataPersistance
     # save_to_local_filesystem
 
     Amazon_AWS.upload_obj(source_obj: self.to_yaml,
-                      bucket: :data,
-                      dest_path: "#{file_prefix + self.name}.store")
+      bucket: :data,
+      dest_path: "#{file_prefix + self.name}.store")
 
   end
 end
 
 class ExerciseTemplate
-  include DataPersistance
+  include DataPersistence
 
   attr_accessor :name, :instructions, :reps, :sets, :duration, :image_links, :exercise_library
 
@@ -108,7 +108,7 @@ class ExerciseTemplate
       dest_path = filename
     else
       dest_path = "images/exercise_library_#{exercise_library}/#{self.name}/#{filename}"
-      upload_file(file_obj: file, dest_path: "images/exercise_library_#{exercise_library}/#{self.name}/#{filename}")
+      upload_file(file_obj: file, dest_path: dest_path)
     end
 
     self.add_image_link(image_link_path(dest_path))
@@ -123,7 +123,7 @@ class ExerciseTemplate
 end
 
 class ExerciseLibrary
-  include DataPersistance
+  include DataPersistence
 
   attr_accessor :name, :templates
 
@@ -146,8 +146,8 @@ class ExerciseLibrary
     new_exercise_library = ExerciseLibrary.new(name)
 
     Amazon_AWS.upload_obj(source_obj: new_exercise_library.to_yaml,
-                          bucket: :data,
-                          dest_path: "exercise_library_#{name}.store")
+      bucket: :data,
+      dest_path: "exercise_library_#{name}.store")
 
     new_exercise_library
   end
@@ -167,7 +167,7 @@ class ExerciseLibrary
 
   def self.load(name)
     obj = Amazon_AWS.download_obj(key: "exercise_library_#{name}.store",
-                            bucket: :data)
+      bucket: :data)
 
     exercise_library = YAML.load(obj.to_s)
 
@@ -207,7 +207,7 @@ class ExerciseLibrary
 end
 
 class Exercise < ExerciseTemplate
-  attr_accessor :added_date, :record_of_days, :comment_by_patient, :comment_by_therapist
+  attr_accessor :added_date, :record_of_days, :comment_by_patient, :comment_by_therapist, :patient_username
 
   Comment = Struct.new(:author, :text, :last_modified)
 
@@ -256,17 +256,32 @@ class Exercise < ExerciseTemplate
     first_day == nil && last_day == nil
   end
 
-  def files_path_local(filename:, username:, exercise_name:)
-    File.join(public_path + "/images/#{username}/#{exercise_name}", filename)
+  def files_path_local(filename:, exercise_name:)
+    File.join(public_path + "/images/#{patient_username}/#{exercise_name}", filename)
   end
 
-  def image_link_path(filename:, username:, exercise_name:)
-    File.join("/images/#{username}/#{exercise_name}", filename)
+  def image_link_path(filename)
+    case ENV["custom_env"]
+    when 'testing_local'
+      File.join("/images/#{patient_username}/#{self.name}", filename)
+    when 'testing_s3'
+      "https://test-rehab-buddy-images.s3-ap-southeast-2.amazonaws.com/#{filename}"
+    when 'production_s3'
+      "https://rehab-buddy-images.s3-ap-southeast-2.amazonaws.com/#{filename}"
+    end
   end
 
-  def add_file(file:, filename:, username:, exercise_name:)
-    self.add_image_link(image_link_path(filename: filename, username: username, exercise_name: exercise_name))
-    upload_file(source: file, dest: files_path(filename: filename, username: username, exercise_name: exercise_name))
+  def add_file(file:, filename:)
+    case ENV['custom_env']
+    when 'testing_local'
+      upload_file_to_local(source: file, dest: files_path_local(filename))
+      dest_path = filename
+    else
+      dest_path = "images/#{patient_username}/#{self.name}/#{filename}"
+      upload_file(file_obj: file, dest_path: dest_path)
+    end
+
+    self.add_image_link(image_link_path(dest_path))
   end
 
   def delete_file(link:, username:, exercise_name:)
@@ -280,6 +295,8 @@ end
 class User
   attr_accessor :username, :pw, :first_name, :last_name, :email,
   :change_pw_next_login, :account_status
+
+  include DataPersistence
 
   alias :name :username
 
@@ -411,6 +428,7 @@ class Patient < User
   end
 
   def add_exercise(exercise)
+    exercise.patient_username = self.username
     exercises.push(exercise)
   end
 
