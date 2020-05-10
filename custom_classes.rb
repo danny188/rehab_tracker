@@ -24,7 +24,7 @@ module DataPersistance
   def save_to_local_filesystem()
     store = YAML::Store.new(self.class.path(self.name))
     store.transaction do
-      store[:data] = self
+      store = self
     end
   end
 
@@ -116,7 +116,7 @@ class ExerciseLibrary
 
     store = YAML::Store.new(path(name))
     store.transaction do
-      store[:data] = ExerciseLibrary.new(name)
+      store = ExerciseLibrary.new(name)
     end
   end
 
@@ -127,7 +127,7 @@ class ExerciseLibrary
 
     store = YAML::Store.new(path(name))
     store.transaction do
-      exercise_lib_obj = store[:data]
+      exercise_lib_obj = store
     end
 
     exercise_lib_obj
@@ -263,8 +263,8 @@ class User
     result.select! { |user| user.account_status == :active }
   end
 
-  def exists?(username)
-    Amazon_AWS.obj_exists(key: "user_#{username}.store", bucket: :data)
+  def self.exists?(username)
+    Amazon_AWS.obj_exists?(key: "user_#{username}.store", bucket: :data)
   end
 
   def self.path(username)
@@ -281,7 +281,7 @@ class User
     user_obj = nil
     store = YAML::Store.new("./data/user_#{username}.store")
     store.transaction do
-      user_obj = store[:data]
+      user_obj = store
     end
     user_obj
   end
@@ -292,8 +292,8 @@ class User
     result = []
     files.each do |file_path|
       contents = YAML.load(File.read(file_path))
-      if contents[:data].is_a?(User)
-        user_obj = contents[:data]
+      if contents.is_a?(User)
+        user_obj = contents
         result.push(user_obj) unless user_obj.account_status == :deactivated
       end
     end
@@ -324,7 +324,7 @@ class User
   def save_to_local_filesystem
     store = YAML::Store.new(self.class.path(self.username))
     store.transaction do
-      store[:data] = self
+      store = self
     end
   end
 
