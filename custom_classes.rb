@@ -17,10 +17,14 @@ module DataPersistence
   end
 
   # upload public files associated with exercise library or patient's exercises
-  def upload_file(file_obj:, dest_path:)
+  def upload_supp_file(file_obj:, dest_path:)
     Amazon_AWS.upload_obj(source_obj: file_obj,
       bucket: :images,
       dest_path: dest_path)
+  end
+
+  def delete_supp_file(key:)
+    Amazon_AWS.delete_obj(key: key, bucket: :images)
   end
 
   def public_path
@@ -108,7 +112,7 @@ class ExerciseTemplate
       dest_path = filename
     else
       dest_path = "images/exercise_library_#{exercise_library}/#{self.name}/#{filename}"
-      upload_file(file_obj: file, dest_path: dest_path)
+      upload_supp_file(file_obj: file, dest_path: dest_path)
     end
 
     self.add_image_link(image_link_path(dest_path))
@@ -117,8 +121,15 @@ class ExerciseTemplate
   def delete_file(link)
     filename = File.basename(link)
 
+    case ENV['custom_env']
+    when 'testing_local'
+      FileUtils.rm(files_path_local(filename))
+    when 'testing_s3', 'production_s3'
+      key = "images/exercise_library_#{exercise_library}/#{self.name}/#{filename}"
+      delete_supp_file(key: key)
+    end
+
     self.delete_image_link(link)
-    FileUtils.rm(files_path_local(filename))
   end
 end
 
@@ -256,8 +267,8 @@ class Exercise < ExerciseTemplate
     first_day == nil && last_day == nil
   end
 
-  def files_path_local(filename:, exercise_name:)
-    File.join(public_path + "/images/#{patient_username}/#{exercise_name}", filename)
+  def files_path_local(filename:)
+    File.join(public_path + "/images/#{patient_username}/#{self.name}", filename)
   end
 
   def image_link_path(filename)
@@ -278,17 +289,24 @@ class Exercise < ExerciseTemplate
       dest_path = filename
     else
       dest_path = "images/#{patient_username}/#{self.name}/#{filename}"
-      upload_file(file_obj: file, dest_path: dest_path)
+      upload_supp_file(file_obj: file, dest_path: dest_path)
     end
 
     self.add_image_link(image_link_path(dest_path))
   end
 
-  def delete_file(link:, username:, exercise_name:)
+  def delete_file(link:)
     filename = File.basename(link)
 
+    case ENV['custom_env']
+    when 'testing_local'
+      FileUtils.rm(files_path_local(filename: filename))
+    when 'testing_s3', 'production_s3'
+      key = "images/#{patient_username}/#{self.name}/#{filename}"
+      delete_supp_file(key: key)
+    end
+
     self.delete_image_link(link)
-    FileUtils.rm(files_path(filename: filename, username: username, exercise_name: exercise_name))
   end
 end
 
@@ -585,7 +603,7 @@ class Amazon_AWS
 
     # upload file
     # key = File.basename(local_path).prepend(target_folder)
-    # obj.upload_file(local_path)
+    # obj.upload_supp_file(local_path)
 
     obj.put(body: source_obj)
   end
@@ -616,5 +634,11 @@ class Amazon_AWS
     else
       obj.get.body.string
     end
+  end
+
+  def self.delete_obj(bucket:, key:)
+    s3 = Aws::S3::Resource.new(region: REGION)
+
+    s3.bucket(bucket_name(bucket)).object(key).delete
   end
 end

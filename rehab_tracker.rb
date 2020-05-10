@@ -359,7 +359,7 @@ get "/users/:username/exercises/:exercise_name/edit" do
   erb :edit_exercise
 end
 
-def delete_file(path)
+def delete_local_file(path)
   FileUtils.rm(path)
 end
 
@@ -554,7 +554,7 @@ post "/users/:username/exercises/:exercise_name/delete_file" do
 
   if @exercise.has_file(filename)
     # delete_file(public_path + "/images/#{params[:username]}/#{params[:exercise_name]}/#{filename}")
-    @exercise.delete_file(link: @file_path, username: @patient.username, exercise_name: @exercise.name)
+    @exercise.delete_file(link: @file_path)
     @patient.save
     session[:success] = "File succcessfuly removed"
   else
@@ -946,5 +946,5 @@ get "/test" do
 
   # ary = Amazon_AWS.download_all_objs(bucket: :data, prefix: 'user_')
   # YAML.load(ary[0]).first_name
-  ExerciseLibrary.load('main').inspect
+  Amazon_AWS.delete_obj(key: "gdrive.png", bucket: :data)
 end
