@@ -240,11 +240,13 @@ class User
     @account_status = :active
   end
 
-  def self.download(username)
-    # get_user_obj(username) # uncomment to get from local filesystem
+  def self.get(username)
+    # get_user_obj(username) # uncomment this to get from local filesystem
 
+    obj = Amazon_AWS.download_obj(key: username.concat('.store'),
+                            bucket: :data)
 
-
+    YAML.load(obj)
   end
 
   def self.path(username)
@@ -298,7 +300,7 @@ class User
     # save_to_local_filesystem
 
     Amazon_AWS.upload_obj(source_obj: self.to_yaml,
-      bucket: Amazon_AWS::BUCKETS[:data],
+      bucket: :data,
       dest_path: self.name.concat('.store'))
 
   end
@@ -436,12 +438,16 @@ class Amazon_AWS
 
   BUCKETS = { data: 'rehab-buddy-data', images: 'rehab-buddy-images'}
 
+  def self.bucket_name(bucket)
+    BUCKETS[bucket]
+  end
+
   def self.upload_obj(source_obj:, bucket:, dest_path:)
 
     s3 = Aws::S3::Resource.new(region: REGION)
 
     key = dest_path
-    obj = s3.bucket(bucket).object(key)
+    obj = s3.bucket(bucket_name(bucket)).object(key)
 
     # upload file
     # key = File.basename(local_path).prepend(target_folder)
@@ -461,7 +467,7 @@ class Amazon_AWS
   def self.obj_exists?(key:, bucket:)
     s3 = Aws::S3::Resource.new(region: REGION)
 
-    s3.bucket(bucket).object(key).exists?
+    s3.bucket(bucket_name(bucket)).object(key).exists?
   end
 
   def self.download_obj(local_path: nil, key:, bucket:)
@@ -469,7 +475,7 @@ class Amazon_AWS
 
     s3 = Aws::S3::Resource.new(region: REGION)
 
-    obj = s3.bucket(bucket).object(key)
+    obj = s3.bucket(bucket_name(bucket)).object(key)
 
     if local_path
       obj.get(response_target: local_path)
