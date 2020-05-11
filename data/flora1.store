@@ -30,6 +30,8 @@
         '20200428': true
         '20200430': true
         '20200503': true
+        '20200505': true
+        '20200507': true
     image_links: []
     comment_by_therapist: 
     comment_by_patient: ''
@@ -58,6 +60,7 @@
       hash:
         '20200430': true
         '20200502': true
+        '20200505': true
     image_links: []
     comment_by_therapist: ''
     comment_by_patient: ''

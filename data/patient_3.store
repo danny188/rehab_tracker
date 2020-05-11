@@ -8,6 +8,26 @@
     record_of_days: !ruby/object:Set
       hash: {}
     image_links: []
+  - !ruby/object:Exercise
+    name: step taps
+    reps: '30'
+    sets: '3'
+    record_of_days: !ruby/object:Set
+      hash: {}
+    image_links: []
+    comment_by_therapist: ''
+    comment_by_patient: ''
+    instructions: repeatedly touch a step with alternate legs
+  - !ruby/object:Exercise
+    name: cat camel
+    reps: '30'
+    sets: '3'
+    record_of_days: !ruby/object:Set
+      hash: {}
+    image_links: []
+    comment_by_therapist: ''
+    comment_by_patient: ''
+    instructions: ''
   username: patient_3
   pw: !ruby/string:BCrypt::Password
     str: "$2a$12$Q3cYf5Ju1C7XM7RxzR28/OEIr3tpIqFd0al6/MRtlZtLt9Gi..ixK"
