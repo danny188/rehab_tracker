@@ -135,6 +135,51 @@ class ExerciseTemplate
   end
 end
 
+# group items can be Exercise or ExerciseTemplates objects
+class Group
+  attr_accessor :name, :items, :subgroups, :type
+
+  def initialize(name: , items: nil, subgroups: nil, type: nil)
+    @name = name
+    @items = items || []
+    @subgroups = subgroups || []
+    @type = type
+  end
+
+  def add_item(new_item)
+    items.push(new_item)
+  end
+
+  def add_items(new_items)
+    items.push(*new_items)
+  end
+
+  def delete_item(new_item)
+    items.delete(new_item)
+  end
+
+  def add_subgroup(new_subgroup)
+    subgroups.push(new_subgroup)
+  end
+
+  def delete_subgroup(new_subgroup)
+    subgroups.delete(new_subgroup)
+  end
+
+  def each_item
+    items.each do |item|
+      yield(item) if block_given?
+    end
+  end
+
+  def each_subgroup
+    subgroups.each do |subgroup|
+      yield(subgroup) if block_given?
+    end
+  end
+
+end
+
 class ExerciseLibrary
   include DataPersistence
 
