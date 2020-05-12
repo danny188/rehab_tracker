@@ -7,6 +7,9 @@ require 'fileutils'
 module GroupOperations
   TOP_GROUP = 'main'
   TOP_HIERARCHY = [TOP_GROUP]
+
+  class ItemNameInGroupNotUniqueErr < StandardError; end
+  class ItemNameEmpty < StandardError; end
 end
 
 module DataPersistence
@@ -44,6 +47,10 @@ module DataPersistence
     end
   end
 
+  def delete_file_from_local_filesystem(path)
+    FileUtils.rm(path)
+  end
+
   def save
     case ENV["custom_env"]
     when 'testing_local'
@@ -67,9 +74,6 @@ class ExerciseTemplate
   DEFAULT_REPS = '30'
   DEFAULT_SETS = '3'
   DEFAULT_EXERCISE_LIBRARY = 'main'
-
-  class ExerciseNameInGroupNotUniqueErr < StandardError; end
-  class ExerciseNameEmpty < StandardError; end
 
   def initialize(name, group_hierarchy = ['main'], reps = DEFAULT_REPS, sets = DEFAULT_SETS)
     @name = name
@@ -146,6 +150,8 @@ end
 # group items can be Exercise or ExerciseTemplates objects
 class Group
   attr_accessor :name, :items, :subgroups
+
+
 
   def initialize(name)
     @name = name
@@ -563,6 +569,11 @@ class Patient < User
     end
   end
 
+  def get_groups(parent_hierarchy)
+    parent_group = get_group(parent_hierarchy)
+    parent_group.subgroups
+  end
+
   def subgroup_exists?(test_group_name, parent_hierarchy)
     parent_group = get_group(parent_hierarchy)
 
@@ -590,7 +601,7 @@ class Patient < User
     group = get_group(group_hierarchy)
 
     if group
-      raise ExerciseNameInGroupNotUniqueErr if group.has_item?(exercise.name)
+      raise ItemNameInGroupNotUniqueErr if group.has_item?(exercise.name)
     else
       target_group_name = group_hierarchy.last
       parent_hierarchy = group_hierarchy.slice(0..-2)
@@ -722,8 +733,8 @@ class Admin < User
     super.select { |user| user.role == :admin }
   end
 
-  def self.get_all_therapists_locally
-    get_all_users_locally.select { |user| user.role == :therapist }
+  def self.get_all_admins_locally
+    get_all_users_locally.select { |user| user.role == :admin }
   end
 end
 
