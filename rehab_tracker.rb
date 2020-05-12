@@ -950,6 +950,9 @@ get "/test" do
 
   # ary = Amazon_AWS.download_all_objs(bucket: :data, prefix: 'user_')
   # YAML.load(ary[0]).first_name
-  Amazon_AWS.copy_obj(source_bucket: :images, target_bucket: :images,
-    source_key: "girl.png", target_key: "girl_copied.png")
+  # Amazon_AWS.copy_obj(source_bucket: :images, target_bucket: :images,
+  #   source_key: "girl.png", target_key: "girl_copied.png")
+
+
+
 end
