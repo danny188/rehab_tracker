@@ -4,6 +4,11 @@ require 'set'
 require 'yaml/store'
 require 'fileutils'
 
+module GroupOperations
+  TOP_GROUP = 'main'
+  TOP_HIERARCHY = [TOP_GROUP]
+end
+
 module DataPersistence
   def upload_file_to_local(source:, dest:)
     # create directory if doesn't exist
@@ -54,22 +59,25 @@ end
 class ExerciseTemplate
   include DataPersistence
 
-  attr_accessor :name, :instructions, :reps, :sets, :duration, :image_links, :exercise_library
+  attr_accessor :name, :instructions, :reps, :sets,
+                :duration, :image_links, :exercise_library,
+                :group_hierarchy
 
   FILES_LIMIT = 4
   DEFAULT_REPS = '30'
   DEFAULT_SETS = '3'
   DEFAULT_EXERCISE_LIBRARY = 'main'
 
-  class ExerciseNameNotUniqueErr < StandardError; end
+  class ExerciseNameInGroupNotUniqueErr < StandardError; end
   class ExerciseNameEmpty < StandardError; end
 
-  def initialize(name, reps = DEFAULT_REPS, sets = DEFAULT_SETS)
+  def initialize(name, group_hierarchy = ['main'], reps = DEFAULT_REPS, sets = DEFAULT_SETS)
     @name = name
     @reps = reps
     @sets = sets
     @image_links = []
     @instructions = ''
+    @group_hierarchy = group_hierarchy
   end
 
   def files_path_local(filename)
@@ -137,29 +145,40 @@ end
 
 # group items can be Exercise or ExerciseTemplates objects
 class Group
-  attr_accessor :name, :items, :subgroups, :type
+  attr_accessor :name, :items, :subgroups
 
-  def initialize(name: , items: nil, subgroups: nil, type: nil)
+  def initialize(name)
     @name = name
-    @items = items || []
-    @subgroups = subgroups || []
-    @type = type
+    @items = []
+    @subgroups = []
   end
 
   def add_item(new_item)
     items.push(new_item)
   end
 
+  def get_item(name)
+    items.find { |item| item.name == name }
+  end
+
+  def has_item?(name)
+    items.any? { |item| item.name == name }
+  end
+
   def add_items(new_items)
     items.push(*new_items)
   end
 
-  def delete_item(new_item)
-    items.delete(new_item)
+  def delete_item_by_name(item_name)
+    items.delete_if { |item| item.name == item_name }
   end
 
   def add_subgroup(new_subgroup)
     subgroups.push(new_subgroup)
+  end
+
+  def get_subgroup(subgroup_name)
+    subgroups.find { |subgroup| subgroup.name == subgroup_name }
   end
 
   def delete_subgroup(new_subgroup)
@@ -178,10 +197,37 @@ class Group
     end
   end
 
+  def get_all_items_recursive()
+    return @items if @subgroups.empty?
+
+    result = []
+
+    subgroups.each do |subgroup|
+      result = result + subgroup.get_all_items_recursive
+    end
+
+    return result + @items
+  end
+
+end
+
+class ExerciseGroup < Group
+  # alias_method :add_exercise, :add_item
+  # alias_method :get_exercise, :get_item
+  # alias_method :delete_exercise, :delete_item
+  # alias_method :each_exercise, :each_item
+end
+
+class TemplateGroup < Group
+  # alias_method :add_template, :add_item
+  # alias_method :get_template, :get_item
+  # alias_method :delete_template, :delete_item
+  # alias_method :each_template, :each_item
 end
 
 class ExerciseLibrary
   include DataPersistence
+  include GroupOperations
 
   attr_accessor :name, :templates
 
@@ -282,6 +328,15 @@ class Exercise < ExerciseTemplate
     @record_of_days = Set.new
     @comment_by_therapist = ""
     @comment_by_patient = ""
+    @group_hierarchy = group_hierarchy
+  end
+
+  def name_with_group
+    if group_hierarchy.size <= 1
+      name
+    else
+      name + " (#{group_hierarchy[1..-1].join('/')})"
+    end
   end
 
   def add_date(date)
@@ -478,13 +533,12 @@ class User
 end
 
 class Patient < User
-  attr_accessor :exercises, :wellness_ratings, :last_updated
-
-  Wellness = Struct.new(:date, :rating)
+  attr_accessor :exercise_collection, :wellness_ratings, :last_updated
+  include GroupOperations
 
   def initialize(username, pw)
     super
-    @exercises = []
+    @exercise_collection = ExerciseGroup.new(TOP_GROUP)
   end
 
   def self.get_all
@@ -495,68 +549,118 @@ class Patient < User
     get_all_users_locally.select { |user| user_role(user) == :patient }
   end
 
-  def add_exercise_by_name(exercise_name)
-    raise ExerciseNameNotUniqueErr if exercises.any? { |exercise| exercise.name == exercise_name }
+  def add_exercise_by_name(exercise_name, group_hierarchy = TOP_HIERARCHY)
+    new_exercise = Exercise.new(exercise_name, group_hierarchy)
 
-    exercises.push(Exercise.new(exercise_name))
+    add_exercise(new_exercise, group_hierarchy)
   end
 
-  def add_exercise(exercise)
+  def add_subgroup(new_group_name, parent_hierarchy)
+    parent_group = get_group(parent_hierarchy)
+
+    unless subgroup_exists?(new_group_name, parent_hierarchy)
+      parent_group.add_subgroup(ExerciseGroup.new(new_group_name))
+    end
+  end
+
+  def subgroup_exists?(test_group_name, parent_hierarchy)
+    parent_group = get_group(parent_hierarchy)
+
+    parent_group.get_subgroup(test_group_name)
+  end
+
+  def get_group(hierarchy = TOP_HIERARCHY)
+    hierarchy_copy = hierarchy.dup
+
+    hierarchy_copy.shift
+    result_group = @exercise_collection
+
+    until hierarchy_copy.empty?
+      result_group = result_group.get_subgroup(hierarchy_copy[0])
+      return nil unless result_group
+      hierarchy_copy.shift
+    end
+
+    result_group
+  end
+
+  def add_exercise(exercise, group_hierarchy = TOP_HIERARCHY)
     exercise.patient_username = self.username
-    exercises.push(exercise)
+
+    group = get_group(group_hierarchy)
+
+    if group
+      raise ExerciseNameInGroupNotUniqueErr if group.has_item?(exercise.name)
+    else
+      target_group_name = group_hierarchy.last
+      parent_hierarchy = group_hierarchy.slice(0..-2)
+      add_subgroup(target_group_name, parent_hierarchy)
+      group = get_group(group_hierarchy)
+    end
+    group.add_item(exercise)
   end
 
-  def get_exercise(exercise_name)
-    exercises.find { |exercise| exercise.name == exercise_name }
+  def get_exercise(exercise_name, group_hierarchy = TOP_HIERARCHY)
+    group = get_group(group_hierarchy)
+    group.get_item(exercise_name)
   end
 
-  def delete_exercise(exercise_name)
-    exercises.delete_if { |exercise| exercise.name == exercise_name }
+  def delete_exercise(exercise_name, group_hierarchy = TOP_HIERARCHY)
+    group = get_group(group_hierarchy)
+    group.delete_item_by_name(exercise_name)
   end
 
-  def has_exercise(exercise_name)
-    exercises.any? { |exercise| exercise.name == exercise_name }
+  def has_exercise(exercise_name, group_hierarchy = TOP_HIERARCHY)
+    group = get_group(group_hierarchy)
+    group.has_item?(exercise_name)
+  end
+
+  def get_all_exercises()
+    @exercise_collection.get_all_items_recursive
   end
 
   def mark_done_all_exercises(date)
-    exercises.each do |exercise|
+    all_exercises = get_all_exercises
+    all_exercises.each do |exercise|
       exercise.add_date(date)
     end
   end
 
   def mark_undone_all_exercises(date)
-    exercises.each do |exercise|
+    all_exercises = get_all_exercises
+    all_exercises.each do |exercise|
       exercise.delete_date(date)
     end
   end
 
   def done_all_exercises?(date)
-    exercises.all? { |exercise| exercise.done_on?(date) }
+    all_exercises = get_all_exercises
+    all_exercises.all? { |exercise| exercise.done_on?(date) }
   end
 
   # todo: change this to be day specific. num of exercises according to how many
   # active exercises there are on a day, discount
   def num_of_exercises
-    exercises.size
+    get_all_exercises.size
   end
 
   def has_not_started_exercising
-    exercises.all? { |exercise| exercise.has_not_been_started? }
+    get_all_exercises.all? { |exercise| exercise.has_not_been_started? }
   end
 
   def first_exercise_day
     return nil if has_not_started_exercising
-    exercises.map { |exercise| exercise.first_day }.select { |first_day| first_day }.min
+    get_all_exercises.map { |exercise| exercise.first_day }.select { |first_day| first_day }.min
   end
 
   def last_exercise_day
     return nil if has_not_started_exercising
-    exercises.map { |exercise| exercise.last_day }.select { |last_day| last_day }.max
+    get_all_exercises.map { |exercise| exercise.last_day }.select { |last_day| last_day }.max
   end
 
   def num_of_exercises_done_on(date)
     return 0 if has_not_started_exercising
-    exercises.select { |exercise| exercise.done_on?(date) }.count
+    get_all_exercises.select { |exercise| exercise.done_on?(date) }.count
   end
 
   # returns 2d array of [day, completion rate]
@@ -576,8 +680,8 @@ class Patient < User
     return nil if num_of_exercises <= 0 || has_not_started_exercising
 
     result = []
-    exercises.each do |exercise|
-      result.push([exercise.name, exercise.days_done])
+    get_all_exercises.each do |exercise|
+      result.push([exercise.name_with_group, exercise.days_done])
     end
     result
   end
@@ -593,10 +697,6 @@ class Patient < User
     end
 
     result
-  end
-
-  def num_of_exercises
-    exercises.size
   end
 
   private
