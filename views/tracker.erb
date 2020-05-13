@@ -128,12 +128,6 @@
           </form>
         </div>
 
-
-<!--
-      <a href="#" class="btn btn-outline-danger exercise-button float-right" data-toggle="tooltip" title="Delete exercise and associated data.">Delete</a>
-      <a href="#" class="btn btn-secondary exercise-button float-right" data-toggle="tooltip" title="Move exercise up"><i class="fas fa-arrow-up"></i></a>
-      <a href="/users/<%= @patient.username %>/exercises/<%= exercise.name %>/edit" class="btn btn-secondary exercise-button float-right" data-toggle="tooltip" title="View/change exercise instructions or add comments.">View/Edit</a> -->
-
     </div>
 
 
@@ -156,15 +150,15 @@
 
   <!-- display exercise groups -->
   <% @patient.get_groups(['main']).each do |group| %>
-    <div class="row exercise-row">
-      <span class="exercise col-4">
-        <%= group.name %>
-      </span>
-    </div>
-    <!-- display exercises in group -->
-    <% group.items do |exercise| %>
-      <%= yield_content :exercise_row, exercise, 1 %>
-    <% end %>
+  <div class="row exercise-row">
+    <span class="exercise col-4">
+      <%= group.name %>
+    </span>
+  </div>
+  <!-- display exercises in group -->
+  <% group.items do |exercise| %>
+  <%= yield_content :exercise_row, exercise, 1 %>
+  <% end %>
   <% end %>
 
 
@@ -173,14 +167,17 @@
   <% @patient.get_all_exercises.each do |exercise| %>
   <div class="row exercise-row">
     <div class="col-lg-3">
-      <span class="exercise col-4"><%= exercise.name %></span>
+      <span class="exercise"><%= exercise.name %></span>
     </div>
-    <div class="col-lg-2">
+    <div class="col-lg-1">
       <% if exercise.reps || exercise.sets %>
       <span class="badge badge-info reps-sets my-2"><%= reps_and_sets_str(exercise) %></span>
       <% end %>
 
-      <a class="float-right btn btn-outline-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+    </div>
+    <div class="col-lg-1">
+      <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         Actions
       </a>
 
@@ -193,13 +190,6 @@
           <button type="submit"  class="dropdown-item text-danger" data-toggle="tooltip" title="Delete exercise and associated data.">Delete</button>
         </form>
       </div>
-
-
-<!--
-      <a href="#" class="btn btn-outline-danger exercise-button float-right" data-toggle="tooltip" title="Delete exercise and associated data.">Delete</a>
-      <a href="#" class="btn btn-secondary exercise-button float-right" data-toggle="tooltip" title="Move exercise up"><i class="fas fa-arrow-up"></i></a>
-      <a href="/users/<%= @patient.username %>/exercises/<%= exercise.name %>/edit" class="btn btn-secondary exercise-button float-right" data-toggle="tooltip" title="View/change exercise instructions or add comments.">View/Edit</a> -->
-
     </div>
 
 
@@ -246,21 +236,23 @@
     </div>
 
     <div class="form-row">
-      <div class="input-group col-5">
-        <label for="add_to_group" class="">Add for group: </label>
-        <div class="col-1"></div><!--  spacer-column -->
-        <input name="add_to_group" list="add_to_group" class="form-control col-5" value="main">
-        <datalist id="add_to_group">
-         <option value="5"></option>
-         <option value="10"></option>
-         <option value="20"></option>
-         <option value="30"></option>
-         <option value="40"></option>
-         <option value="50"></option>
-         <option value="100"></option>
-       </datalist>
-       <div class="col-1"></div><!--  spacer-column -->
-       <a href="#" class="col-3 btn btn-outline-primary">New Group</a>
+      <div class="form-group col-5">
+        <div class="input-group">
+          <label for="add_to_group" class="col-3">Add for group: </label>
+          <div class="col-1"></div><!--  spacer-column -->
+          <input name="add_to_group" list="add_to_group" class="form-control col-5" value="main">
+          <datalist id="add_to_group">
+           <option value="5"></option>
+           <option value="10"></option>
+           <option value="20"></option>
+           <option value="30"></option>
+           <option value="40"></option>
+           <option value="50"></option>
+           <option value="100"></option>
+         </datalist>
+         <div class="col-1"></div><!--  spacer-column -->
+         <a href="#" class="col-3 btn btn-outline-primary">New Group</a>
+       </div>
      </div>
    </div>
 
