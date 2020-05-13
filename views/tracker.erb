@@ -87,7 +87,7 @@
 
           <div class="custom-control custom-checkbox">
             <input type="checkbox" class="border-primary custom-checkbox custom-control-input" id="<%="select_all_none_" + date.strftime("%Y%m%d") %>" name="select_all_none" value="select_all_none" <%= "checked" if @patient.done_all_exercises?(date.strftime("%Y%m%d")) %>>
-            <label class="custom-checkbox custom-control-label border-primar" for="<%="select_all_none_" + date.strftime("%Y%m%d") %>" data-toggle="tooltip" title="Check all/none"></label>
+            <label class="pr-3 custom-checkbox custom-control-label border-primar" for="<%="select_all_none_" + date.strftime("%Y%m%d") %>" data-toggle="tooltip" title="Check all/none"></label>
             <input type="hidden" name="date" value="<%= date.strftime("%Y%m%d") %>">
           </div>
         </form>
@@ -145,7 +145,7 @@
           <input type="checkbox" class="custom-control-input" id="chk_<%= exercise.name + "_" + date.strftime("%Y%m%d") %>" name="checkbox_value" value="checkbox_value <%= check_value(date, exercise.record_of_days) %>" <%= "checked" if exercise.done_on?(date.strftime("%Y%m%d")) %>>
           <input type="hidden" name="exercise_name" value="<%= exercise.name %>">
           <input type="hidden" name="date" value="<%= date.strftime("%Y%m%d") %>">
-          <label class="custom-control-label custom-checkbox " for="chk_<%= exercise.name + "_" + date.strftime("%Y%m%d") %>"></label>
+          <label class="pr-3 custom-control-label custom-checkbox " for="chk_<%= exercise.name + "_" + date.strftime("%Y%m%d") %>"></label>
         </div>
       </form>
     </div>
@@ -156,15 +156,15 @@
 
   <!-- display exercise groups -->
   <% @patient.get_groups(['main']).each do |group| %>
-  <div class="row exercise-row">
-    <span class="exercise col-4">
-      <%= group.name %>
-    </span>
-  </div>
-  <!-- display exercises in group -->
-  <% group.items do |exercise| %>
-  <%= yield_content :exercise_row, exercise, 1 %>
-  <% end %>
+    <div class="row exercise-row">
+      <span class="exercise col-4">
+        <%= group.name %>
+      </span>
+    </div>
+    <!-- display exercises in group -->
+    <% group.items do |exercise| %>
+      <%= yield_content :exercise_row, exercise, 1 %>
+    <% end %>
   <% end %>
 
 
@@ -211,7 +211,7 @@
           <input type="checkbox" class="custom-control-input" id="chk_<%= exercise.name + "_" + date.strftime("%Y%m%d") %>" name="checkbox_value" value="checkbox_value <%= check_value(date, exercise.record_of_days) %>" <%= "checked" if exercise.done_on?(date.strftime("%Y%m%d")) %>>
           <input type="hidden" name="exercise_name" value="<%= exercise.name %>">
           <input type="hidden" name="date" value="<%= date.strftime("%Y%m%d") %>">
-          <label class="custom-control-label custom-checkbox " for="chk_<%= exercise.name + "_" + date.strftime("%Y%m%d") %>"></label>
+          <label class="pr-3 custom-control-label custom-checkbox " for="chk_<%= exercise.name + "_" + date.strftime("%Y%m%d") %>"></label>
         </div>
       </form>
     </div>
@@ -221,6 +221,7 @@
   <% end %>
 
 
+  <br>
   <br>
   <br>
 
@@ -262,13 +263,12 @@
        <a href="#" class="col-3 btn btn-outline-primary">New Group</a>
      </div>
    </div>
-     <div class="col-1"></div><!--  spacer-column -->
-     <div class="col-1">
 
-     </div>
-   </div>
- </div>
-
+  <!--  <div class="form-row mt-3">
+    <div class="input-group col-5">
+      <a href="#" class="btn btn-outline-primary">New Group</a>
+    </div> -->
+  </div>
 
 </form>
 
