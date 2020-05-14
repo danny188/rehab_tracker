@@ -939,6 +939,27 @@ def upload_file(source:, dest:)
   FileUtils.cp(source, dest)
 end
 
+# get "/users/:username/exercises/add_group" do
+#   @patient = User.get(params[:username])
+
+#   erb :add_exercise_group
+# end
+
+post "/users/:username/exercises/add_group" do
+  @patient = User.get(params[:username])
+
+  @new_group_name = params[:group].strip
+
+  if @patient.subgroup_exists?(@new_group_name, Patient::TOP_HIERARCHY)
+    session[:error] = "A group called #{@new_group_name} already exists."
+    erb :tracker
+  end
+
+  @patient.add_subgroup(@new_group_name, Patient::TOP_HIERARCHY)
+  @patient.save
+  redirect "/users/#{@patient.username}/exercises"
+end
+
 get "/test" do
   # patient = Amazon_AWS.download_obj(key: 'starfish.store', bucket: :data)
 
@@ -952,7 +973,9 @@ get "/test" do
   # YAML.load(ary[0]).first_name
   # Amazon_AWS.copy_obj(source_bucket: :images, target_bucket: :images,
   #   source_key: "girl.png", target_key: "girl_copied.png")
+  @patient = User.get('pineapple')
 
+  @patient.get_groups(['main']).inspect
 
 
 end
