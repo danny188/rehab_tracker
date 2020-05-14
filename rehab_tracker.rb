@@ -982,6 +982,22 @@ post "/users/:username/exercises/add_group" do
   redirect "/users/#{@patient.username}/exercises"
 end
 
+post "/users/:username/exercises/group/:delete_group/delete" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+
+  @patient = User.get(params[:username])
+
+  delete_group_name = params[:delete_group]
+
+  @patient.delete_subgroup(delete_group_name, group_hierarchy)
+
+  @patient.save
+
+  redirect "/users/#{@patient.username}/exercises"
+end
+
 get "/test" do
   # patient = Amazon_AWS.download_obj(key: 'starfish.store', bucket: :data)
 
@@ -997,9 +1013,9 @@ get "/test" do
   #   source_key: "girl.png", target_key: "girl_copied.png")
   @patient = User.get('pineapple')
 
-  @patient.get_groups(['main'])[0].items[1].name
+  @patient.get_groups(['main']).map(&:name).inspect
   # @patient.get_group(['main', 'stretches']).items.inspect
-
+main_grp = @patient.get_group(['main']).name
 
 
 end
