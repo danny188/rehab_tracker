@@ -98,6 +98,19 @@ class Patient_Class_Test < Minitest::Test
     @pt.get_all_exercises.all? { |exercise| assert exercise.done_on?(done_date)}
   end
 
+  def test_add_subgroup
+    @pt.add_subgroup('stretches', group_hierarchy)
+
+    assert @pt.get_group(group_hierarchy + ['stretches'])
+  end
+
+  def test_delete_subgroup
+    @pt.add_subgroup('stretches', group_hierarchy)
+    @pt.delete_subgroup('stretches', group_hierarchy)
+
+    refute @pt.get_group(group_hierarchy + ['stretches'])
+  end
+
 end
 
 class Rehab_Tracker_Test < Minitest::Test
