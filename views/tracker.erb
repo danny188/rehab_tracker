@@ -106,7 +106,7 @@
 
     <% content_for :exercise_row do |exercise, indent|%>
     <div class="row exercise-row">
-      <div class="col-lg-3 ml-<%= indent ? indent * 4 : 0 %>">
+      <div class="col-lg-3 ml-<%= indent ? indent * 4 : 0 %> mr-n<%= indent ? indent * 4 : 0 %>">
         <span class="exercise"><%= exercise.name %></span>
       </div>
       <div class="col-lg-1">
@@ -116,7 +116,7 @@
 
 
       </div>
-      <div class="col-lg-1 mr-n<%= indent ? indent * 4 : 0 %>">
+      <div class="col-lg-1">
         <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Actions
         </a>
@@ -154,7 +154,7 @@
       <div class="row exercise-row">
         <div class="col">
           <span class="exercise">
-            <%= group.name %>
+            <u><%= group.name %></u>
           </span>
         </div>
       </div>
@@ -162,8 +162,12 @@
       <!-- display exercises in group -->
       <% group.items.each do |exercise| %>
         <%= yield_content :exercise_row, exercise, 1 %>
-
       <% end %>
+    <% end %>
+
+    <!-- display top level exercises -->
+    <% @patient.get_group(Patient::TOP_HIERARCHY).items.each do |exercise| %>
+      <%= yield_content :exercise_row, exercise, 0 %>
     <% end %>
 
     <br>
@@ -199,14 +203,11 @@
             <label for="group" class="col-4">For group: </label>
 
             <input name="group" list="group" class="form-control col-5" value="<%= @new_group_name || '' %>" placeholder="Group Name">
-            <datalist id="add_to_group">
-             <option value="5"></option>
-             <option value="10"></option>
-             <option value="20"></option>
-             <option value="30"></option>
-             <option value="40"></option>
-             <option value="50"></option>
-             <option value="100"></option>
+            <datalist id="group">
+              <% @patient.get_groups(GroupOperations::TOP_HIERARCHY).each do |group| %>
+                <option value="<%= group.name %>"></option>
+              <% end %>
+
            </datalist>
            <div class="col-1"></div><!--  spacer-column -->
            <!-- <a href="/users/<%= @patient.name %>/exercises/add_group" class="col-3 btn btn-outline-primary">New
