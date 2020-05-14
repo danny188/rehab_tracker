@@ -93,6 +93,14 @@ helpers do
   def active_class(test_path)
     "active" if request.path_info == test_path
   end
+
+  def make_group_query_str(group_hierarchy)
+    group_hierarchy.join("_")
+  end
+
+  def parse_group_query_str(str)
+    str.split("_")
+  end
 end
 
 get "/weather" do
@@ -368,7 +376,8 @@ get "/users/:username/exercises/:exercise_name/edit" do
   end
 
   @patient = User.get(params[:username])
-  @exercise = @patient.get_exercise(params[:exercise_name])
+  input_group_hierarchy = parse_group_query_str(params[:group])
+  @exercise = @patient.get_exercise(params[:exercise_name], group_hierarchy(*input_group_hierarchy))
   erb :edit_exercise
 end
 
@@ -893,49 +902,48 @@ def verify_user_access(required_authorization: :public, required_username: nil)
   access_level_diff = ROLES.index(current_role) - ROLES.index(required_authorization)
   role_ok = access_level_diff >= 0
   username_ok = if required_username
-    session[:user].username == required_username ||
-    access_level_diff > 0
+                  session[:user].username == required_username || access_level_diff > 0
                  # if required_username is provided, access is only granted
                  # if username matches, OR logged-in user has higher access level than required
-               else
-                true
-              end
+                else
+                  true
+                end
 
-              role_ok && username_ok
-            end
+  role_ok && username_ok
+end
 
-            get "/access_error" do
-              erb :access_error
-            end
+get "/access_error" do
+  erb :access_error
+end
 
-            get "/patient_list" do
-              unless verify_user_access(required_authorization: :therapist)
-                redirect "/access_error"
-              end
-              @user = session[:user]
-              @all_patients = Patient.get_all
-              erb :patient_list
-            end
+get "/patient_list" do
+  unless verify_user_access(required_authorization: :therapist)
+    redirect "/access_error"
+  end
+  @user = session[:user]
+  @all_patients = Patient.get_all
+  erb :patient_list
+end
 
-            get "/users/:username/profile" do
-              unless verify_user_access(required_authorization: :patient, required_username: params[:username])
-                redirect "/access_error"
-              end
+get "/users/:username/profile" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
 
-              @user = User.get(params[:username])
+  @user = User.get(params[:username])
 
-              erb :profile
-            end
+  erb :profile
+end
 
-            get "/users/:username/stats" do
-              unless verify_user_access(required_authorization: :patient, required_username: params[:username])
-                redirect "/access_error"
-              end
+get "/users/:username/stats" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
 
 
 
-              @patient = User.get(params[:username])
-              erb :stats
+  @patient = User.get(params[:username])
+  erb :stats
   # @patient.exercise_completion_rates_by_day.inspect
   # rate = @patient.num_of_exercises_done_on('20200501') / @patient.num_of_exercises.to_f
   # rate.to_s
@@ -998,6 +1006,31 @@ post "/users/:username/exercises/group/:delete_group/delete" do
   redirect "/users/#{@patient.username}/exercises"
 end
 
+post "/users/:username/exercises/group/:group_name/rename" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+
+  @patient = User.get(params[:username])
+  @group = @patient.get_group(group_hierarchy(params[:group_name]))
+  @new_group_name = params[:new_group_name].strip
+
+  if @patient.subgroup_exists?(@new_group_name, Patient::TOP_HIERARCHY)
+    session[:error] = "A group called #{@new_group_name} already exists."
+    erb :tracker
+  end
+
+  if @new_group_name.empty?
+    session[:error] = "Group name cannot be blank."
+    erb :tracker
+  end
+
+  @group.name = @new_group_name
+  @patient.save
+
+  redirect "/users/#{@patient.username}/exercises"
+end
+
 get "/test" do
   # patient = Amazon_AWS.download_obj(key: 'starfish.store', bucket: :data)
 
@@ -1015,7 +1048,7 @@ get "/test" do
 
   @patient.get_groups(['main']).map(&:name).inspect
   # @patient.get_group(['main', 'stretches']).items.inspect
-main_grp = @patient.get_group(['main']).name
+  main_grp = @patient.get_group(['main']).name
 
 
 end
