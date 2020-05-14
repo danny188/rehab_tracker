@@ -350,7 +350,7 @@ class Exercise < ExerciseTemplate
     new_ex
   end
 
-  def initialize(name, group_hierarchy = GroupOperations::TOP_HIERARCHY, reps = DEFAULT_REPS, sets = DEFAULT_REPS)
+  def initialize(name, group_hierarchy = GroupOperations::TOP_HIERARCHY, reps = DEFAULT_REPS, sets = DEFAULT_SETS)
     super
     @record_of_days = Set.new
     @comment_by_therapist = ""
