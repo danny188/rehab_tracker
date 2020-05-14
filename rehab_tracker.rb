@@ -1055,6 +1055,10 @@ post "/users/:username/exercises/group/:group_name/rename" do
     redirect "/users/#{@patient.username}/exercises"
   end
 
+  # update group hierarchy names of exercises in this group
+  new_group_hierarchy = group_hierarchy(@new_group_name)
+  @group.items.each { |exercise| exercise.group_hierarchy = new_group_hierarchy}
+
   @group.name = @new_group_name
   @patient.save
 
