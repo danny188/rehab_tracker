@@ -1017,12 +1017,12 @@ post "/users/:username/exercises/group/:group_name/rename" do
 
   if @patient.subgroup_exists?(@new_group_name, Patient::TOP_HIERARCHY)
     session[:error] = "A group called #{@new_group_name} already exists."
-    erb :tracker
+    redirect "/users/#{@patient.username}/exercises"
   end
 
   if @new_group_name.empty?
     session[:error] = "Group name cannot be blank."
-    erb :tracker
+    redirect "/users/#{@patient.username}/exercises"
   end
 
   @group.name = @new_group_name
@@ -1030,6 +1030,38 @@ post "/users/:username/exercises/group/:group_name/rename" do
 
   redirect "/users/#{@patient.username}/exercises"
 end
+
+post "/users/:username/exercises/:exercise_name/move" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+
+  @patient = User.get(params[:username])
+
+  from_group_hierarchy = group_hierarchy(*parse_group_query_str(params[:group]))
+
+  dest_group_name = params[:dest_group].strip
+  dest_group_hierarchy = group_hierarchy(dest_group_name)
+  dest_group = @patient.get_group(dest_group_hierarchy)
+
+  @exercise = @patient.get_exercise(params[:exercise_name], from_group_hierarchy)
+
+  # validate exercise name
+  raise GroupOperations::ItemNameInGroupNotUniqueErr if @patient.has_exercise(@exercise.name, dest_group_hierarchy)
+
+  @patient.add_exercise(@exercise, dest_group_hierarchy)
+  @patient.delete_exercise(@exercise.name, from_group_hierarchy)
+
+  @patient.save
+
+  redirect "/users/#{@patient.username}/exercises"
+
+rescue GroupOperations::ItemNameInGroupNotUniqueErr
+  session[:error] = "An exercise called '#{@new_exercise_name}' already exists in group #{dest_group.name}."
+  redirect "/users/#{@patient.username}/exercises"
+end
+
+
 
 get "/test" do
   # patient = Amazon_AWS.download_obj(key: 'starfish.store', bucket: :data)
