@@ -104,7 +104,7 @@
     <% end %>
 
 
-    <% content_for :exercise_row do |exercise, indent, group|%>
+    <% content_for :exercise_row do |exercise, indent, ex_index, group, grp_index|%>
     <div class="row exercise-row">
       <div class="col-lg-3 ml-<%= indent ? indent * 4 : 0 %> mr-n<%= indent ? indent * 4 : 0 %>">
         <span class="exercise"><%= exercise.name %></span>
@@ -117,11 +117,11 @@
 
       </div>
       <div class="col-lg-1">
-        <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button" id="exercise_actions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Actions
         </a>
 
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+        <div class="dropdown-menu" aria-labelledby="exercise_actions">
 
           <a href="/users/<%= @patient.username %>/exercises/<%= exercise.name %>/edit?group=<%= group.name if group %>" class="dropdown-item text-primary" data-toggle="tooltip" title="View/change exercise instructions or add comments.">View/Edit</a>
           <a href="#" class="dropdown-item"><i class="fas fa-arrow-down"></i> Move exercise down</a>
@@ -129,8 +129,42 @@
           <form action="/users/<%= @patient.username %>/exercises/<%= exercise.name %>/delete" method="post" onsubmit="return confirm('Are you sure you want to delete this exercises? This cannot be reversed. Click OK to proceed.');">
             <button type="submit"  class="dropdown-item text-danger" data-toggle="tooltip" title="Delete exercise and associated data.">Delete</button>
           </form>
+          <hr>
+
+          <a type="button" class="dropdown-item text-primary" data-toggle="modal" data-target="#move_exercise_to_group_<%= grp_index %>_<%= ex_index %>">
+            Move exercise to group
+          </a>
         </div>
       </div>
+
+          <!-- Move exercise to group (Modal) -->
+          <div class="modal fade" id="move_exercise_to_group_<%= grp_index %>_<%= ex_index %>" tabindex="-1" role="dialog" aria-labelledby="move_exercise_to_group_<%= grp_index %>_<%= ex_index %>" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+
+                  <h5 class="modal-title">Move Exercise '<%= exercise.name %>'' To Group</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form class="" method="post" action="/users/<%= @patient.username %>/exercises/<%= exercise.name %>/move?group=<%= group.name if group %>">
+                    <div class="form-group mb-2">
+                      <label for="grouplist_<%= grp_index %>_<%= ex_index %>" class="">Destination Group</label>
+                      <input name="grouplist_<%= grp_index %>_<%= ex_index %>" list="grouplist_<%= grp_index %>_<%= ex_index %>" class="form-control col-12" value="" placeholder="">
+                      <datalist id="grouplist_<%= grp_index %>_<%= ex_index %>">
+                        <% @patient.get_groups(GroupOperations::TOP_HIERARCHY).each do |group| %>
+                        <option value="<%= group.name %>"></option>
+                        <% end %>
+                      </datalist>
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-2">Move</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
 
       <!-- Checkboxes for each day for each exercise -->
       <% @dates.each do |date| %>
@@ -183,15 +217,15 @@
           <u><%= group.name %></u>
         </span> -->
 
-        <a class="btn btn-info dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <a class="btn btn-info dropdown-toggle" href="#" role="button" id="group_button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Group: <%= group.name %>
         </a>
 
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+        <div class="dropdown-menu" aria-labelledby="group_button">
 
           <a type="button" class="dropdown-item text-primary" data-toggle="modal" data-target="#modal_rename_group_<%= grp_index %>">
             Rename Group
-          </button>
+          </a>
           <a href="#" class="dropdown-item"><i class="fas fa-arrow-down"></i>Move Group Down</a>
           <a href="#" class="dropdown-item"><i class="fas fa-arrow-up"></i> Move Group Up</a>
           <form action="/users/<%= @patient.username %>/exercises/group/<%= group.name %>/move_exercises_out" method="post">
@@ -210,14 +244,14 @@
     </div>
 
     <!-- display exercises in group -->
-    <% group.items.each do |exercise| %>
-    <%= yield_content :exercise_row, exercise, 1, group %>
+    <% group.items.each_with_index do |exercise, ex_index| %>
+      <%= yield_content :exercise_row, exercise, 1, ex_index, group, grp_index %>
     <% end %>
     <% end %>
 
     <!-- display top level exercises -->
-    <% @patient.get_group(Patient::TOP_HIERARCHY).items.each do |exercise| %>
-    <%= yield_content :exercise_row, exercise, 0 %>
+    <% @patient.get_group(Patient::TOP_HIERARCHY).items.each_with_index do |exercise, ex_index| %>
+    <%= yield_content :exercise_row, exercise, 0, ex_index, nil, -1 %>
     <% end %>
 
     <br>
