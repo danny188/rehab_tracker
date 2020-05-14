@@ -77,6 +77,7 @@ end
 
 class ExerciseTemplate
   include DataPersistence
+  include GroupOperations
 
   attr_accessor :name, :instructions, :reps, :sets,
                 :duration, :image_links, :exercise_library,
@@ -87,13 +88,21 @@ class ExerciseTemplate
   DEFAULT_SETS = '3'
   DEFAULT_EXERCISE_LIBRARY = 'main'
 
-  def initialize(name, group_hierarchy = ['main'], reps = DEFAULT_REPS, sets = DEFAULT_SETS)
+  def initialize(name, group_hierarchy = GroupOperations::TOP_HIERARCHY, reps = DEFAULT_REPS, sets = DEFAULT_SETS)
     @name = name
     @reps = reps
     @sets = sets
     @image_links = []
     @instructions = ''
     @group_hierarchy = group_hierarchy
+  end
+
+  def name_with_group
+    if self.group_hierarchy.size <= 1
+      self.name
+    else
+      "(#{display_current_group(group_hierarchy)}) #{self.name}"
+    end
   end
 
   def files_path_local(filename)

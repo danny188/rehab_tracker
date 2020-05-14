@@ -155,7 +155,7 @@ get "/users/:username/exercises" do
     redirect "/access_error"
   end
 
-  @end_date = params[:end_date] ? Date.parse(params[:end_date]) : Date.today
+  @end_date = nil_or_empty?(params[:end_date]) ? Date.today : Date.parse(params[:end_date])
 
   @dates = past_num_days(from: @end_date)
   @patient = User.get(params[:username])
@@ -662,9 +662,16 @@ post "/users/:username/update_tracker" do
   end
 
   @patient = User.get(params[:username])
-  @exercise = @patient.get_exercise(params[:exercise_name])
   @check_date = params[:date]
   @ticked = params[:checkbox_value]
+  @group_name = params[:group]
+  @current_group_hierarchy = group_hierarchy(@group_name)
+  @end_date = params[:end_date]
+
+  # session[:debug] = @current_group_hierarchy.inspect
+  # redirect "/test"
+
+  @exercise = @patient.get_exercise(params[:exercise_name], @current_group_hierarchy)
 
   if @ticked
     @exercise.add_date(@check_date)
@@ -684,7 +691,7 @@ post "/users/:username/update_tracker" do
   #   "not checked, exercise_id=#{params[:exercise_id]}"
   # end
 
-  redirect "/users/#{@patient.username}/exercises"
+  redirect "/users/#{@patient.username}/exercises?end_date=#{@end_date}"
 end
 
 # post "/upload" do
