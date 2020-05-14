@@ -10,6 +10,18 @@ module GroupOperations
 
   class ItemNameInGroupNotUniqueErr < StandardError; end
   class ItemNameEmpty < StandardError; end
+
+  def make_group_query_str(group_hierarchy)
+    group_hierarchy.join("_")
+  end
+
+  def display_current_group(current_group_hierarchy)
+    current_group_hierarchy.last
+  end
+
+  def parse_group_query_str(str)
+    str.split("_")
+  end
 end
 
 module DataPersistence
@@ -139,7 +151,7 @@ class ExerciseTemplate
     when 'testing_local'
       FileUtils.rm(files_path_local(filename))
     when 'testing_s3', 'production_s3'
-      key = "images/exercise_library_#{exercise_library}/#{self.name}/#{filename}"
+      key = "images/exercise_library_#{exercise_library}/#{self.name}/#{make_group_query_str(self.group_hierarchy)}/#{filename}"
       delete_supp_file(key: key)
     end
 
@@ -329,20 +341,11 @@ class Exercise < ExerciseTemplate
     new_ex
   end
 
-  def initialize(name, reps = DEFAULT_REPS, sets = DEFAULT_REPS)
+  def initialize(name, group_hierarchy = GroupOperations::TOP_HIERARCHY, reps = DEFAULT_REPS, sets = DEFAULT_REPS)
     super
     @record_of_days = Set.new
     @comment_by_therapist = ""
     @comment_by_patient = ""
-    @group_hierarchy = group_hierarchy
-  end
-
-  def name_with_group
-    if group_hierarchy.size <= 1
-      name
-    else
-      name + " (#{group_hierarchy[1..-1].join('/')})"
-    end
   end
 
   def add_date(date)
@@ -382,7 +385,7 @@ class Exercise < ExerciseTemplate
   def image_link_path(filename)
     case ENV["custom_env"]
     when 'testing_local'
-      File.join("/images/#{patient_username}/#{self.name}", filename)
+      File.join("/images/#{patient_username}/#{self.name}/#{make_group_query_str(self.group_hierarchy)}", filename)
     when 'testing_s3'
       "https://test-rehab-buddy-images.s3-ap-southeast-2.amazonaws.com/#{filename}"
     when 'production_s3'
@@ -396,7 +399,7 @@ class Exercise < ExerciseTemplate
       upload_file_to_local(source: file, dest: files_path_local(filename))
       dest_path = filename
     else
-      dest_path = "images/#{patient_username}/#{self.name}/#{filename}"
+      dest_path = "images/#{patient_username}/#{self.name}/#{make_group_query_str(self.group_hierarchy)}/#{filename}"
       upload_supp_file(file_obj: file, dest_path: dest_path)
     end
 
@@ -410,7 +413,7 @@ class Exercise < ExerciseTemplate
     when 'testing_local'
       FileUtils.rm(files_path_local(filename: filename))
     when 'testing_s3', 'production_s3'
-      key = "images/#{patient_username}/#{self.name}/#{filename}"
+      key = "images/#{patient_username}/#{self.name}/#{make_group_query_str(self.group_hierarchy)}/#{filename}"
       delete_supp_file(key: key)
     end
 
@@ -577,7 +580,6 @@ class Patient < User
     end
   end
 
-
   def get_groups(parent_hierarchy)
     parent_group = get_group(parent_hierarchy)
     parent_group.subgroups
@@ -612,8 +614,42 @@ class Patient < User
 
     raise GroupOperations::ItemNameInGroupNotUniqueErr if has_exercise(exercise.name, to_group_hierarchy)
 
+    exercise.group_hierarchy = to_group_hierarchy
     add_exercise(exercise, to_group_hierarchy)
+
+    # move related images/files on cloud
+    move_all_exercise_supp_files(exercise_name, from_group_hierarchy, to_group_hierarchy)
+
     delete_exercise(exercise.name, from_group_hierarchy)
+  end
+
+  def move_all_exercise_supp_files(exercise_name, from_group_hierarchy, to_group_hierarchy)
+    exercise = get_exercise(exercise_name, from_group_hierarchy)
+    filenames = exercise.image_links.map { |link| File.basename(link) }
+
+    filenames.each do |filename|
+      move_exercise_supp_file(exercise_name, filename, from_group_hierarchy, to_group_hierarchy)
+    end
+
+    # self.save
+    # the cloud files will already have been moved even if self.save is not run
+  end
+
+  def move_exercise_supp_file(exercise_name, filename, from_group_hierarchy, to_group_hierarchy )
+    exercise = get_exercise(exercise_name, from_group_hierarchy)
+    image_index = exercise.image_links.index{ |link| File.basename(link) == filename }
+
+    source_key = "images/#{self.username}/#{exercise_name}/#{make_group_query_str(from_group_hierarchy)}/#{filename}"
+    target_key = "images/#{self.username}/#{exercise_name}/#{make_group_query_str(to_group_hierarchy)}/#{filename}"
+
+    Amazon_AWS.move_obj(source_bucket: :images,
+                        source_key: source_key,
+                        target_bucket: :images,
+                        target_key: target_key)
+
+    exercise.image_links[image_index] = exercise.image_link_path(target_key)
+
+    # self.save
   end
 
   def add_exercise(exercise, group_hierarchy = TOP_HIERARCHY)
@@ -623,12 +659,13 @@ class Patient < User
 
     if group
       raise ItemNameInGroupNotUniqueErr if group.has_item?(exercise.name)
-    else
+    else # create subgroup if not yet exists
       target_group_name = group_hierarchy.last
       parent_hierarchy = group_hierarchy.slice(0..-2)
       add_subgroup(target_group_name, parent_hierarchy)
       group = get_group(group_hierarchy)
     end
+    exercise.group_hierarchy = group_hierarchy
     group.add_item(exercise)
   end
 
@@ -836,5 +873,13 @@ class Amazon_AWS
   def self.copy_obj(source_bucket:, source_key:, target_bucket:, target_key:)
     s3 = Aws::S3::Client.new(region: REGION)
     s3.copy_object(bucket: bucket_name(target_bucket), copy_source: bucket_name(source_bucket) + '/' + source_key, key: target_key)
+  end
+
+  def self.move_obj(source_bucket:, source_key:, target_bucket:, target_key:)
+    copy_obj(source_bucket: source_bucket,
+             source_key: source_key,
+             target_bucket: target_bucket,
+             target_key: target_key)
+    delete_obj(bucket: source_bucket, key: source_key)
   end
 end

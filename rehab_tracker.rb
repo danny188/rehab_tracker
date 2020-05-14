@@ -10,6 +10,7 @@ require 'net/http'
 require 'json'
 
 require_relative 'custom_classes'
+include GroupOperations
 
 ENV['custom_env'] = 'testing_s3'
 
@@ -94,17 +95,7 @@ helpers do
     "active" if request.path_info == test_path
   end
 
-  def make_group_query_str(group_hierarchy)
-    group_hierarchy.join("_")
-  end
 
-  def display_current_group(current_group_hierarchy)
-    current_group_hierarchy.last
-  end
-
-  def parse_group_query_str(str)
-    str.split("_")
-  end
 end
 
 get "/weather" do
@@ -423,19 +414,21 @@ post "/users/:username/exercises/:exercise_name/upload_file" do
   end
 
   @patient = User.get(params[:username])
-  @exercise = @patient.get_exercise(params[:exercise_name])
+  @current_group_hierarchy = parse_group_query_str(params[:group])
+  @exercise = @patient.get_exercise(params[:exercise_name], group_hierarchy(*@current_group_hierarchy))
+
 
   params[:images].each do |file_hash|
     # dest_path = File.join(public_path + "/images/#{params[:username]}/#{params[:exercise_name]}", file_hash[:filename])
 
     if @exercise.has_file(file_hash[:filename]) # image with same name already exists
       session[:error] = "This exercise already has an image called '#{file_hash[:filename]}'. Please upload an image with a different name."
-      redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit"
+      redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit?group=#{params[:group]}"
     end
 
     if @exercise.num_files >= ExerciseTemplate::FILES_LIMIT
       session[:error] = "Each exercise can only contain #{ExerciseTemplate::FILES_LIMIT} files."
-      redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit"
+      redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit?group=#{params[:group]}"
     end
 
     # upload_file(source: file_hash[:tempfile], dest: dest_path)
@@ -447,7 +440,7 @@ post "/users/:username/exercises/:exercise_name/upload_file" do
   end
 
   # todo: validate file sizes
-  redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit"
+  redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit?group=#{params[:group]}"
 end
 
 get "/users/:username/deactivate_account" do
@@ -536,6 +529,9 @@ post "/users/:username/exercises/:exercise_name/update" do
 
   @exercise = @patient.get_exercise(params[:exercise_name], group_hierarchy(*@current_group_hierarchy))
 
+  # session[:debug] = @current_group_hierarchy.inspect
+  # redirect "/test"
+
   if @current_group_hierarchy != @dest_group_hierarchy
     @patient.move_exercise(params[:exercise_name], @current_group_hierarchy, @dest_group_hierarchy)
   end
@@ -583,8 +579,9 @@ post "/users/:username/exercises/:exercise_name/delete" do
   end
 
   @patient = User.get(params[:username])
+  @current_group_hierarchy = group_hierarchy(*parse_group_query_str(params[:group]))
 
-  @patient.delete_exercise(params[:exercise_name])
+  @patient.delete_exercise(params[:exercise_name], @current_group_hierarchy)
 
   @patient.save
 
@@ -598,7 +595,9 @@ post "/users/:username/exercises/:exercise_name/delete_file" do
   end
 
   @patient = User.get(params[:username])
-  @exercise = @patient.get_exercise(params[:exercise_name])
+  @current_group_hierarchy = group_hierarchy(*parse_group_query_str(params[:group]))
+  @exercise = @patient.get_exercise(params[:exercise_name], @current_group_hierarchy)
+
   @file_path = params[:file_path]
   filename = File.basename(@file_path)
 
@@ -611,7 +610,7 @@ post "/users/:username/exercises/:exercise_name/delete_file" do
     session[:error] = "File does not exist"
   end
 
-  redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit"
+  redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit?group=#{params[:group]}"
 end
 
 # Delete file associated with exercise template

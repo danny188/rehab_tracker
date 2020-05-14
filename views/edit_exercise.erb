@@ -88,7 +88,7 @@
 
       <div class="col mx-1 px-0">
 
-        <form action="/users/<%= @patient.username %>/exercises/<%= @exercise.name %>/delete" method="post" onsubmit="return confirm('Are you sure you want to delete this exercises? This cannot be reversed. Click OK to proceed.');">
+        <form action="/users/<%= @patient.username %>/exercises/<%= @exercise.name %>/delete?group=<%= make_group_query_str(@current_group_hierarchy) %>" method="post" onsubmit="return confirm('Are you sure you want to delete this exercises? This cannot be reversed. Click OK to proceed.');">
           <button type="submit" class="btn btn-outline-danger form-control">Delete</button>
         </form>
       </div>
@@ -116,7 +116,7 @@
 
 <!-- exercise images section -->
 <div class="col-6">
-  <form class="form-group row mb-4" action="/users/<%=@patient.username %>/exercises/<%= @exercise.name %>/upload_file" id="upload_form" method="post" enctype="multipart/form-data">
+  <form class="form-group row mb-4" action="/users/<%=@patient.username %>/exercises/<%= @exercise.name %>/upload_file?group=<%= make_group_query_str(@current_group_hierarchy) %>" id="upload_form" method="post" enctype="multipart/form-data">
     <label for="patient_comment" class="col-5 col-form-label  "><b>Upload Exercise Images</b></label>
     <input type="file" id="chosen_file" accept="image/*" name="images[]" multiple />
     <input type="submit" value="Upload"/>
@@ -126,7 +126,7 @@
     <% @exercise.image_links.each do |image_link| %>
     <div class="col mb-4">
       <div class="card text-center">
-        <form class="form-inline" method="post" action="/users/<%= @patient.username %>/exercises/<%= @exercise.name %>/delete_file" onsubmit="return confirm('Are you sure you want to delete the selected file? This cannot be undone. Click OK to proceed.')">
+        <form class="form-inline" method="post" action="/users/<%= @patient.username %>/exercises/<%= @exercise.name %>/delete_file?group=<%= make_group_query_str(@current_group_hierarchy) %>" onsubmit="return confirm('Are you sure you want to delete the selected file? This cannot be undone. Click OK to proceed.')">
           <img src="<%= image_link %>" class="card-img-top" alt="...">
           <input type="hidden" name="file_path" value="<%= image_link %>">
           <div class="card-body">
