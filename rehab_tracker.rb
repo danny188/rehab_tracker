@@ -321,6 +321,17 @@ post "/exercise_library/:template_name/delete" do
   end
 end
 
+def remove_trailing_nils_and_emptys(ary)
+  until (!ary[-1].nil? && !ary[-1].empty?) || ary.empty?
+    ary.pop
+  end
+end
+
+def group_hierarchy(*groups)
+  remove_trailing_nils_and_emptys(groups)
+  groups.unshift(GroupOperations::TOP_GROUP) if groups[0] != GroupOperations::TOP_GROUP
+  groups
+end
 
 post "/users/:username/exercises/add" do
   unless verify_user_access(required_authorization: :patient, required_username: params[:username])
@@ -329,22 +340,24 @@ post "/users/:username/exercises/add" do
 
   @patient = User.get(params[:username])
   @new_exercise_name = params[:new_exercise_name].strip
+  @group_name = params[:group].strip
+
 
   # validate exercise name
-  raise ExerciseTemplate::ExerciseNameNotUniqueErr if @patient.has_exercise(@new_exercise_name)
+  raise GroupOperations::ItemNameInGroupNotUniqueErr if @patient.has_exercise(@new_exercise_name, group_hierarchy(@group_name))
 
-  raise ExerciseTemplate::ExerciseNameEmpty if @new_exercise_name.empty?
+  raise GroupOperations::ItemNameEmpty if @new_exercise_name.empty?
 
-  @patient.add_exercise_by_name(params[:new_exercise_name])
+  @patient.add_exercise_by_name(params[:new_exercise_name], group_hierarchy(@group_name))
 
   @patient.save
 
   redirect "/users/#{@patient.username}/exercises"
 
-rescue ExerciseTemplate::ExerciseNameNotUniqueErr
+rescue GroupOperations::ItemNameInGroupNotUniqueErr
   session[:error] = "An exercise called '#{@new_exercise_name}' already exists. Please pick a new name."
   redirect "/users/#{@patient.username}/exercises"
-rescue ExerciseTemplate::ExerciseNameEmpty
+rescue GroupOperations::ItemNameEmpty
   session[:error] = "Exercise name cannot be blank"
   redirect "/users/#{@patient.username}/exercises"
 end
@@ -684,7 +697,7 @@ post "/new_account" do
     end
 
     new_user = Therapist.new(@username, @hashed_pw)
-  elsif @role = 'admin'
+  elsif @role == 'admin'
     unless verify_user_access(required_authorization: :admin)
       redirect "/access_error"
     end
@@ -946,12 +959,21 @@ end
 # end
 
 post "/users/:username/exercises/add_group" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+
   @patient = User.get(params[:username])
 
   @new_group_name = params[:group].strip
 
   if @patient.subgroup_exists?(@new_group_name, Patient::TOP_HIERARCHY)
     session[:error] = "A group called #{@new_group_name} already exists."
+    erb :tracker
+  end
+
+  if @new_group_name.empty?
+    session[:error] = "Group name cannot be blank."
     erb :tracker
   end
 
@@ -975,7 +997,9 @@ get "/test" do
   #   source_key: "girl.png", target_key: "girl_copied.png")
   @patient = User.get('pineapple')
 
-  @patient.get_groups(['main']).inspect
+  @patient.get_groups(['main'])[0].items[1].name
+  # @patient.get_group(['main', 'stretches']).items.inspect
+
 
 
 end

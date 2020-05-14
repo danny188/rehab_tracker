@@ -623,6 +623,9 @@ class Patient < User
 
   def has_exercise(exercise_name, group_hierarchy = TOP_HIERARCHY)
     group = get_group(group_hierarchy)
+
+    return false unless group
+
     group.has_item?(exercise_name)
   end
 
