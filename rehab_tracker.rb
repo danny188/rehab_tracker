@@ -98,6 +98,10 @@ helpers do
     group_hierarchy.join("_")
   end
 
+  def display_current_group(current_group_hierarchy)
+    current_group_hierarchy.last
+  end
+
   def parse_group_query_str(str)
     str.split("_")
   end
@@ -376,8 +380,8 @@ get "/users/:username/exercises/:exercise_name/edit" do
   end
 
   @patient = User.get(params[:username])
-  input_group_hierarchy = parse_group_query_str(params[:group])
-  @exercise = @patient.get_exercise(params[:exercise_name], group_hierarchy(*input_group_hierarchy))
+  @current_group_hierarchy = parse_group_query_str(params[:group])
+  @exercise = @patient.get_exercise(params[:exercise_name], group_hierarchy(*@current_group_hierarchy))
   erb :edit_exercise
 end
 
@@ -521,9 +525,26 @@ post "/users/:username/exercises/:exercise_name/update" do
   unless verify_user_access(required_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
-
   @patient = User.get(params[:username])
-  @exercise = @patient.get_exercise(params[:exercise_name])
+
+  @current_group_hierarchy = group_hierarchy(*parse_group_query_str(params[:group]))
+
+
+
+  @dest_group_name = params[:dest_group].strip
+  @dest_group_hierarchy = group_hierarchy(@dest_group_name)
+
+  @exercise = @patient.get_exercise(params[:exercise_name], group_hierarchy(*@current_group_hierarchy))
+
+  if @current_group_hierarchy != @dest_group_hierarchy
+    @patient.move_exercise(params[:exercise_name], @current_group_hierarchy, @dest_group_hierarchy)
+  end
+
+  # session[:debug] = (@current_group_hierarchy + ["----"] + @dest_group_hierarchy).inspect
+  # redirect "/test"
+
+  @exercise = @patient.get_exercise(params[:exercise_name], group_hierarchy(*@dest_group_hierarchy))
+
   @exercise.reps = params[:reps]
   @exercise.sets = params[:sets]
   @exercise.instructions = params[:instructions]
@@ -531,20 +552,23 @@ post "/users/:username/exercises/:exercise_name/update" do
   @exercise.comment_by_therapist = params[:therapist_comment]
 
   # validate exercise name
-  exercise_name_not_unique = @patient.has_exercise(params[:new_exercise_name]) && @exercise.name != params[:new_exercise_name]
+  exercise_name_not_unique = @patient.has_exercise(params[:new_exercise_name], @dest_group_hierarchy) && @exercise.name != params[:new_exercise_name]
 
-  raise ExerciseTemplate::ExerciseNameNotUniqueErr if exercise_name_not_unique
+  raise GroupOperations::ItemNameInGroupNotUniqueErr if exercise_name_not_unique
 
   @exercise.name = params[:new_exercise_name]
 
   @patient.save
 
   session[:success] = "Your changes have been saved"
-  redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit"
+  redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit?group=#{@dest_group_name}"
 
-rescue ExerciseTemplate::ExerciseNameNotUniqueErr
-  session[:error] = "An exercise called '#{@new_exercise_name}' already exists. Please pick a new name."
+rescue GroupOperations::ItemNameInGroupNotUniqueErr
+  session[:error] = "An exercise called '#{@exercise.name}' already exists in group #{display_current_group(@dest_group_hierarchy)}."
   halt erb(:edit_exercise)
+# rescue ExerciseTemplate::ExerciseNameNotUniqueErr
+#   session[:error] = "An exercise called '#{@new_exercise_name}' already exists. Please pick a new name."
+#   halt erb(:edit_exercise)
 end
 
 get "/about" do
@@ -1042,15 +1066,16 @@ post "/users/:username/exercises/:exercise_name/move" do
 
   dest_group_name = params[:dest_group].strip
   dest_group_hierarchy = group_hierarchy(dest_group_name)
-  dest_group = @patient.get_group(dest_group_hierarchy)
+  # dest_group = @patient.get_group(dest_group_hierarchy)
 
-  @exercise = @patient.get_exercise(params[:exercise_name], from_group_hierarchy)
+  # @exercise = @patient.get_exercise(params[:exercise_name], from_group_hierarchy)
 
-  # validate exercise name
-  raise GroupOperations::ItemNameInGroupNotUniqueErr if @patient.has_exercise(@exercise.name, dest_group_hierarchy)
+  # # validate exercise name
+  # raise GroupOperations::ItemNameInGroupNotUniqueErr if @patient.has_exercise(@exercise.name, dest_group_hierarchy)
 
-  @patient.add_exercise(@exercise, dest_group_hierarchy)
-  @patient.delete_exercise(@exercise.name, from_group_hierarchy)
+  # @patient.add_exercise(@exercise, dest_group_hierarchy)
+  # @patient.delete_exercise(@exercise.name, from_group_hierarchy)
+  @patient.move_exercise(params[:exercise_name], from_group_hierarchy, dest_group_hierarchy)
 
   @patient.save
 
@@ -1076,11 +1101,11 @@ get "/test" do
   # YAML.load(ary[0]).first_name
   # Amazon_AWS.copy_obj(source_bucket: :images, target_bucket: :images,
   #   source_key: "girl.png", target_key: "girl_copied.png")
-  @patient = User.get('pineapple')
+  # @patient = User.get('pineapple')
 
-  @patient.get_groups(['main']).map(&:name).inspect
-  # @patient.get_group(['main', 'stretches']).items.inspect
-  main_grp = @patient.get_group(['main']).name
+  # @patient.get_groups(['main']).map(&:name).inspect
+  # # @patient.get_group(['main', 'stretches']).items.inspect
+  # main_grp = @patient.get_group(['main']).name
 
-
+  session[:debug]
 end

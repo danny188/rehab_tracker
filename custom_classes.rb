@@ -187,8 +187,8 @@ class Group
     subgroups.find { |subgroup| subgroup.name == subgroup_name }
   end
 
-  def delete_subgroup(new_subgroup)
-    subgroups.delete(new_subgroup)
+  def delete_subgroup_by_name(subgroup_name)
+    subgroups.delete_if { |subgroup| subgroup.name == subgroup_name}
   end
 
   def each_item
@@ -569,6 +569,15 @@ class Patient < User
     end
   end
 
+  def delete_subgroup(delete_group_name, parent_hierarchy)
+    parent_group = get_group(parent_hierarchy)
+
+    if subgroup_exists?(delete_group_name, parent_hierarchy)
+      parent_group.delete_subgroup_by_name(delete_group_name)
+    end
+  end
+
+
   def get_groups(parent_hierarchy)
     parent_group = get_group(parent_hierarchy)
     parent_group.subgroups
@@ -593,6 +602,18 @@ class Patient < User
     end
 
     result_group
+  end
+
+  def move_exercise(exercise_name, from_group_hierarchy, to_group_hierarchy)
+    from_group = get_group(from_group_hierarchy)
+    to_group = get_group(to_group_hierarchy)
+
+    exercise = get_exercise(exercise_name, from_group_hierarchy)
+
+    raise GroupOperations::ItemNameInGroupNotUniqueErr if has_exercise(exercise.name, to_group_hierarchy)
+
+    add_exercise(exercise, to_group_hierarchy)
+    delete_exercise(exercise.name, from_group_hierarchy)
   end
 
   def add_exercise(exercise, group_hierarchy = TOP_HIERARCHY)
