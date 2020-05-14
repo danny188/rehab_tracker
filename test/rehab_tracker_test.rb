@@ -111,6 +111,49 @@ class Patient_Class_Test < Minitest::Test
     refute @pt.get_group(group_hierarchy + ['stretches'])
   end
 
+  def test_move_exercise_between_subgroups
+    @pt.add_subgroup('stretches', group_hierarchy)
+    @pt.add_subgroup('strengthening', group_hierarchy)
+
+    exercise = Exercise.new('calf stretch')
+    from_group_hierarchy = group_hierarchy('strengthening')
+    to_group_hierarchy = group_hierarchy('stretches')
+
+    @pt.add_exercise_by_name(exercise.name, from_group_hierarchy)
+    @pt.move_exercise(exercise.name, from_group_hierarchy, to_group_hierarchy )
+
+    assert @pt.get_exercise(exercise.name, to_group_hierarchy)
+    refute @pt.get_exercise(exercise.name, from_group_hierarchy)
+  end
+
+  def test_move_exercise_between_top_level_and_subgroup
+    @pt.add_subgroup('stretches', group_hierarchy)
+
+    exercise = Exercise.new('calf stretch')
+    from_group_hierarchy = group_hierarchy()
+    to_group_hierarchy = group_hierarchy('stretches')
+
+    @pt.add_exercise_by_name(exercise.name, from_group_hierarchy)
+    @pt.move_exercise(exercise.name, from_group_hierarchy, to_group_hierarchy )
+
+    assert @pt.get_exercise(exercise.name, to_group_hierarchy)
+    refute @pt.get_exercise(exercise.name, from_group_hierarchy)
+  end
+
+  def test_move_exercise_error_exercise_name_not_unique
+    @pt.add_subgroup('stretches', group_hierarchy)
+    exercise = Exercise.new('calf stretch')
+
+    from_group_hierarchy = group_hierarchy()
+    to_group_hierarchy = group_hierarchy('stretches')
+
+    @pt.add_exercise_by_name(exercise.name, from_group_hierarchy)
+    @pt.add_exercise_by_name(exercise.name, to_group_hierarchy)
+
+    assert_raises GroupOperations::ItemNameInGroupNotUniqueErr do
+      @pt.move_exercise(exercise.name, from_group_hierarchy, to_group_hierarchy )
+    end
+  end
 end
 
 class Rehab_Tracker_Test < Minitest::Test
