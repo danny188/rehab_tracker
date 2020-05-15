@@ -270,25 +270,15 @@ end
 # display templates and/or groups
 get "/exercise_library" do
 
-  exercise_library = ExerciseLibrary.load('main')
-  @all_templates = exercise_library.get_all_templates
+  @exercise_library = ExerciseLibrary.load('main')
 
+  @group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
+
+  # @group contains subgroups + template items
+  @group = ExerciseLibrary.get_group(@group_hierarchy)
 
   erb :exercise_library
 end
-
-# display templates and/or groups
-get "/exercise_library/:group" do
-
-end
-
-# display templates and/or groups
-get "/exercise_library/:group/:subgroup" do
-
-end
-
-
-
 
 # edit exercise template
 post "/exercise_library/:template_name/edit" do
@@ -343,7 +333,7 @@ def remove_trailing_nils_and_emptys(ary)
   end
 end
 
-def group_hierarchy(*groups)
+def create_group_hierarchy(*groups)
   remove_trailing_nils_and_emptys(groups)
   groups.unshift(GroupOperations::TOP_GROUP) if groups[0] != GroupOperations::TOP_GROUP
   groups
@@ -360,11 +350,11 @@ post "/users/:username/exercises/add" do
 
 
   # validate exercise name
-  raise GroupOperations::ItemNameInGroupNotUniqueErr if @patient.has_exercise(@new_exercise_name, group_hierarchy(@group_name))
+  raise GroupOperations::ItemNameInGroupNotUniqueErr if @patient.has_exercise(@new_exercise_name, create_group_hierarchy(@group_name))
 
   raise GroupOperations::ItemNameEmpty if @new_exercise_name.empty?
 
-  @patient.add_exercise_by_name(params[:new_exercise_name], group_hierarchy(@group_name))
+  @patient.add_exercise_by_name(params[:new_exercise_name], create_group_hierarchy(@group_name))
 
   @patient.save
 
@@ -385,7 +375,7 @@ get "/users/:username/exercises/:exercise_name/edit" do
 
   @patient = User.get(params[:username])
   @current_group_hierarchy = parse_group_query_str(params[:group])
-  @exercise = @patient.get_exercise(params[:exercise_name], group_hierarchy(*@current_group_hierarchy))
+  @exercise = @patient.get_exercise(params[:exercise_name], create_group_hierarchy(*@current_group_hierarchy))
   erb :edit_exercise
 end
 
@@ -428,7 +418,7 @@ post "/users/:username/exercises/:exercise_name/upload_file" do
 
   @patient = User.get(params[:username])
   @current_group_hierarchy = parse_group_query_str(params[:group])
-  @exercise = @patient.get_exercise(params[:exercise_name], group_hierarchy(*@current_group_hierarchy))
+  @exercise = @patient.get_exercise(params[:exercise_name], create_group_hierarchy(*@current_group_hierarchy))
 
 
   params[:images].each do |file_hash|
@@ -533,14 +523,14 @@ post "/users/:username/exercises/:exercise_name/update" do
   end
   @patient = User.get(params[:username])
 
-  @current_group_hierarchy = group_hierarchy(*parse_group_query_str(params[:group]))
+  @current_group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
 
 
 
   @dest_group_name = params[:dest_group].strip
-  @dest_group_hierarchy = group_hierarchy(@dest_group_name)
+  @dest_group_hierarchy = create_group_hierarchy(@dest_group_name)
 
-  @exercise = @patient.get_exercise(params[:exercise_name], group_hierarchy(*@current_group_hierarchy))
+  @exercise = @patient.get_exercise(params[:exercise_name], create_group_hierarchy(*@current_group_hierarchy))
 
   # session[:debug] = @current_group_hierarchy.inspect
   # redirect "/test"
@@ -552,7 +542,7 @@ post "/users/:username/exercises/:exercise_name/update" do
   # session[:debug] = (@current_group_hierarchy + ["----"] + @dest_group_hierarchy).inspect
   # redirect "/test"
 
-  @exercise = @patient.get_exercise(params[:exercise_name], group_hierarchy(*@dest_group_hierarchy))
+  @exercise = @patient.get_exercise(params[:exercise_name], create_group_hierarchy(*@dest_group_hierarchy))
 
   @exercise.reps = params[:reps]
   @exercise.sets = params[:sets]
@@ -592,7 +582,7 @@ post "/users/:username/exercises/:exercise_name/delete" do
   end
 
   @patient = User.get(params[:username])
-  @current_group_hierarchy = group_hierarchy(*parse_group_query_str(params[:group]))
+  @current_group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
 
   @patient.delete_exercise(params[:exercise_name], @current_group_hierarchy)
 
@@ -608,7 +598,7 @@ post "/users/:username/exercises/:exercise_name/delete_file" do
   end
 
   @patient = User.get(params[:username])
-  @current_group_hierarchy = group_hierarchy(*parse_group_query_str(params[:group]))
+  @current_group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
   @exercise = @patient.get_exercise(params[:exercise_name], @current_group_hierarchy)
 
   @file_path = params[:file_path]
@@ -678,7 +668,7 @@ post "/users/:username/update_tracker" do
   @check_date = params[:date]
   @ticked = params[:checkbox_value]
   @group_name = params[:group]
-  @current_group_hierarchy = group_hierarchy(@group_name)
+  @current_group_hierarchy = create_group_hierarchy(@group_name)
   @end_date = params[:end_date]
 
   # session[:debug] = @current_group_hierarchy.inspect
@@ -1055,7 +1045,7 @@ post "/users/:username/exercises/group/:group_name/rename" do
   end
 
   @patient = User.get(params[:username])
-  @group = @patient.get_group(group_hierarchy(params[:group_name]))
+  @group = @patient.get_group(create_group_hierarchy(params[:group_name]))
   @new_group_name = params[:new_group_name].strip
 
   if @patient.subgroup_exists?(@new_group_name, Patient::TOP_HIERARCHY)
@@ -1069,7 +1059,7 @@ post "/users/:username/exercises/group/:group_name/rename" do
   end
 
   # update group hierarchy names of exercises in this group
-  new_group_hierarchy = group_hierarchy(@new_group_name)
+  new_group_hierarchy = create_group_hierarchy(@new_group_name)
   @group.items.each { |exercise| exercise.group_hierarchy = new_group_hierarchy}
 
   @group.name = @new_group_name
@@ -1085,10 +1075,10 @@ post "/users/:username/exercises/:exercise_name/move" do
 
   @patient = User.get(params[:username])
 
-  from_group_hierarchy = group_hierarchy(*parse_group_query_str(params[:group]))
+  from_group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
 
   dest_group_name = params[:dest_group].strip
-  dest_group_hierarchy = group_hierarchy(dest_group_name)
+  dest_group_hierarchy = create_group_hierarchy(dest_group_name)
   # dest_group = @patient.get_group(dest_group_hierarchy)
 
   # @exercise = @patient.get_exercise(params[:exercise_name], from_group_hierarchy)
