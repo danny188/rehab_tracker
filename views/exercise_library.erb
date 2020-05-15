@@ -14,6 +14,9 @@
   </div>
 </div>
 
+
+<!-- Exercise library contents -->
+
 <div class="d-flex justify-content-start">
   <span class="d-inline">
     <h2 class="mr-5 d-inline">Exercise Library</h2>
@@ -35,6 +38,22 @@
 
   </span>
 </div>
+
+<br>
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/exercise_library">Main Library</a></li>
+
+    <% @group_hierarchy.drop(1).each_with_index do |group_level_name, index| %>
+      <% if @group_hierarchy.last == group_level_name %>
+        <li class="breadcrumb-item active" aria-current="page"><%= group_level_name %></li>
+      <% else %>
+        <li class="breadcrumb-item"><a href="/exercise_library?group=<%= make_group_query_str(@group_hierarchy.take(index + 2)) %>"><%= group_level_name %></a></li>
+      <% end %>
+    <% end %>
+  </ol>
+</nav>
 
 
 <br>

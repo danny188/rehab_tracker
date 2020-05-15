@@ -20,7 +20,7 @@ module GroupOperations
   end
 
   def parse_group_query_str(str)
-    str.split("_")
+    str.split("_") if str
   end
 
     def add_subgroup(new_group_name, parent_hierarchy)
@@ -367,7 +367,7 @@ class ExerciseLibrary
   end
 
   def get_all_templates()
-    templates
+    @template_collection.get_all_items_recursive
   end
 
   def delete_template(template_to_delete)
