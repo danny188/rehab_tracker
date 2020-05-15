@@ -1,0 +1,55 @@
+<!-- exercise images section -->
+<div class="col-12">
+  <form class="form-group row mb-4" action="/exercise_library/<%= @exercise.name %>/upload_file?group=<%= params[:group] if params[:group] %>" id="upload_form" method="post" enctype="multipart/form-data">
+    <label for="patient_comment" class="col-5 col-form-label  "><b>Upload Exercise Images</b></label>
+    <input type="file" id="chosen_file" accept="image/*" name="images[]" multiple />
+    <input type="submit" value="Upload"/>
+  </form>
+
+  <div class="row row-cols-1 row-cols-md-2">
+    <% @exercise.image_links.each do |image_link| %>
+    <div class="col mb-4">
+      <div class="card text-center">
+        <form class="form-inline" method="post" action="/exercise_library/<%= @exercise.name %>/delete_file?group=<%= params[:group] if params[:group] %>" onsubmit="return confirm('Are you sure you want to delete the selected file? This cannot be undone. Click OK to proceed.')">
+          <img src="<%= image_link %>" class="card-img-top" alt="...">
+          <input type="hidden" name="file_path" value="<%= image_link %>">
+          <div class="card-body">
+            <h5 class="card-title"><%= File.basename(image_link) %></h5>
+            <a href="<%= image_link %>" class="btn btn-outline-dark">View Image</a>
+
+            <button type="submit" class="btn btn-outline-danger">Delete</button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+    <% end %>
+  </div>
+</div>
+
+
+
+
+
+
+
+<!-- test area below -->
+<!--
+<div class="row">
+  <div class="col-4 offset-md-8">
+    <div class="alert alert-success fade show alert-dismissible" role="alert">
+      This is a success alert—check it out!
+    </div>
+  </div>
+</div>
+
+<form action="/upload" id="upload_form" method="post" enctype="multipart/form-data">
+  <input type="file" id="file_upload" accept="image/*" name="images[]" multiple />
+  <input type="submit" value="Upload"/>
+</form>
+
+<div id="demo">
+  <h2>Let AJAX change this text</h2>
+  <button type="button" onclick="loadDoc()">Change Content</button>
+</div>
+ -->

@@ -60,14 +60,19 @@
 </nav>
 
 
+
+<% if @group_hierarchy.size <= 2 %>
 <br>
 <div class="row">
   <div class="col">
     <h4 class="d-inline mr-4">Template Groups </h4>
     <!-- trigger modal to create new group -->
-    <a type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#create_group">Create New Group</a>
+    <!--  only allow 2 group levels -->
+    <a type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#create_group">Create New <%= @group_hierarchy.size <= 1 ? 'Group' : 'Subgroup' %></a>
   </div>
 </div>
+
+
 
  <!-- Modal to create new group -->
 <div class="modal" tabindex="-1" role="dialog" id="create_group">
@@ -79,11 +84,11 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form method="post" action="/exercise_library/create_group">
+      <form method="post" action="/exercise_library/create_group?group=<%= params[:group] if params[:group] %>">
         <div class="modal-body">
           <div class="form-group row">
             <label for="instructions" class="col-3 col-form-label"><b>Group</b></label>
-            <input name="group_lvl_1" id="group_lvl_1" type="text" class="form-control col-5" value="" placeholder="" data-toggle="tooltip" data-placement="top" title="Make a name for new group">
+            <input name="group_lvl_1" id="group_lvl_1" type="text" class="form-control col-5" value="<%= @group_hierarchy[1] if @group_hierarchy.size == 2 %>" placeholder="" data-toggle="tooltip" data-placement="top" title="Make a name for new group">
           </div>
           <div class="form-group row">
             <div class="col-1"></div>
@@ -101,6 +106,7 @@
 </div>
 
 <br>
+
 
 <!-- Existing groups -->
 <div class="row row-cols-1 row-cols-lg-6 row-cols-md-4">
@@ -136,14 +142,15 @@
   <% end %>
 
 </div>
-
-<!-- Existing Templates -->
 <hr>
+<% end %>
+<!-- Existing Templates -->
+
 <div class="row">
   <div class="col">
     <h4 class="d-inline mr-4">Exercise Templates</h4>
 
-    <a href="/exercise_library/add_template<%= '?pt=' + @patient.username if @patient %>" class="btn btn-outline-primary">Create New Exercise Template</a>
+    <a href="/exercise_library/add_template?<%= 'group=' + params[:group] if params[:group] %><%= 'pt=' + @patient.username if @patient %>" class="btn btn-outline-primary">Create New Exercise Template</a>
   </div>
 </div>
 
@@ -171,15 +178,16 @@
 
           <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
 
-            <a href="/exercise_library/<%= template.name %>/edit<%= '?pt=' + @patient.username if @patient %>" class="dropdown-item text-primary" data-toggle="tooltip" title="View/Edit exercise template">View/Edit</a>
+            <a href="/exercise_library/<%= template.name %>/edit?<%= 'group=' + params[:group] if params[:group] %><%= 'pt=' + @patient.username if @patient %>" class="dropdown-item text-primary" data-toggle="tooltip" title="View/Edit exercise template">View/Edit</a>
 
-            <form action="/exercise_library/<%= template.name %>/delete<%= '?pt=' + @patient.username if @patient %>" method="post" onsubmit="return confirm('Are you sure you want to delete this template? This cannot be reversed. Click OK to proceed.');">
+            <form action="/exercise_library/<%= template.name %>/delete?<%= 'group=' + params[:group] if params[:group] %><%= 'pt=' + @patient.username if @patient %>" method="post" onsubmit="return confirm('Are you sure you want to delete this template? This cannot be reversed. Click OK to proceed.');">
               <button type="submit"  class="dropdown-item text-danger" data-toggle="tooltip" title="Delete template and associated data.">Delete</button>
             </form>
 
             <% if @patient %>
             <form id="template-form" class="template-form" action="/users/<%= @patient.username %>/exercises/add_from_library" method="POST">
               <input type="hidden" name="template_name" value="<%= template.name %>">
+              <input type="hidden" name="group_hierarchy_str" value="<%= params[:group] if params[:group] %>">
               <button id="template-form-btn" type="submit" class="dropdown-item text-light bg-dark" value="submit">Add for <%= full_name_plus_username(@patient) %></button>
             </form>
             <% end %>

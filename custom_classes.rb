@@ -13,7 +13,11 @@ module GroupOperations
   class GroupNameEmptyErr < StandardError; end
 
   def make_group_query_str(group_hierarchy)
-    group_hierarchy.join("_")
+    if group_hierarchy
+      group_hierarchy.join("_")
+    else
+      ""
+    end
   end
 
   def display_current_group(current_group_hierarchy)
@@ -84,7 +88,7 @@ module GroupOperations
     else # create subgroup if not yet exists
       target_group_name = group_hierarchy.last
       parent_hierarchy = group_hierarchy.slice(0..-2)
-      add_subgroup(target_group_name, parent_hierarchy)
+      add_group(target_group_name, parent_hierarchy)
       group = get_group(group_hierarchy)
     end
     exercise.group_hierarchy = group_hierarchy
@@ -109,7 +113,7 @@ module GroupOperations
     group.has_item?(exercise_name)
   end
 
-    def move_exercise(exercise_name, from_group_hierarchy, to_group_hierarchy)
+  def move_exercise(exercise_name, from_group_hierarchy, to_group_hierarchy)
     from_group = get_group(from_group_hierarchy)
     to_group = get_group(to_group_hierarchy)
 

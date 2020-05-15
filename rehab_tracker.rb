@@ -210,20 +210,23 @@ get "/exercise_library/add_template" do
     redirect "/access_error"
   end
 
-  @patient = User.get(params[:pt]) if params[:pt]
+  @browse_group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
 
-  @new_template = true
   @exercise_library = ExerciseLibrary.load('main')
+  @patient = User.get(params[:pt]) if params[:pt]
+  # the group level user is browsing exercise library at
 
   # testing
-  @exercise_library.add_group('A', create_group_hierarchy)
-  @exercise_library.add_group('B', create_group_hierarchy)
+  # @exercise_library.add_group('A', create_group_hierarchy)
+  # @exercise_library.add_group('B', create_group_hierarchy)
 
-  @exercise_library.add_group('A1', create_group_hierarchy('A'))
-  @exercise_library.add_group('A2', create_group_hierarchy('A'))
-  @exercise_library.add_group('B1', create_group_hierarchy('B'))
+  # @exercise_library.add_group('A1', create_group_hierarchy('A'))
+  # @exercise_library.add_group('A2', create_group_hierarchy('A'))
+  # @exercise_library.add_group('B1', create_group_hierarchy('B'))
 
-  erb :new_exercise_template
+  @title = "Create Exercise Template"
+
+  erb :exercise_template_base_info_edit
 end
 
 # add exercise template
@@ -236,43 +239,49 @@ post "/exercise_library/add_exercise" do
 
   if nil_or_empty?(params[:group_lvl_1]) && !nil_or_empty?(params[:group_lvl_2])
     session[:error] = "Group name cannot be empty if a subgroup is specified."
-    halt erb(:new_exercise_template)
+    halt erb(:exercise_template_base_info_edit)
   end
 
-  @group_hierarchy = create_group_hierarchy(params[:group_lvl_1], params[:group_lvl_2])
+  @browse_group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
+
+  @dest_group_hierarchy = create_group_hierarchy(params[:group_lvl_1], params[:group_lvl_2])
 
   @exercise = ExerciseTemplate.new(@new_exercise_name, params[:reps], params[:sets])
   @exercise.instructions = params[:instructions]
 
   exercise_library = ExerciseLibrary.load('main')
 
-  if exercise_library.has_exercise?(@new_exercise_name, @group_hierarchy)
+  if exercise_library.has_exercise(@new_exercise_name, @dest_group_hierarchy)
     session[:error] = "Exercise Library already has a template named '#{@new_exercise_name} in group #{[params[:group_lvl_1], params[:group_lvl_1]].join('/')}'. Please choose another name."
-    halt erb(:new_exercise_template)
+    halt erb(:exercise_template_base_info_edit)
   end
 
   if @new_exercise_name.empty?
     session[:error] = "Template name cannot be empty."
-    halt erb(:new_exercise_template)
+    halt erb(:exercise_template_base_info_edit)
   end
 
-  exercise_library.add_exercise(@exercise)
+  exercise_library.add_exercise(@exercise, @dest_group_hierarchy)
   exercise_library.save
 
-  redirect "/exercise_library/#{@exercise.name}/edit"
+  redirect "/exercise_library/#{@exercise.name}/edit?group=#{params[:group]}"
 end
 
 # display exercise template edit page
-get "/exercise_library/:template_name/edit" do
+get "/exercise_library/:exercise_name/edit" do
   unless verify_user_access(required_authorization: :therapist)
     redirect "/access_error"
   end
 
-  exercise_library = ExerciseLibrary.load('main')
-  @template = exercise_library.get_template(params[:template_name])
+  @exercise_library = ExerciseLibrary.load('main')
+  @browse_group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
 
-  unless @template # requested template not found
-    session[:error] = "Exercise template '#{params[:template_name]}' not found."
+  # session[:debug] = params[:group]
+  # redirect "/test"
+  @exercise = @exercise_library.get_exercise(params[:exercise_name], @browse_group_hierarchy)
+
+  unless @exercise # requested exercise not found
+    session[:error] = "Exercise template '#{params[:exercise_name]}' not found."
     if @patient
       redirect "/users/#{@patient.username}/exercises/add_from_library"
     else
@@ -280,7 +289,12 @@ get "/exercise_library/:template_name/edit" do
     end
   end
 
-  erb :edit_exercise_template
+  @title = "Edit Exercise Template"
+  @editing_exercise_template = true
+
+  erb :exercise_template_base_info_edit, :layout => :layout do
+    erb :template_images_edit
+  end
 end
 
 # display templates and/or groups
@@ -309,40 +323,66 @@ get "/exercise_library" do
 end
 
 # edit exercise template
-post "/exercise_library/:template_name/edit" do
+post "/exercise_library/:exercise_name/edit" do
   unless verify_user_access(required_authorization: :therapist)
     redirect "/access_error"
   end
 
-  exercise_library = ExerciseLibrary.load('main')
-  @template = exercise_library.get_template(params[:template_name])
-  @new_template_name = params[:new_template_name].strip
+  @browse_group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
 
-  @template.reps = params[:reps]
-  @template.sets = params[:sets]
-  @template.instructions = params[:instructions]
+  @dest_group_hierarchy = create_group_hierarchy(params[:group_lvl_1], params[:group_lvl_2])
 
-  # ensuring not changing name to clash with another existing template
-  if exercise_library.has_template?(@new_template_name) && @new_template_name != @template.name
-    session[:error] = "Exercise Library already has a template named '#{@new_template_name}'. Please choose another name."
-    halt erb(:edit_exercise_template)
+
+
+  @exercise_library = ExerciseLibrary.load('main')
+  # session[:debug] = @exercise_library.get_exercise('jumping ropes',@browse_group_hierarchy).name
+  # redirect "/test"
+  @exercise = @exercise_library.get_exercise(params[:exercise_name], @browse_group_hierarchy)
+  @new_exercise_name = params[:new_exercise_name].strip
+
+  @exercise.reps = params[:reps]
+  @exercise.sets = params[:sets]
+  @exercise.instructions = params[:instructions]
+
+  # check for empty group names
+  if nil_or_empty?(params[:group_lvl_1]) && !nil_or_empty?(params[:group_lvl_2])
+    session[:error] = "Group name cannot be empty if a subgroup is specified."
+    erb :exercise_template_base_info_edit, :layout => :layout do
+      erb :template_images_edit
+    end
+    halt
   end
 
-  @template.name = @new_template_name
+  # ensuring not changing exercise name to clash with another existing exercise
+  if @exercise_library.has_exercise(@new_exercise_name, @dest_group_hierarchy) && @new_exercise_name != @exercise.name
+    session[:error] = "Exercise Library already has a exercise template named '#{@new_exercise_name}'. Please choose another name."
+    erb :exercise_template_base_info_edit, :layout => :layout do
+      erb :template_images_edit
+    end
+    halt
+  end
 
-  exercise_library.save
+  # update exercise name
+  @exercise.name = @new_exercise_name
 
-  redirect "/exercise_library/#{@template.name}/edit"
+  # change residing group if needed
+  if @browse_group_hierarchy != @dest_group_hierarchy
+    @exercise_library.move_exercise(@exercise.name, @browse_group_hierarchy, @dest_group_hierarchy)
+  end
+
+  @exercise_library.save
+
+  redirect "/exercise_library/#{@exercise.name}/edit?group=#{GroupOperations::make_group_query_str(@dest_group_hierarchy)}"
 end
 
 # delete exercise template
-post "/exercise_library/:template_name/delete" do
+post "/exercise_library/:exercise_name/delete" do
   unless verify_user_access(required_authorization: :therapist)
     redirect "/access_error"
   end
 
   exercise_library = ExerciseLibrary.load('main')
-  @delete_template = exercise_library.get_template(params[:template_name])
+  @delete_template = exercise_library.get_template(params[:exercise_name])
 
   exercise_library.delete_template(@delete_template)
 
@@ -402,8 +442,8 @@ get "/users/:username/exercises/:exercise_name/edit" do
   end
 
   @patient = User.get(params[:username])
-  @current_group_hierarchy = parse_group_query_str(params[:group])
-  @exercise = @patient.get_exercise(params[:exercise_name], create_group_hierarchy(*@current_group_hierarchy))
+  @current_group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
+  @exercise = @patient.get_exercise(params[:exercise_name], @current_group_hierarchy)
   erb :edit_exercise
 end
 

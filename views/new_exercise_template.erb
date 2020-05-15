@@ -1,7 +1,5 @@
 <div class="row">
-  <h2 class="col-5">New Exercise Template</h2>
-
-
+  <h2 class="col-5">New/edit Exercise Template Title</h2>
 </div>
 
 
@@ -21,7 +19,7 @@
 
       <div class="form-group row">
         <label for="instructions" class="col-3 col-form-label"><b>Group</b></label>
-        <input name="group_lvl_1" id="group_lvl_1" list="grouplist_lvl_1" class="form-control col-3" value="" placeholder="" data-toggle="tooltip" data-placement="top" title="Choose existing group, or make a name for new group">
+        <input name="group_lvl_1" id="group_lvl_1" list="grouplist_lvl_1" class="form-control col-3" value="<%= @browse_group_hierarchy[1] %>" placeholder="" data-toggle="tooltip" data-placement="top" title="Choose existing group, or make a name for new group">
         <datalist id="grouplist_lvl_1">
           <% @exercise_library.get_groups(GroupOperations::TOP_HIERARCHY).each do |group| %>
           <option value="<%= group.name %>"></option>
@@ -85,7 +83,7 @@
           <% if @patient %>
           <a href="/users/<%= @patient.username %>/exercises/add_from_library" class="btn btn-outline-secondary form-control">Discard</a>
           <% else %>
-          <a href="/exercise_library" class="btn btn-outline-secondary form-control">Discard</a>
+          <a href="/exercise_library?group=<%= params[:group] %>" class="btn btn-outline-secondary form-control">Discard</a>
           <% end %>
 
         </div>
