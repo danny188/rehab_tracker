@@ -249,9 +249,9 @@ post "/exercise_library/add_exercise" do
   @exercise = ExerciseTemplate.new(@new_exercise_name, params[:reps], params[:sets])
   @exercise.instructions = params[:instructions]
 
-  exercise_library = ExerciseLibrary.load('main')
+  @exercise_library = ExerciseLibrary.load('main')
 
-  if exercise_library.has_exercise(@new_exercise_name, @dest_group_hierarchy)
+  if @exercise_library.has_exercise(@new_exercise_name, @dest_group_hierarchy)
     session[:error] = "Exercise Library already has a template named '#{@new_exercise_name} in group #{[params[:group_lvl_1], params[:group_lvl_1]].join('/')}'. Please choose another name."
     halt erb(:exercise_template_base_info_edit)
   end
@@ -261,8 +261,8 @@ post "/exercise_library/add_exercise" do
     halt erb(:exercise_template_base_info_edit)
   end
 
-  exercise_library.add_exercise(@exercise, @dest_group_hierarchy)
-  exercise_library.save
+  @exercise_library.add_exercise(@exercise, @dest_group_hierarchy)
+  @exercise_library.save
 
   redirect "/exercise_library/#{@exercise.name}/edit?group=#{params[:group]}"
 end
