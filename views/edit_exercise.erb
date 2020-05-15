@@ -19,6 +19,15 @@
         <input type="text" class="form-control col-6" id="new_exercise_name" name="new_exercise_name" value="<%= @exercise.name %>">
       </div>
       <div class="form-group row">
+        <label for="instructions" class="col-3 col-form-label"><b>Group</b></label>
+        <input name="dest_group" list="group" class="form-control col-6" value="<%= display_current_group(@current_group_hierarchy) %>" placeholder="">
+        <datalist id="group">
+          <% @patient.get_groups(GroupOperations::TOP_HIERARCHY).each do |group| %>
+          <option value="<%= group.name %>"></option>
+          <% end %>
+        </datalist>
+      </div>
+      <div class="form-group row">
         <label for="reps" class="col-3 col-form-label"><b>Repetitions</b></label>
         <input name="reps" list="reps" class="col-2 form-control" value="<%= @exercise.reps %>">
         <datalist id="reps">
@@ -41,15 +50,7 @@
          <option value="5"></option>
        </datalist>
      </div>
-    <div class="form-group row">
-      <label for="instructions" class="col-3 col-form-label"><b>Group</b></label>
-      <input name="dest_group" list="group" class="form-control col-6" value="<%= display_current_group(@current_group_hierarchy) %>" placeholder="">
-      <datalist id="group">
-        <% @patient.get_groups(GroupOperations::TOP_HIERARCHY).each do |group| %>
-        <option value="<%= group.name %>"></option>
-        <% end %>
-      </datalist>
-    </div>
+
 
     <div class="form-group row">
       <label for="instructions" class="col-3 col-form-label"><b>Instructions</b></label>
