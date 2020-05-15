@@ -213,6 +213,15 @@ get "/exercise_library/add_template" do
   @patient = User.get(params[:pt]) if params[:pt]
 
   @new_template = true
+  @exercise_library = ExerciseLibrary.load('main')
+
+  # testing
+  @exercise_library.add_subgroup('A', create_group_hierarchy)
+  @exercise_library.add_subgroup('B', create_group_hierarchy)
+
+  @exercise_library.add_subgroup('A1', create_group_hierarchy('A'))
+  @exercise_library.add_subgroup('A2', create_group_hierarchy('A'))
+  @exercise_library.add_subgroup('B1', create_group_hierarchy('B'))
 
   erb :new_exercise_template
 end

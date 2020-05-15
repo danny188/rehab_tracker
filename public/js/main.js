@@ -161,8 +161,24 @@ $(function () {
   $('[data-toggle="popover"]').popover({html:true});
 })
 
-
-
+// When adding new exercise template, show current subgroups based on selected level 1 group
+$(function(){
+    $('#group_lvl_1').on('change', function(){
+        var val = $(this).val();
+        var sub = $('#grouplist_lvl_2');
+        $('option', sub).filter(function(){
+            if (
+                 $(this).attr('data-group') === val
+              || $(this).attr('data-group') === 'SHOW'
+            ) {
+                $(this).attr('value', $(this).attr('hidden-value'));
+            } else {
+                $(this).attr('value', '');
+            }
+        });
+    });
+    $('#group_lvl_1').trigger('change');
+});
 
 
 // $("#add-template-for-patient").on('submit', function(e) {
