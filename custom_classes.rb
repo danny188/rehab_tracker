@@ -67,8 +67,6 @@ module GroupOperations
 
 
   def add_exercise(exercise, group_hierarchy = TOP_HIERARCHY)
-    exercise.patient_username = self.username
-
     group = get_group(group_hierarchy)
 
     if group
@@ -443,25 +441,14 @@ class ExerciseLibrary
     GroupOperations::get_group(hierarchy, @template_collection)
   end
 
-  def add_template(template)
-    template.exercise_library = self.name
-    templates.push(template)
-  end
-
-  def get_template(name)
-    templates.find { |template| template.name == name }
-  end
-
   def get_all_templates()
     @template_collection.get_all_items_recursive
   end
 
-  def delete_template(template_to_delete)
-    templates.delete_if { |template| template.name == template_to_delete.name }
-  end
+  def add_exercise_by_name(exercise_name, group_hierarchy = TOP_HIERARCHY)
+    new_exercise = ExerciseTemplate.new(exercise_name, group_hierarchy)
 
-  def has_template?(test_template_name)
-    templates.any? { |template| template.name == test_template_name }
+    add_exercise(new_exercise, group_hierarchy)
   end
 end
 
@@ -699,6 +686,11 @@ class Patient < User
     new_exercise = Exercise.new(exercise_name, group_hierarchy)
 
     add_exercise(new_exercise, group_hierarchy)
+  end
+
+  def add_exercise(exercise, group_hierarchy = TOP_HIERARCHY)
+    super
+    exercise.patient_username = self.username
   end
 
   def get_group(hierarchy = TOP_HIERARCHY)

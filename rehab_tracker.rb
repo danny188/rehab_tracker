@@ -227,32 +227,39 @@ get "/exercise_library/add_template" do
 end
 
 # add exercise template
-post "/exercise_library/add_template" do
+post "/exercise_library/add_exercise" do
   unless verify_user_access(required_authorization: :therapist)
     redirect "/access_error"
   end
 
-  @new_template_name = params[:new_template_name].to_s.strip
+  @new_exercise_name = params[:new_exercise_name].to_s.strip
 
-  @template = ExerciseTemplate.new(@new_template_name, params[:reps], params[:sets])
-  @template.instructions = params[:instructions]
-
-  exercise_library = ExerciseLibrary.load('main')
-
-  if exercise_library.has_template?(@new_template_name)
-    session[:error] = "Exercise Library already has a template named '#{@new_template_name}'. Please choose another name."
+  if nil_or_empty?(params[:group_lvl_1]) && !nil_or_empty?(params[:group_lvl_2])
+    session[:error] = "Group name cannot be empty if a subgroup is specified."
     halt erb(:new_exercise_template)
   end
 
-  if @new_template_name.empty?
+  @group_hierarchy = create_group_hierarchy(params[:group_lvl_1], params[:group_lvl_2])
+
+  @exercise = ExerciseTemplate.new(@new_exercise_name, params[:reps], params[:sets])
+  @exercise.instructions = params[:instructions]
+
+  exercise_library = ExerciseLibrary.load('main')
+
+  if exercise_library.has_exercise?(@new_exercise_name, @group_hierarchy)
+    session[:error] = "Exercise Library already has a template named '#{@new_exercise_name} in group #{[params[:group_lvl_1], params[:group_lvl_1]].join('/')}'. Please choose another name."
+    halt erb(:new_exercise_template)
+  end
+
+  if @new_exercise_name.empty?
     session[:error] = "Template name cannot be empty."
     halt erb(:new_exercise_template)
   end
 
-  exercise_library.add_template(@template)
+  exercise_library.add_exercise(@exercise)
   exercise_library.save
 
-  redirect "/exercise_library/#{@template.name}/edit"
+  redirect "/exercise_library/#{@exercise.name}/edit"
 end
 
 # display exercise template edit page
@@ -288,6 +295,14 @@ get "/exercise_library" do
 
   # @group contains subgroups + template items
   @group = @exercise_library.get_group(@group_hierarchy)
+
+  @exercise_library.add_subgroup('group 1', create_group_hierarchy)
+  @exercise_library.add_subgroup('group 2', create_group_hierarchy)
+  @exercise_library.add_subgroup('group 3', create_group_hierarchy)
+
+  @exercise_library.add_exercise_by_name('squat')
+  @exercise_library.add_exercise_by_name('jump')
+
 
   erb :exercise_library
 end

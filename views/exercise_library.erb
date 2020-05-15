@@ -22,6 +22,10 @@
     <h2 class="mr-5 d-inline">Exercise Library</h2>
 
 
+    <% if @patient %>
+    <a href="/users/<%= @patient.username %>/exercises" class="mx-2 btn btn-outline-secondary">Return to Exercise Page of <%= full_name_plus_username(@patient) %></a>
+    <% end %>
+
     <% if session[:error] %>
 
       <span class="alert alert-danger fade show" role="alert">
@@ -58,14 +62,60 @@
 
 <br>
 <div class="row">
-  <a href="/exercise_library/add_template<%= '?pt=' + @patient.username if @patient %>" class="mx-2 btn btn-outline-primary">Create New Exercise Template</a>
+  <div class="col">
+    <h4 class="d-inline mr-4">Template Groups </h4>
+    <a href="/exercise_library/add_template<%= '?pt=' + @patient.username if @patient %>" class="btn btn-outline-primary">Create New Group</a>
 
-  <% if @patient %>
-  <a href="/users/<%= @patient.username %>/exercises" class="mx-2 btn btn-outline-secondary">Return to Exercise Page of <%= full_name_plus_username(@patient) %></a>
+  </div>
+</div>
+
+<br>
+
+<!-- Existing groups -->
+<div class="row row-cols-1 row-cols-lg-6 row-cols-md-4">
+  <% @group.subgroups.each_with_index do |subgroup, index| %>
+  <div class="col mb-4">
+    <div class="card text-center">
+      <div class="card-body">
+        <h5 class="card-title"><strong><%= subgroup.name %></strong></h5>
+        <div class="row justify-content-center">
+          <a class="float-right btn btn-outline-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Actions
+          </a>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+
+            <a href="/exercise_library?group=<%= make_group_query_str(@group_hierarchy + [subgroup.name]) %>" class="dropdown-item text-primary" data-toggle="tooltip" title="Open group exercise template">Open</a>
+            <hr>
+
+            <form action="/exercise_library//delete<%= '?pt=' + @patient.username if @patient %>" method="post" onsubmit="return confirm('Are you sure you want to delete group and all its exercises? This cannot be reversed. Click OK to proceed.');">
+              <button type="submit"  class="dropdown-item text-danger" data-toggle="tooltip" title="Delete template and associated data.">Delete</button>
+            </form>
+            <% if @patient %>
+            <form id="template-form" class="template-form" action="/users/<%= @patient.username %>/exercises/add_group_from_library" method="POST">
+              <input type="hidden" name="group_hierarchy_str" value="<%= make_group_query_str(@group_hierarchy + [subgroup.name]) %>">
+              <button id="template-form-btn" type="submit" class="dropdown-item text-light bg-dark" value="submit">Add for <%= full_name_plus_username(@patient) %></button>
+            </form>
+            <% end %>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
   <% end %>
+
 </div>
 
 <!-- Existing Templates -->
+<hr>
+<div class="row">
+  <div class="col">
+    <h4 class="d-inline mr-4">Exercise Templates</h4>
+
+    <a href="/exercise_library/add_template<%= '?pt=' + @patient.username if @patient %>" class="btn btn-outline-primary">Create New Exercise Template</a>
+  </div>
+</div>
+
 <br>
 <div class="row row-cols-1 row-cols-lg-6 row-cols-md-4">
 

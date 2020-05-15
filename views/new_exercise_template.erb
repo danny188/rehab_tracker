@@ -13,15 +13,15 @@
 <div class="row">
 
   <div class="col-6">
-    <form action="/exercise_library/add_template" method="post">
+    <form action="/exercise_library/add_exercise" method="post">
       <div class="form-group row">
-        <label for="new_template_name" class="col-3 col-form-label"><b>Name of Exercise</b></label>
-        <input type="text" class="form-control col-6" id="new_template_name" name="new_template_name" value="<%= @template.name if @template %>">
+        <label for="new_exercise_name" class="col-3 col-form-label"><b>Name of Exercise</b></label>
+        <input type="text" class="form-control col-6" id="new_exercise_name" name="new_exercise_name" value="<%= @exercise.name if @exercise %>">
       </div>
 
       <div class="form-group row">
         <label for="instructions" class="col-3 col-form-label"><b>Group</b></label>
-        <input name="group_lvl_1" id="group_lvl_1" list="grouplist_lvl_1" class="form-control col-3" value="" placeholder="">
+        <input name="group_lvl_1" id="group_lvl_1" list="grouplist_lvl_1" class="form-control col-3" value="" placeholder="" data-toggle="tooltip" data-placement="top" title="Choose existing group, or make a name for new group">
         <datalist id="grouplist_lvl_1">
           <% @exercise_library.get_groups(GroupOperations::TOP_HIERARCHY).each do |group| %>
           <option value="<%= group.name %>"></option>
@@ -42,7 +42,7 @@
 
       <div class="form-group row">
         <label for="reps" class="col-3 col-form-label"><b>Repetitions</b></label>
-        <input name="reps" list="reps" class="col-3 form-control" value="<%= @template ? @template.reps : ExerciseTemplate::DEFAULT_REPS %>">
+        <input name="reps" list="reps" class="col-3 form-control" value="<%= @exercise ? @exercise.reps : ExerciseTemplate::DEFAULT_REPS %>">
         <datalist id="reps">
          <option value="5"></option>
          <option value="10"></option>
@@ -54,7 +54,7 @@
        </datalist>
 
        <label for="sets" class="col-1 offset-1 col-form-label"><b>Sets</b></label>
-       <input name="sets" list="sets" class="col-2 form-control" value="<%= @template ? @template.sets : ExerciseTemplate::DEFAULT_SETS %>">
+       <input name="sets" list="sets" class="col-2 form-control" value="<%= @exercise ? @exercise.sets : ExerciseTemplate::DEFAULT_SETS %>">
        <datalist id="sets">
          <option value="1"></option>
          <option value="2"></option>
@@ -65,7 +65,7 @@
      </div>
      <div class="form-group row">
       <label for="instructions" class="col-3 col-form-label"><b>Instructions</b></label>
-      <textarea class="form-control col-8" id="instructions" name="instructions" rows="3"><%= @template.instructions if @template %></textarea>
+      <textarea class="form-control col-8" id="instructions" name="instructions" rows="3"><%= @exercise.instructions if @exercise %></textarea>
     </div>
 
     <div class="row">
