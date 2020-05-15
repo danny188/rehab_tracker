@@ -267,6 +267,7 @@ get "/exercise_library/:template_name/edit" do
   erb :edit_exercise_template
 end
 
+# display templates and/or groups
 get "/exercise_library" do
 
   exercise_library = ExerciseLibrary.load('main')
@@ -274,8 +275,20 @@ get "/exercise_library" do
 
 
   erb :exercise_library
+end
+
+# display templates and/or groups
+get "/exercise_library/:group" do
 
 end
+
+# display templates and/or groups
+get "/exercise_library/:group/:subgroup" do
+
+end
+
+
+
 
 # edit exercise template
 post "/exercise_library/:template_name/edit" do
