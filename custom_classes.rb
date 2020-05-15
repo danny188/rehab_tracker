@@ -22,6 +22,48 @@ module GroupOperations
   def parse_group_query_str(str)
     str.split("_")
   end
+
+    def add_subgroup(new_group_name, parent_hierarchy)
+    parent_group = get_group(parent_hierarchy)
+
+    unless subgroup_exists?(new_group_name, parent_hierarchy)
+      parent_group.add_subgroup(Group.new(new_group_name))
+    end
+  end
+
+  def delete_subgroup(delete_group_name, parent_hierarchy)
+    parent_group = get_group(parent_hierarchy)
+
+    if subgroup_exists?(delete_group_name, parent_hierarchy)
+      parent_group.delete_subgroup_by_name(delete_group_name)
+    end
+  end
+
+  def get_groups(parent_hierarchy)
+    parent_group = get_group(parent_hierarchy)
+    parent_group.subgroups
+  end
+
+  def subgroup_exists?(test_group_name, parent_hierarchy)
+    parent_group = get_group(parent_hierarchy)
+
+    parent_group.get_subgroup(test_group_name)
+  end
+
+  def get_group(hierarchy = TOP_HIERARCHY)
+    hierarchy_copy = hierarchy.dup
+
+    hierarchy_copy.shift
+    result_group = @exercise_collection
+
+    until hierarchy_copy.empty?
+      result_group = result_group.get_subgroup(hierarchy_copy[0])
+      return nil unless result_group
+      hierarchy_copy.shift
+    end
+
+    result_group
+  end
 end
 
 module DataPersistence
@@ -308,7 +350,7 @@ class ExerciseLibrary
 
   def initialize(name)
     self.name = name
-    @templates = []
+    @template_collection = TemplateGroup.new(TOP_GROUP)
   end
 
   def file_prefix
@@ -573,47 +615,7 @@ class Patient < User
     add_exercise(new_exercise, group_hierarchy)
   end
 
-  def add_subgroup(new_group_name, parent_hierarchy)
-    parent_group = get_group(parent_hierarchy)
 
-    unless subgroup_exists?(new_group_name, parent_hierarchy)
-      parent_group.add_subgroup(ExerciseGroup.new(new_group_name))
-    end
-  end
-
-  def delete_subgroup(delete_group_name, parent_hierarchy)
-    parent_group = get_group(parent_hierarchy)
-
-    if subgroup_exists?(delete_group_name, parent_hierarchy)
-      parent_group.delete_subgroup_by_name(delete_group_name)
-    end
-  end
-
-  def get_groups(parent_hierarchy)
-    parent_group = get_group(parent_hierarchy)
-    parent_group.subgroups
-  end
-
-  def subgroup_exists?(test_group_name, parent_hierarchy)
-    parent_group = get_group(parent_hierarchy)
-
-    parent_group.get_subgroup(test_group_name)
-  end
-
-  def get_group(hierarchy = TOP_HIERARCHY)
-    hierarchy_copy = hierarchy.dup
-
-    hierarchy_copy.shift
-    result_group = @exercise_collection
-
-    until hierarchy_copy.empty?
-      result_group = result_group.get_subgroup(hierarchy_copy[0])
-      return nil unless result_group
-      hierarchy_copy.shift
-    end
-
-    result_group
-  end
 
   def move_exercise(exercise_name, from_group_hierarchy, to_group_hierarchy)
     from_group = get_group(from_group_hierarchy)
