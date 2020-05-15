@@ -216,12 +216,12 @@ get "/exercise_library/add_template" do
   @exercise_library = ExerciseLibrary.load('main')
 
   # testing
-  @exercise_library.add_subgroup('A', create_group_hierarchy)
-  @exercise_library.add_subgroup('B', create_group_hierarchy)
+  @exercise_library.add_group('A', create_group_hierarchy)
+  @exercise_library.add_group('B', create_group_hierarchy)
 
-  @exercise_library.add_subgroup('A1', create_group_hierarchy('A'))
-  @exercise_library.add_subgroup('A2', create_group_hierarchy('A'))
-  @exercise_library.add_subgroup('B1', create_group_hierarchy('B'))
+  @exercise_library.add_group('A1', create_group_hierarchy('A'))
+  @exercise_library.add_group('A2', create_group_hierarchy('A'))
+  @exercise_library.add_group('B1', create_group_hierarchy('B'))
 
   erb :new_exercise_template
 end
@@ -296,12 +296,13 @@ get "/exercise_library" do
   # @group contains subgroups + template items
   @group = @exercise_library.get_group(@group_hierarchy)
 
-  @exercise_library.add_subgroup('group 1', create_group_hierarchy)
-  @exercise_library.add_subgroup('group 2', create_group_hierarchy)
-  @exercise_library.add_subgroup('group 3', create_group_hierarchy)
+  # debug
+  # @exercise_library.add_subgroup('group 1', create_group_hierarchy)
+  # @exercise_library.add_subgroup('group 2', create_group_hierarchy)
+  # @exercise_library.add_subgroup('group 3', create_group_hierarchy)
 
-  @exercise_library.add_exercise_by_name('squat')
-  @exercise_library.add_exercise_by_name('jump')
+  # @exercise_library.add_exercise_by_name('squat')
+  # @exercise_library.add_exercise_by_name('jump')
 
 
   erb :exercise_library
@@ -1045,7 +1046,7 @@ post "/users/:username/exercises/add_group" do
     erb :tracker
   end
 
-  @patient.add_subgroup(@new_group_name, Patient::TOP_HIERARCHY)
+  @patient.add_group(@new_group_name, Patient::TOP_HIERARCHY)
   @patient.save
   redirect "/users/#{@patient.username}/exercises"
 end
@@ -1059,7 +1060,7 @@ post "/users/:username/exercises/group/:delete_group/delete" do
 
   delete_group_name = params[:delete_group]
 
-  @patient.delete_subgroup(delete_group_name, group_hierarchy)
+  @patient.delete_group(delete_group_name, group_hierarchy)
 
   @patient.save
 
@@ -1126,7 +1127,57 @@ rescue GroupOperations::ItemNameInGroupNotUniqueErr
   redirect "/users/#{@patient.username}/exercises"
 end
 
+post "/exercise_library/create_group" do
+  unless verify_user_access(required_authorization: :therapist)
+    redirect "/access_error"
+  end
 
+  @exercise_library = ExerciseLibrary.load('main')
+
+  @group_lvl_1 = params[:group_lvl_1].strip
+  @group_lvl_2 = params[:group_lvl_2].strip
+
+  create_lvl_1_group = nil_or_empty?(@group_lvl_2) && !nil_or_empty?(@group_lvl_1)
+  create_lvl_2_group = !nil_or_empty?(@group_lvl_2) && !nil_or_empty?(@group_lvl_1)
+  lvl_1_group_exists = @exercise_library.subgroup_exists?(@group_lvl_1, create_group_hierarchy)
+  lvl_2_group_exists = @exercise_library.subgroup_exists?(@group_lvl_2, create_group_hierarchy(@group_lvl_1))
+  lvl_1_group_name_empty = nil_or_empty?(@group_lvl_1)
+  lvl_2_group_name_empty = nil_or_empty?(@group_lvl_2)
+
+  # check group exists when creating level 1 group
+  if create_lvl_1_group && lvl_1_group_exists
+    session[:error] = "Group called '#{@group_lvl_1}' already exists."
+    redirect "/exercise_library?group=#{params[:group]}"
+  end
+
+  # check group exists when creating level 2 group
+  if create_lvl_2_group && lvl_2_group_exists
+    session[:error] = "Group called '#{@group_lvl_2}' already exists."
+    redirect "/exercise_library?group=#{params[:group]}"
+  end
+
+  if create_lvl_1_group
+    @exercise_library.add_group(@group_lvl_1, create_group_hierarchy)
+  end
+
+  if create_lvl_2_group
+    @exercise_library.add_group(@group_lvl_2, create_group_hierarchy(@group_lvl_1))
+  end
+
+  # display error for blank group names
+  if lvl_1_group_name_empty && lvl_2_group_name_empty ||
+     lvl_1_group_name_empty && !lvl_2_group_name_empty
+    raise GroupOperations::GroupNameEmptyErr
+  end
+
+  @exercise_library.save
+
+  redirect "/exercise_library?group=#{params[:group]}"
+
+  rescue GroupOperations::GroupNameEmptyErr
+    session[:error] = "Group name cannot be blank."
+    redirect "/exercise_library?group=#{params[:group]}"
+end
 
 get "/test" do
   # patient = Amazon_AWS.download_obj(key: 'starfish.store', bucket: :data)

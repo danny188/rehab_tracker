@@ -64,8 +64,39 @@
 <div class="row">
   <div class="col">
     <h4 class="d-inline mr-4">Template Groups </h4>
-    <a href="/exercise_library/add_template<%= '?pt=' + @patient.username if @patient %>" class="btn btn-outline-primary">Create New Group</a>
+    <!-- trigger modal to create new group -->
+    <a type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#create_group">Create New Group</a>
+  </div>
+</div>
 
+ <!-- Modal to create new group -->
+<div class="modal" tabindex="-1" role="dialog" id="create_group">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Create Exercise Template Group</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form method="post" action="/exercise_library/create_group">
+        <div class="modal-body">
+          <div class="form-group row">
+            <label for="instructions" class="col-3 col-form-label"><b>Group</b></label>
+            <input name="group_lvl_1" id="group_lvl_1" type="text" class="form-control col-5" value="" placeholder="" data-toggle="tooltip" data-placement="top" title="Make a name for new group">
+          </div>
+          <div class="form-group row">
+            <div class="col-1"></div>
+            <label for="instructions" class="col-3 col-form-label"><b>Sub-Group</b></label>
+            <input name="group_lvl_2" id="group_lvl_2" type="text" class="form-control col-5" value="" placeholder="" data-toggle="tooltip" data-placement="top" title="Create a subgroup under group above">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Create</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 

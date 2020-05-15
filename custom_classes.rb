@@ -9,7 +9,8 @@ module GroupOperations
   TOP_HIERARCHY = [TOP_GROUP]
 
   class ItemNameInGroupNotUniqueErr < StandardError; end
-  class ItemNameEmpty < StandardError; end
+  class ItemNameEmptyErr < StandardError; end
+  class GroupNameEmptyErr < StandardError; end
 
   def make_group_query_str(group_hierarchy)
     group_hierarchy.join("_")
@@ -23,15 +24,24 @@ module GroupOperations
     str.split("_") if str
   end
 
-    def add_subgroup(new_group_name, parent_hierarchy)
+  def add_group(new_group_name, parent_hierarchy)
     parent_group = get_group(parent_hierarchy)
 
+    raise GroupNameEmptyErr if new_group_name.empty?
+
+    # create parent group if not yet exist
+    unless parent_group
+      add_group(parent_hierarchy.last, parent_hierarchy[0..-2])
+      parent_group = get_group(parent_hierarchy)
+    end
+
+    # create subgroup if not yet exist
     unless subgroup_exists?(new_group_name, parent_hierarchy)
       parent_group.add_subgroup(Group.new(new_group_name))
     end
   end
 
-  def delete_subgroup(delete_group_name, parent_hierarchy)
+  def delete_group(delete_group_name, parent_hierarchy)
     parent_group = get_group(parent_hierarchy)
 
     if subgroup_exists?(delete_group_name, parent_hierarchy)
@@ -46,15 +56,15 @@ module GroupOperations
 
   def subgroup_exists?(test_group_name, parent_hierarchy)
     parent_group = get_group(parent_hierarchy)
-
+    return false unless parent_group
     parent_group.get_subgroup(test_group_name)
   end
 
-  def get_group(hierarchy = TOP_HIERARCHY, top_group = nil)
+  def get_group(hierarchy = TOP_HIERARCHY)
     hierarchy_copy = hierarchy.dup
 
     hierarchy_copy.shift
-    result_group = top_group
+    result_group = top_collection
 
     until hierarchy_copy.empty?
       result_group = result_group.get_subgroup(hierarchy_copy[0])
@@ -378,7 +388,9 @@ class ExerciseLibrary
   include DataPersistence
   include GroupOperations
 
-  attr_accessor :name, :templates
+  attr_accessor :name, :templates, :template_collection
+
+  alias_method :top_collection, :template_collection
 
   def self.path(name)
     "./data/exercise_library_#{name}.store"
@@ -435,10 +447,6 @@ class ExerciseLibrary
 
   def file_prefix
     "exercise_library_"
-  end
-
-  def get_group(hierarchy = TOP_HIERARCHY)
-    GroupOperations::get_group(hierarchy, @template_collection)
   end
 
   def get_all_templates()
@@ -669,6 +677,8 @@ class Patient < User
   attr_accessor :exercise_collection, :wellness_ratings, :last_updated
   include GroupOperations
 
+  alias_method :top_collection, :exercise_collection
+
   def initialize(username, pw)
     super
     @exercise_collection = ExerciseGroup.new(TOP_GROUP)
@@ -691,10 +701,6 @@ class Patient < User
   def add_exercise(exercise, group_hierarchy = TOP_HIERARCHY)
     super
     exercise.patient_username = self.username
-  end
-
-  def get_group(hierarchy = TOP_HIERARCHY)
-    super(hierarchy, @exercise_collection)
   end
 
   def get_all_exercises()
