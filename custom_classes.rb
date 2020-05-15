@@ -64,6 +64,88 @@ module GroupOperations
 
     result_group
   end
+
+
+  def add_exercise(exercise, group_hierarchy = TOP_HIERARCHY)
+    exercise.patient_username = self.username
+
+    group = get_group(group_hierarchy)
+
+    if group
+      raise ItemNameInGroupNotUniqueErr if group.has_item?(exercise.name)
+    else # create subgroup if not yet exists
+      target_group_name = group_hierarchy.last
+      parent_hierarchy = group_hierarchy.slice(0..-2)
+      add_subgroup(target_group_name, parent_hierarchy)
+      group = get_group(group_hierarchy)
+    end
+    exercise.group_hierarchy = group_hierarchy
+    group.add_item(exercise)
+  end
+
+  def get_exercise(exercise_name, group_hierarchy = TOP_HIERARCHY)
+    group = get_group(group_hierarchy)
+    group.get_item(exercise_name)
+  end
+
+  def delete_exercise(exercise_name, group_hierarchy = TOP_HIERARCHY)
+    group = get_group(group_hierarchy)
+    group.delete_item_by_name(exercise_name)
+  end
+
+  def has_exercise(exercise_name, group_hierarchy = TOP_HIERARCHY)
+    group = get_group(group_hierarchy)
+
+    return false unless group
+
+    group.has_item?(exercise_name)
+  end
+
+    def move_exercise(exercise_name, from_group_hierarchy, to_group_hierarchy)
+    from_group = get_group(from_group_hierarchy)
+    to_group = get_group(to_group_hierarchy)
+
+    exercise = get_exercise(exercise_name, from_group_hierarchy)
+
+    raise GroupOperations::ItemNameInGroupNotUniqueErr if has_exercise(exercise.name, to_group_hierarchy)
+
+    exercise.group_hierarchy = to_group_hierarchy
+    add_exercise(exercise, to_group_hierarchy)
+
+    # move related images/files on cloud
+    move_all_exercise_supp_files(exercise_name, from_group_hierarchy, to_group_hierarchy)
+
+    delete_exercise(exercise.name, from_group_hierarchy)
+  end
+
+  def move_all_exercise_supp_files(exercise_name, from_group_hierarchy, to_group_hierarchy)
+    exercise = get_exercise(exercise_name, from_group_hierarchy)
+    filenames = exercise.image_links.map { |link| File.basename(link) }
+
+    filenames.each do |filename|
+      move_exercise_supp_file(exercise_name, filename, from_group_hierarchy, to_group_hierarchy)
+    end
+
+    # self.save
+    # the cloud files will already have been moved even if self.save is not run
+  end
+
+  def move_exercise_supp_file(exercise_name, filename, from_group_hierarchy, to_group_hierarchy )
+    exercise = get_exercise(exercise_name, from_group_hierarchy)
+    image_index = exercise.image_links.index{ |link| File.basename(link) == filename }
+
+    source_key = "images/#{self.username}/#{exercise_name}/#{make_group_query_str(from_group_hierarchy)}/#{filename}"
+    target_key = "images/#{self.username}/#{exercise_name}/#{make_group_query_str(to_group_hierarchy)}/#{filename}"
+
+    Amazon_AWS.move_obj(source_bucket: :images,
+                        source_key: source_key,
+                        target_bucket: :images,
+                        target_key: target_key)
+
+    exercise.image_links[image_index] = exercise.image_link_path(target_key)
+
+    # self.save
+  end
 end
 
 module DataPersistence
@@ -621,87 +703,6 @@ class Patient < User
 
   def get_group(hierarchy = TOP_HIERARCHY)
     super(hierarchy, @exercise_collection)
-  end
-
-  def move_exercise(exercise_name, from_group_hierarchy, to_group_hierarchy)
-    from_group = get_group(from_group_hierarchy)
-    to_group = get_group(to_group_hierarchy)
-
-    exercise = get_exercise(exercise_name, from_group_hierarchy)
-
-    raise GroupOperations::ItemNameInGroupNotUniqueErr if has_exercise(exercise.name, to_group_hierarchy)
-
-    exercise.group_hierarchy = to_group_hierarchy
-    add_exercise(exercise, to_group_hierarchy)
-
-    # move related images/files on cloud
-    move_all_exercise_supp_files(exercise_name, from_group_hierarchy, to_group_hierarchy)
-
-    delete_exercise(exercise.name, from_group_hierarchy)
-  end
-
-  def move_all_exercise_supp_files(exercise_name, from_group_hierarchy, to_group_hierarchy)
-    exercise = get_exercise(exercise_name, from_group_hierarchy)
-    filenames = exercise.image_links.map { |link| File.basename(link) }
-
-    filenames.each do |filename|
-      move_exercise_supp_file(exercise_name, filename, from_group_hierarchy, to_group_hierarchy)
-    end
-
-    # self.save
-    # the cloud files will already have been moved even if self.save is not run
-  end
-
-  def move_exercise_supp_file(exercise_name, filename, from_group_hierarchy, to_group_hierarchy )
-    exercise = get_exercise(exercise_name, from_group_hierarchy)
-    image_index = exercise.image_links.index{ |link| File.basename(link) == filename }
-
-    source_key = "images/#{self.username}/#{exercise_name}/#{make_group_query_str(from_group_hierarchy)}/#{filename}"
-    target_key = "images/#{self.username}/#{exercise_name}/#{make_group_query_str(to_group_hierarchy)}/#{filename}"
-
-    Amazon_AWS.move_obj(source_bucket: :images,
-                        source_key: source_key,
-                        target_bucket: :images,
-                        target_key: target_key)
-
-    exercise.image_links[image_index] = exercise.image_link_path(target_key)
-
-    # self.save
-  end
-
-  def add_exercise(exercise, group_hierarchy = TOP_HIERARCHY)
-    exercise.patient_username = self.username
-
-    group = get_group(group_hierarchy)
-
-    if group
-      raise ItemNameInGroupNotUniqueErr if group.has_item?(exercise.name)
-    else # create subgroup if not yet exists
-      target_group_name = group_hierarchy.last
-      parent_hierarchy = group_hierarchy.slice(0..-2)
-      add_subgroup(target_group_name, parent_hierarchy)
-      group = get_group(group_hierarchy)
-    end
-    exercise.group_hierarchy = group_hierarchy
-    group.add_item(exercise)
-  end
-
-  def get_exercise(exercise_name, group_hierarchy = TOP_HIERARCHY)
-    group = get_group(group_hierarchy)
-    group.get_item(exercise_name)
-  end
-
-  def delete_exercise(exercise_name, group_hierarchy = TOP_HIERARCHY)
-    group = get_group(group_hierarchy)
-    group.delete_item_by_name(exercise_name)
-  end
-
-  def has_exercise(exercise_name, group_hierarchy = TOP_HIERARCHY)
-    group = get_group(group_hierarchy)
-
-    return false unless group
-
-    group.has_item?(exercise_name)
   end
 
   def get_all_exercises()
