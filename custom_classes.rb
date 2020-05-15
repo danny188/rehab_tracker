@@ -50,11 +50,11 @@ module GroupOperations
     parent_group.get_subgroup(test_group_name)
   end
 
-  def get_group(hierarchy = TOP_HIERARCHY)
+  def get_group(hierarchy = TOP_HIERARCHY, top_group = nil)
     hierarchy_copy = hierarchy.dup
 
     hierarchy_copy.shift
-    result_group = @exercise_collection
+    result_group = top_group
 
     until hierarchy_copy.empty?
       result_group = result_group.get_subgroup(hierarchy_copy[0])
@@ -357,6 +357,10 @@ class ExerciseLibrary
     "exercise_library_"
   end
 
+  def get_group(hierarchy = TOP_HIERARCHY)
+    GroupOperations::get_group(hierarchy, @template_collection)
+  end
+
   def add_template(template)
     template.exercise_library = self.name
     templates.push(template)
@@ -615,7 +619,9 @@ class Patient < User
     add_exercise(new_exercise, group_hierarchy)
   end
 
-
+  def get_group(hierarchy = TOP_HIERARCHY)
+    super(hierarchy, @exercise_collection)
+  end
 
   def move_exercise(exercise_name, from_group_hierarchy, to_group_hierarchy)
     from_group = get_group(from_group_hierarchy)

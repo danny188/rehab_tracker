@@ -269,13 +269,16 @@ end
 
 # display templates and/or groups
 get "/exercise_library" do
+  unless verify_user_access(required_authorization: :therapist)
+    redirect "/access_error"
+  end
 
   @exercise_library = ExerciseLibrary.load('main')
 
   @group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
 
   # @group contains subgroups + template items
-  @group = ExerciseLibrary.get_group(@group_hierarchy)
+  @group = @exercise_library.get_group(@group_hierarchy)
 
   erb :exercise_library
 end

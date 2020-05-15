@@ -23,6 +23,20 @@ require_relative "../custom_classes.rb"
 #   end
 # end
 
+
+class ExerciseLibrary_Class_Test < Minitest::Test
+  def setup
+    @lib = ExerciseLibrary.new('main')
+
+  end
+
+  def test_get_top_group
+    assert @lib.get_group(create_group_hierarchy)
+  end
+
+
+end
+
 class Patient_Class_Test < Minitest::Test
   def setup
     @pt = Patient.new('patient1', 'secret')
@@ -99,25 +113,25 @@ class Patient_Class_Test < Minitest::Test
   end
 
   def test_add_subgroup
-    @pt.add_subgroup('stretches', group_hierarchy)
+    @pt.add_subgroup('stretches', create_group_hierarchy)
 
-    assert @pt.get_group(group_hierarchy + ['stretches'])
+    assert @pt.get_group(create_group_hierarchy + ['stretches'])
   end
 
   def test_delete_subgroup
-    @pt.add_subgroup('stretches', group_hierarchy)
-    @pt.delete_subgroup('stretches', group_hierarchy)
+    @pt.add_subgroup('stretches', create_group_hierarchy)
+    @pt.delete_subgroup('stretches', create_group_hierarchy)
 
-    refute @pt.get_group(group_hierarchy + ['stretches'])
+    refute @pt.get_group(create_group_hierarchy + ['stretches'])
   end
 
   def test_move_exercise_between_subgroups
-    @pt.add_subgroup('stretches', group_hierarchy)
-    @pt.add_subgroup('strengthening', group_hierarchy)
+    @pt.add_subgroup('stretches', create_group_hierarchy)
+    @pt.add_subgroup('strengthening', create_group_hierarchy)
 
     exercise = Exercise.new('calf stretch')
-    from_group_hierarchy = group_hierarchy('strengthening')
-    to_group_hierarchy = group_hierarchy('stretches')
+    from_group_hierarchy = create_group_hierarchy('strengthening')
+    to_group_hierarchy = create_group_hierarchy('stretches')
 
     @pt.add_exercise_by_name(exercise.name, from_group_hierarchy)
     @pt.move_exercise(exercise.name, from_group_hierarchy, to_group_hierarchy )
@@ -127,11 +141,11 @@ class Patient_Class_Test < Minitest::Test
   end
 
   def test_move_exercise_between_top_level_and_subgroup
-    @pt.add_subgroup('stretches', group_hierarchy)
+    @pt.add_subgroup('stretches', create_group_hierarchy)
 
     exercise = Exercise.new('calf stretch')
-    from_group_hierarchy = group_hierarchy()
-    to_group_hierarchy = group_hierarchy('stretches')
+    from_group_hierarchy = create_group_hierarchy()
+    to_group_hierarchy = create_group_hierarchy('stretches')
 
     @pt.add_exercise_by_name(exercise.name, from_group_hierarchy)
     @pt.move_exercise(exercise.name, from_group_hierarchy, to_group_hierarchy )
@@ -141,11 +155,11 @@ class Patient_Class_Test < Minitest::Test
   end
 
   def test_move_exercise_error_exercise_name_not_unique
-    @pt.add_subgroup('stretches', group_hierarchy)
+    @pt.add_subgroup('stretches', create_group_hierarchy)
     exercise = Exercise.new('calf stretch')
 
-    from_group_hierarchy = group_hierarchy()
-    to_group_hierarchy = group_hierarchy('stretches')
+    from_group_hierarchy = create_group_hierarchy()
+    to_group_hierarchy = create_group_hierarchy('stretches')
 
     @pt.add_exercise_by_name(exercise.name, from_group_hierarchy)
     @pt.add_exercise_by_name(exercise.name, to_group_hierarchy)
