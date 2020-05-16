@@ -1229,10 +1229,14 @@ post "/users/:username/exercises/group/:group_name/rename" do
   end
 
   # update group hierarchy names of exercises in this group
-  new_group_hierarchy = create_group_hierarchy(@new_group_name)
-  @group.items.each { |exercise| exercise.group_hierarchy = new_group_hierarchy}
+  # new_group_hierarchy = create_group_hierarchy(@new_group_name)
+  # @group.items.each { |exercise| exercise.group_hierarchy = new_group_hierarchy}
 
-  @group.name = @new_group_name
+  # @group.name = @new_group_name
+
+  @parent_hierarchy = create_group_hierarchy
+  @patient.rename_group(@group.name, @parent_hierarchy, @new_group_name)
+
   @patient.save
 
   redirect "/users/#{@patient.username}/exercises"

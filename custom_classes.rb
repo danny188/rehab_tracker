@@ -70,7 +70,32 @@ module GroupOperations
     end
   end
 
+  # basically creates a new group,
+  def rename_group(current_name, parent_hierarchy, new_name)
+    current_group_hierarchy = parent_hierarchy + [current_name]
+    new_group_hierarchy = parent_hierarchy + [new_name]
 
+    add_group(new_name, parent_hierarchy)
+
+    cur_group = get_group(current_group_hierarchy)
+    new_group = get_group(new_group_hierarchy)
+
+    cur_group.items.each do |exercise|
+      move_exercise(exercise.name, current_group_hierarchy, new_group_hierarchy)
+    end
+
+    cur_group.subgroups.each do |subgroup|
+      add_group(subgroup.name, new_group_hierarchy)
+
+      subgroup.items.each do |exercise|
+        move_exercise(exercise.name,
+                      current_group_hierarchy + [subgroup.name],
+                      new_group_hierarchy + [subgroup.name])
+      end
+    end
+
+    delete_group(current_name, parent_hierarchy)
+  end
 
   def delete_group(delete_group_name, parent_hierarchy)
     parent_group = get_group(parent_hierarchy)
