@@ -95,6 +95,11 @@ helpers do
     "active" if request.path_info == test_path
   end
 
+  # takes a hash query str parameter name/value pairs, returns a query str
+  def create_full_query_str(param_hash)
+    ary_of_query_strings = param_hash.map { |key, value| key.to_s + '=' + value }
+    '?' + ary_of_query_strings.join('&')
+  end
 
 end
 
@@ -168,9 +173,10 @@ get "/users/:username/exercises/add_from_library" do
     redirect "/access_error"
   end
 
+  @group_hierarchy = create_group_hierarchy
   @patient = User.get(params[:username])
-  exercise_library = ExerciseLibrary.load('main')
-  @all_templates = exercise_library.get_all_templates
+  @exercise_library = ExerciseLibrary.load('main')
+  @group = @exercise_library.get_group(@group_hierarchy)
 
   unless verify_user_access(required_authorization: :therapist)
     redirect "/access_error"
@@ -1259,5 +1265,5 @@ get "/test" do
   # # @patient.get_group(['main', 'stretches']).items.inspect
   # main_grp = @patient.get_group(['main']).name
 
-  session[:debug]
+  create_full_query_str({group: '1', stats: '2'})
 end
