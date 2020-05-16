@@ -124,7 +124,8 @@
             <a href="/exercise_library?group=<%= make_group_query_str(@group_hierarchy + [subgroup.name]) %>" class="dropdown-item text-primary" data-toggle="tooltip" title="Open group exercise template">Open</a>
             <hr>
 
-            <form action="/exercise_library//delete<%= '?pt=' + @patient.username if @patient %>" method="post" onsubmit="return confirm('Are you sure you want to delete group and all its exercises? This cannot be reversed. Click OK to proceed.');">
+            <form action="/exercise_library/delete_group?group=<%= params[:group] if params[:group] %><%= 'pt=' + @patient.username if @patient %>" method="post" onsubmit="return confirm('Are you sure you want to delete group and all its exercises? This cannot be reversed. Click OK to proceed.');">
+              <input type="hidden" name="delete_group_query_str" value="<%= make_group_query_str(@group_hierarchy + [subgroup.name]) %>">
               <button type="submit"  class="dropdown-item text-danger" data-toggle="tooltip" title="Delete template and associated data.">Delete</button>
             </form>
             <% if @patient %>

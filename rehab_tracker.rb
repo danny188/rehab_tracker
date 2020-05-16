@@ -1169,6 +1169,25 @@ rescue GroupOperations::ItemNameInGroupNotUniqueErr
   redirect "/users/#{@patient.username}/exercises"
 end
 
+post "/exercise_library/delete_group" do
+  unless verify_user_access(required_authorization: :therapist)
+    redirect "/access_error"
+  end
+
+  @browse_group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
+  @delete_group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:delete_group_query_str]))
+
+  @exercise_library = ExerciseLibrary.load('main')
+  @delete_group_name = @delete_group_hierarchy.last
+  @delete_group_parent_hierarchy = @delete_group_hierarchy[0..-2]
+
+  @exercise_library.delete_group(@delete_group_name, @delete_group_parent_hierarchy)
+
+  @exercise_library.save
+
+  redirect "/exercise_library?group=#{params[:group]}"
+end
+
 post "/exercise_library/create_group" do
   unless verify_user_access(required_authorization: :therapist)
     redirect "/access_error"
