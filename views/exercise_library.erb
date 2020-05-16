@@ -129,9 +129,9 @@
               <button type="submit"  class="dropdown-item text-danger" data-toggle="tooltip" title="Delete template and associated data.">Delete</button>
             </form>
             <% if params[:pt] %>
-            <form id="template-form" class="template-form" action="/users/<%= params[:pt] %>/exercises/add_group_from_library<%=create_full_query_str({group: params[:group], pt: params[:pt]}) %>" method="POST">
+            <form id="template-form-apply-group" class="template-form" action="/users/<%= params[:pt] %>/exercises/add_exercise_group_from_library<%=create_full_query_str({group: params[:group], pt: params[:pt]}) %>" method="POST">
               <input type="hidden" name="group_hierarchy_str" value="<%= make_group_query_str(@group_hierarchy + [subgroup.name]) %>">
-              <button id="template-form-btn" type="submit" class="dropdown-item text-light bg-dark" value="submit">Add for <%= full_name_plus_username(@patient) %></button>
+              <button id="template-form-btn-apply-group" type="submit" class="dropdown-item text-light bg-dark" value="submit">Add exercise group for <%= full_name_plus_username(@patient) %></button>
             </form>
             <% end %>
           </div>
@@ -186,10 +186,10 @@
             </form>
 
             <% if @patient %>
-            <form id="template-form" class="template-form" action="/users/<%= @patient.username %>/exercises/add_from_library<%=create_full_query_str({group: params[:group], pt: params[:pt]}) %>" method="POST">
+            <form id="template-form-apply-exercise" class="template-form" action="/users/<%= @patient.username %>/exercises/add_from_library<%=create_full_query_str({group: params[:group], pt: params[:pt]}) %>" method="POST">
               <input type="hidden" name="exercise_name" value="<%= exercise.name %>">
               <input type="hidden" name="group_hierarchy_str" value="<%= params[:group] if params[:group] %>">
-              <button id="template-form-btn" type="submit" class="dropdown-item text-light bg-dark" value="submit">Add for <%= full_name_plus_username(@patient) %></button>
+              <button id="template-form-btn-apply-exercise" type="submit" class="dropdown-item text-light bg-dark" value="submit">Add for <%= full_name_plus_username(@patient) %></button>
             </form>
             <% end %>
           </div>

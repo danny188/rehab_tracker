@@ -173,7 +173,7 @@ get "/users/:username/exercises/add_from_library" do
     redirect "/access_error"
   end
 
-  @group_hierarchy = create_group_hierarchy
+  @group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
   @patient = User.get(params[:username])
   @exercise_library = ExerciseLibrary.load('main')
   @group = @exercise_library.get_group(@group_hierarchy)
@@ -1089,6 +1089,51 @@ end
 #   erb :add_exercise_group
 # end
 
+post "/users/:username/exercises/add_exercise_group_from_library" do
+=begin
+if source group is level 1 group, the contents of the group will
+be applied to top level group of patient.
+
+if source group is level 2 group (i.e. subgroup), the whole source group
+will be applied as a subgroup for the patient.
+=end
+  unless verify_user_access(required_authorization: :therapist)
+    redirect "/access_error"
+  end
+
+  @patient = User.get(params[:username])
+  @exercise_library = ExerciseLibrary.load('main')
+
+  @source_group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group_hierarchy_str]))
+  @source_group = @exercise_library.get_group(@source_group_hierarchy)
+  @source_level = @source_group_hierarchy.size - 1
+
+  @source_group_copy = Group.deep_copy(@source_group)
+
+  if @source_level == 1 # apply source group contents to patient's main group
+    @source_group_copy.items.each do |exercise|
+      exercise.group_hierarchy = create_group_hierarchy()
+      @patient.add_exercise(Exercise.new_from_template(exercise), create_group_hierarchy)
+    end
+
+    @source_group_copy.subgroups.each do |subgroup|
+      subgroup.items.each { |exercise| exercise.group_hierarchy = create_group_hierarchy(subgroup.name) }
+      @patient.exercise_collection.add_subgroup(subgroup)
+    end
+  elsif @source_level == 2 # apply source group as a subgroup under patient's main group
+    @source_group_copy.items.each { |exercise| exercise.group_hierarchy = create_group_hierarchy(@source_group_copy.name) }
+    @patient.exercise_collection.add_subgroup(@source_group_copy)
+  end
+
+  # session[:debug] = @patient.exercise_collection.items[0].name
+  # redirect "/test"
+
+  @patient.save
+
+  { toast_title: "Template Added",
+    toast_msg: "Successfully added template group #{@source_group.name} for #{full_name_plus_username(@patient)}" }.to_json
+end
+
 post "/users/:username/exercises/add_group" do
   unless verify_user_access(required_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
@@ -1100,12 +1145,12 @@ post "/users/:username/exercises/add_group" do
 
   if @patient.subgroup_exists?(@new_group_name, Patient::TOP_HIERARCHY)
     session[:error] = "A group called #{@new_group_name} already exists."
-    erb :tracker
+    redirect "/users/#{@patient.username}/exercises"
   end
 
   if @new_group_name.empty?
     session[:error] = "Group name cannot be blank."
-    erb :tracker
+    redirect "/users/#{@patient.username}/exercises"
   end
 
   @patient.add_group(@new_group_name, Patient::TOP_HIERARCHY)
@@ -1122,7 +1167,7 @@ post "/users/:username/exercises/group/:delete_group/delete" do
 
   delete_group_name = params[:delete_group]
 
-  @patient.delete_group(delete_group_name, group_hierarchy)
+  @patient.delete_group(delete_group_name, create_group_hierarchy)
 
   @patient.save
 

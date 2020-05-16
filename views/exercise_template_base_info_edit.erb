@@ -83,7 +83,7 @@
             <% if @patient %>
               <a href="/users/<%= @patient.username %>/exercises/add_from_library<%=create_full_query_str({group: params[:group], pt: params[:pt]}) %>" class="btn btn-outline-secondary form-control">Return</a>
             <% else %>
-              <a href="/exercise_library?group=<%= params[:group] %>" class="btn btn-outline-secondary form-control">Return</a>
+              <a href="/exercise_library<%=create_full_query_str({group: params[:group], pt: params[:pt]}) %>" class="btn btn-outline-secondary form-control">Return</a>
             <% end %>
           </div>
 
