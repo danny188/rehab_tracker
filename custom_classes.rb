@@ -142,12 +142,9 @@ module GroupOperations
     # the cloud files will already have been moved even if self.save is not run
   end
 
-  def move_exercise_supp_file(exercise_name, filename, from_group_hierarchy, to_group_hierarchy )
+  def move_exercise_supp_file(exercise_name, filename, from_group_hierarchy, to_group_hierarchy, source_key, target_key)
     exercise = get_exercise(exercise_name, from_group_hierarchy)
     image_index = exercise.image_links.index{ |link| File.basename(link) == filename }
-
-    source_key = "images/#{self.username}/#{exercise_name}/#{make_group_query_str(from_group_hierarchy)}/#{filename}"
-    target_key = "images/#{self.username}/#{exercise_name}/#{make_group_query_str(to_group_hierarchy)}/#{filename}"
 
     Amazon_AWS.move_obj(source_bucket: :images,
                         source_key: source_key,
@@ -216,13 +213,13 @@ class ExerciseTemplate
   include GroupOperations
 
   attr_accessor :name, :instructions, :reps, :sets,
-                :duration, :image_links, :exercise_library,
+                :duration, :image_links, :exercise_library_name,
                 :group_hierarchy
 
   FILES_LIMIT = 4
   DEFAULT_REPS = '30'
   DEFAULT_SETS = '3'
-  DEFAULT_EXERCISE_LIBRARY = 'main'
+  DEFAULT_EXERCISE_LIBRARY_NAME = 'main'
 
   def initialize(name, group_hierarchy = GroupOperations::TOP_HIERARCHY, reps = DEFAULT_REPS, sets = DEFAULT_SETS)
     @name = name
@@ -231,6 +228,7 @@ class ExerciseTemplate
     @image_links = []
     @instructions = ''
     @group_hierarchy = group_hierarchy
+    @exercise_library_name = DEFAULT_EXERCISE_LIBRARY_NAME
   end
 
   def name_with_group
@@ -282,7 +280,7 @@ class ExerciseTemplate
       upload_file_to_local(source: file, dest: files_path_local(filename))
       dest_path = filename
     else
-      dest_path = "images/exercise_library_#{exercise_library}/#{self.name}/#{filename}"
+      dest_path = "images/exercise_library_#{exercise_library_name}/#{make_group_query_str(self.group_hierarchy)}/#{self.name}/#{filename}"
       upload_supp_file(file_obj: file, dest_path: dest_path)
     end
 
@@ -296,7 +294,7 @@ class ExerciseTemplate
     when 'testing_local'
       FileUtils.rm(files_path_local(filename))
     when 'testing_s3', 'production_s3'
-      key = "images/exercise_library_#{exercise_library}/#{self.name}/#{make_group_query_str(self.group_hierarchy)}/#{filename}"
+      key = "images/exercise_library_#{exercise_library_name}/#{make_group_query_str(self.group_hierarchy)}/#{self.name}/#{filename}"
       delete_supp_file(key: key)
     end
 
@@ -469,6 +467,14 @@ class ExerciseLibrary
 
     add_exercise(new_exercise, group_hierarchy)
   end
+
+  # local method ExerciseLibrary
+  def move_exercise_supp_file(exercise_name, filename, from_group_hierarchy, to_group_hierarchy)
+    source_key = "images/exercise_library_#{self.name}/#{make_group_query_str(from_group_hierarchy)}/#{exercise_name}/#{filename}"
+    target_key = "images/exercise_library_#{self.name}/#{make_group_query_str(to_group_hierarchy)}/#{exercise_name}/#{filename}"
+
+    super(exercise_name, filename, from_group_hierarchy, to_group_hierarchy, source_key, target_key)
+  end
 end
 
 class Exercise < ExerciseTemplate
@@ -489,6 +495,7 @@ class Exercise < ExerciseTemplate
     @record_of_days = Set.new
     @comment_by_therapist = ""
     @comment_by_patient = ""
+    @group_hierarchy = TOP_HIERARCHY
   end
 
   def add_date(date)
@@ -522,13 +529,13 @@ class Exercise < ExerciseTemplate
   end
 
   def files_path_local(filename:)
-    File.join(public_path + "/images/#{patient_username}/#{self.name}", filename)
+    File.join(public_path + "/images/#{patient_username}/#{make_group_query_str(self.group_hierarchy)}/#{self.name}", filename)
   end
 
   def image_link_path(filename)
     case ENV["custom_env"]
     when 'testing_local'
-      File.join("/images/#{patient_username}/#{self.name}/#{make_group_query_str(self.group_hierarchy)}", filename)
+      File.join("/images/#{patient_username}/#{make_group_query_str(self.group_hierarchy)}/#{self.name}", filename)
     when 'testing_s3'
       "https://test-rehab-buddy-images.s3-ap-southeast-2.amazonaws.com/#{filename}"
     when 'production_s3'
@@ -542,7 +549,7 @@ class Exercise < ExerciseTemplate
       upload_file_to_local(source: file, dest: files_path_local(filename))
       dest_path = filename
     else
-      dest_path = "images/#{patient_username}/#{self.name}/#{make_group_query_str(self.group_hierarchy)}/#{filename}"
+      dest_path = "images/#{patient_username}/#{make_group_query_str(self.group_hierarchy)}/#{self.name}/#{filename}"
       upload_supp_file(file_obj: file, dest_path: dest_path)
     end
 
@@ -556,7 +563,7 @@ class Exercise < ExerciseTemplate
     when 'testing_local'
       FileUtils.rm(files_path_local(filename: filename))
     when 'testing_s3', 'production_s3'
-      key = "images/#{patient_username}/#{self.name}/#{make_group_query_str(self.group_hierarchy)}/#{filename}"
+      key = "images/#{patient_username}/#{make_group_query_str(self.group_hierarchy)}/#{self.name}/#{filename}"
       delete_supp_file(key: key)
     end
 
@@ -716,6 +723,14 @@ class Patient < User
 
   def get_all_exercises()
     @exercise_collection.get_all_items_recursive
+  end
+
+  # local method patient
+  def move_exercise_supp_file(exercise_name, filename, from_group_hierarchy, to_group_hierarchy)
+    source_key = "images/#{self.username}/#{make_group_query_str(from_group_hierarchy)}/#{exercise_name}/#{filename}"
+    target_key = "images/#{self.username}/#{make_group_query_str(to_group_hierarchy)}/#{exercise_name}/#{filename}"
+
+    super(exercise_name, filename, from_group_hierarchy, to_group_hierarchy, source_key, target_key)
   end
 
   def mark_done_all_exercises(date)

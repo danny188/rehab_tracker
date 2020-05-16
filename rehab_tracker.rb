@@ -498,7 +498,7 @@ post "/exercise_library/:exercise_name/upload_file" do
     @exercise_library.save
   end
 
-  redirect "/exercise_library/#{@exercise.name}/edit#{create_full_query_str({group: make_group_query_str(@dest_group_hierarchy), pt: params[:pt]})}"
+  redirect "/exercise_library/#{@exercise.name}/edit#{create_full_query_str({group: params[:group], pt: params[:pt]})}"
 end
 
 # upload image or other files associated with an exercise for a patient
@@ -708,25 +708,27 @@ post "/users/:username/exercises/:exercise_name/delete_file" do
 end
 
 # Delete file associated with exercise template
-post "/exercise_library/:template_name/delete_file" do
+post "/exercise_library/:exercise_name/delete_file" do
   unless verify_user_access(required_authorization: :therapist)
     redirect "/access_error"
   end
 
-  exercise_library = ExerciseLibrary.load('main')
-  template = exercise_library.get_template(params[:template_name])
+  @exercise_library = ExerciseLibrary.load('main')
+  @browse_group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
+  @exercise = @exercise_library.get_exercise(params[:exercise_name], @browse_group_hierarchy)
+
   @file_path = params[:file_path]
   filename = File.basename(@file_path)
 
-  if template.has_file(filename)
-    template.delete_file(@file_path)
-    exercise_library.save
+  if @exercise.has_file(filename)
+    @exercise.delete_file(@file_path)
+    @exercise_library.save
     session[:success] = "File succcessfuly removed"
   else
     session[:error] = "File does not exist"
   end
 
-  redirect "/exercise_library/#{template.name}/edit#{'?pt=' + params[:pt] if params[:pt]}"
+  redirect "/exercise_library/#{@exercise.name}/edit#{create_full_query_str({group: make_group_query_str(@dest_group_hierarchy), pt: params[:pt]})}"
 end
 
 post "/users/:username/exercises/mark_all" do

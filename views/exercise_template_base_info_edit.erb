@@ -89,7 +89,7 @@
 
           <% if @editing_exercise_template %>
             <div class="col mx-1 px-0">
-              <button type="submit" class="btn btn-outline-danger form-control" formaction="/exercise_library/<%= @exercise.name %>/delete<%=create_full_query_str({group: params[:group], pt: params[:pt]}) %>">Delete</button>
+              <button type="submit" class="btn btn-outline-danger form-control" formaction="/exercise_library/<%= @exercise.name %>/delete<%=create_full_query_str({group: params[:group], pt: params[:pt]}) %>" onclick="return confirm('Are you sure you want to delete this exercise template? This cannot be reversed. Click OK to proceed.');">Delete</button>
             </div>
           <% end %>
         </div>
