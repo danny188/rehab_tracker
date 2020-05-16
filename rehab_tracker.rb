@@ -1183,6 +1183,11 @@ post "/users/:username/exercises/add_group" do
     redirect "/users/#{@patient.username}/exercises"
   end
 
+  unless @new_group_name =~ /[a-z0-9\s]/i # save underscore chr as delimiter for group names in query strings
+    session[:error] = "Group name can only contain letters, numbers or space characters."
+    redirect "/users/#{@patient.username}/exercises"
+  end
+
   @patient.add_group(@new_group_name, Patient::TOP_HIERARCHY)
   @patient.save
   redirect "/users/#{@patient.username}/exercises"
@@ -1299,6 +1304,12 @@ post "/exercise_library/create_group" do
   lvl_2_group_exists = @exercise_library.subgroup_exists?(@group_lvl_2, create_group_hierarchy(@group_lvl_1))
   lvl_1_group_name_empty = nil_or_empty?(@group_lvl_1)
   lvl_2_group_name_empty = nil_or_empty?(@group_lvl_2)
+
+  if !lvl_1_group_name_empty && @group_lvl_1 =~ /[^a-z0-9\s]/i ||
+     !lvl_2_group_name_empty && @group_lvl_2 =~ /[^a-z0-9\s]/i
+    session[:error] = "Group name can only contain letters, numbers or space characters."
+    redirect "/exercise_library?group=#{params[:group]}"
+  end
 
   # check group exists when creating level 1 group
   if create_lvl_1_group && lvl_1_group_exists
