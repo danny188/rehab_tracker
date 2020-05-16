@@ -167,6 +167,17 @@ get "/users/:username/exercises" do
   erb :tracker
 end
 
+def exercise_library_title(group_hierarchy)
+  case group_hierarchy.size
+  when 1
+    "Exercise Library"
+  when 2
+    "Exercise Library #{'(Group: ' + group_hierarchy[1] + ')'}"
+  when 3
+    "Exercise Library #{'(Group: ' + group_hierarchy[1] + '/' + group_hierarchy[2] +')'}"
+  end
+end
+
 # add exercise for patient from library
 get "/users/:username/exercises/add_from_library" do
   unless verify_user_access(required_authorization: :therapist)
