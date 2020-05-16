@@ -381,17 +381,19 @@ post "/exercise_library/:exercise_name/delete" do
     redirect "/access_error"
   end
 
-  exercise_library = ExerciseLibrary.load('main')
-  @delete_template = exercise_library.get_template(params[:exercise_name])
+  @browse_group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
 
-  exercise_library.delete_template(@delete_template)
+  @exercise_library = ExerciseLibrary.load('main')
+  @delete_exercise = @exercise_library.get_exercise(params[:exercise_name], @browse_group_hierarchy)
 
-  exercise_library.save
+  @exercise_library.delete_exercise(@delete_exercise.name, @browse_group_hierarchy)
+
+  @exercise_library.save
 
   if params[:pt]
-    redirect "/users/#{params[:pt]}/exercises/add_from_library"
+    redirect "/users/#{params[:pt]}/exercises/add_from_library?group=#{params[:group]}"
   else
-    redirect "/exercise_library"
+    redirect "/exercise_library?group=#{params[:group]}"
   end
 end
 
