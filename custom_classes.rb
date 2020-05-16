@@ -308,24 +308,26 @@ end
 class Group
   attr_accessor :name, :items, :subgroups
 
-
-
   def initialize(name)
     @name = name
     @items = []
     @subgroups = []
   end
 
+  def self.deep_copy(other_group)
+    Marshal.load(Marshal.dump(other_group))
+  end
+
   def add_item(new_item)
     items.push(new_item)
   end
 
-  def get_item(name)
-    items.find { |item| item.name == name }
+  def get_item(item_name)
+    items.find { |item| item.name == item_name }
   end
 
-  def has_item?(name)
-    items.any? { |item| item.name == name }
+  def has_item?(item_name)
+    items.any? { |item| item.name == item_name }
   end
 
   def add_items(new_items)
@@ -338,6 +340,11 @@ class Group
 
   def add_subgroup(new_subgroup)
     subgroups.push(new_subgroup)
+  end
+
+  def add_subgroup_by_name(new_subgroup_name)
+    new_subgroup = Group.new(new_subgroup_name)
+    add_subgroup(new_subgroup)
   end
 
   def get_subgroup(subgroup_name)
