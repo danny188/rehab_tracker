@@ -202,14 +202,22 @@ post "/users/:username/exercises/add_from_library" do
 
 
   @exercise = Exercise.new_from_template(@exercise_template)
+  @exercise.patient_username = @patient.username
 
   # apply exercise template to top group level of patient
 
   if @patient.has_exercise(@exercise_template.name, create_group_hierarchy)
-    session[:error] = "#{full_name_plus_username(patient)} already has an exercise called '#{@exercise_template.name}'. Please change either the name of the template or the patient's exercise."
+    session[:error] = "#{full_name_plus_username(@patient)} already has an exercise called '#{@exercise_template.name}'. Please change either the name of the template or the patient's exercise."
     redirect "/users/#{@patient.username}/exercises/add_from_library#{create_full_query_str({group: params[:group], pt: params[:pt] })}"
   end
 
+  # copy image files from template
+  GroupOperations.replace_all_supp_files(@exercise_library, @exercise_template, @exercise)
+
+  # session[:debug] = @exercise.image_links.inspect
+  # redirect "/test"
+
+  # exercise will be added to top group of patient's exercises
   @patient.add_exercise(@exercise, create_group_hierarchy)
 
   @patient.save

@@ -12,6 +12,31 @@ module GroupOperations
   class ItemNameEmptyErr < StandardError; end
   class GroupNameEmptyErr < StandardError; end
 
+  # replaces exercise's supplementary files with those of template's
+  def self.replace_all_supp_files(exercise_library, template, exercise)
+    exercise.clear_image_links
+
+    # delete existing supp files of exercise? There shouldn't be any for this use case
+    # of applying template's supplementary files to a brand new exercise obj
+
+    filenames = template.image_links.map { |link| File.basename(link) }
+
+    filenames.each do |filename|
+      # add modified link to exercise
+        dest_path = "images/#{exercise.patient_username}/#{make_group_query_str(exercise.group_hierarchy)}/#{exercise.name}/#{filename}"
+        image_url = exercise.image_link_path(dest_path)
+        exercise.add_image_link(image_url)
+
+      #copy s3 file to patient's exercise group hierarchy
+      source_path = "images/exercise_library_#{exercise_library.name}/#{make_group_query_str(template.group_hierarchy)}/#{template.name}/#{filename}"
+
+      Amazon_AWS.copy_obj(source_bucket: :images,
+                          source_key: source_path,
+                          target_bucket: :images,
+                          target_key: dest_path)
+    end
+  end
+
   def make_group_query_str(group_hierarchy)
     if group_hierarchy
       group_hierarchy.join("_")
@@ -155,6 +180,7 @@ module GroupOperations
 
     # self.save
   end
+
 end
 
 module DataPersistence
@@ -264,6 +290,10 @@ class ExerciseTemplate
 
   def add_image_link(link)
     image_links.push(link)
+  end
+
+  def clear_image_links
+    self.image_links = []
   end
 
   def get_image_link(idx)
