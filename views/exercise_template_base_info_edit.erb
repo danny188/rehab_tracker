@@ -10,7 +10,7 @@
 
 <div class="row">
   <div class="col-6">
-    <form action="/exercise_library/add_exercise" method="post">
+    <form action="/exercise_library/add_exercise<%=create_full_query_str({group: params[:group], pt: params[:pt]}) %>" method="post">
       <div class="form-group row">
         <label for="new_exercise_name" class="col-3 col-form-label"><b>Name of Exercise</b></label>
         <input type="text" class="form-control col-6" id="new_exercise_name" name="new_exercise_name" value="<%= @exercise.name if @exercise %>">
@@ -73,7 +73,7 @@
           <div class="col mx-1 px-0">
             <div class="form-group">
               <% if @editing_exercise_template %>
-                <button type="submit" class="btn btn-outline-primary form-control" formaction="/exercise_library/<%= @exercise.name %>/edit?group=<%= params[:group] if params[:group] %>">Save</button>
+                <button type="submit" class="btn btn-outline-primary form-control" formaction="/exercise_library/<%= @exercise.name %>/edit<%=create_full_query_str({group: params[:group], pt: params[:pt]}) %>">Save</button>
               <% else %>
                 <button type="submit" class="ml-0 btn btn-outline-primary form-control">Save</button>
               <% end %>
@@ -81,15 +81,15 @@
           </div>
           <div class="col mx-1 px-0">
             <% if @patient %>
-              <a href="/users/<%= @patient.username %>/exercises/add_from_library" class="btn btn-outline-secondary form-control">Cancel</a>
+              <a href="/users/<%= @patient.username %>/exercises/add_from_library<%=create_full_query_str({group: params[:group], pt: params[:pt]}) %>" class="btn btn-outline-secondary form-control">Return</a>
             <% else %>
-              <a href="/exercise_library?group=<%= params[:group] %>" class="btn btn-outline-secondary form-control">Cancel</a>
+              <a href="/exercise_library?group=<%= params[:group] %>" class="btn btn-outline-secondary form-control">Return</a>
             <% end %>
           </div>
 
           <% if @editing_exercise_template %>
             <div class="col mx-1 px-0">
-              <button type="submit" class="btn btn-outline-danger form-control" formaction="/exercise_library/<%= @exercise.name %>/delete?group=<%= params[:group] if params[:group] %>">Delete</button>
+              <button type="submit" class="btn btn-outline-danger form-control" formaction="/exercise_library/<%= @exercise.name %>/delete<%=create_full_query_str({group: params[:group], pt: params[:pt]}) %>">Delete</button>
             </div>
           <% end %>
         </div>

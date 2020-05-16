@@ -97,8 +97,8 @@ helpers do
 
   # takes a hash query str parameter name/value pairs, returns a query str
   def create_full_query_str(param_hash)
-    ary_of_query_strings = param_hash.map { |key, value| key.to_s + '=' + value }
-    '?' + ary_of_query_strings.join('&')
+    ary_of_query_strings = param_hash.map { |key, value| (key.to_s + '=' + value) unless value.to_s.empty? }
+    '?' + ary_of_query_strings.compact.join('&')
   end
 
 end
@@ -187,28 +187,39 @@ end
 
 # add selected template as exercise for a patient
 post "/users/:username/exercises/add_from_library" do
-
-  patient = User.get(params[:username])
-  exercise_library = ExerciseLibrary.load('main')
-  template = exercise_library.get_template(params[:template_name])
-
-  exercise = Exercise.new_from_template(template)
-
-  if patient.has_exercise(template.name)
-    session[:error] = "#{full_name_plus_username(patient)} already has an exercise called '#{template.name}'. Please change either the name of the template or the patient's exercise."
-    redirect "/users/#{patient.username}/exercises/add_from_library"
+  unless verify_user_access(required_authorization: :therapist)
+    redirect "/access_error"
   end
 
-  patient.add_exercise(exercise)
+  @patient = User.get(params[:username])
 
-  patient.save
+
+  @exercise_library = ExerciseLibrary.load('main')
+
+  # group hierarchy from which we're pulling exercise template
+  @group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group_hierarchy_str]))
+  @exercise_template = @exercise_library.get_exercise(params[:exercise_name], @group_hierarchy)
+
+
+  @exercise = Exercise.new_from_template(@exercise_template)
+
+  # apply exercise template to top group level of patient
+
+  if @patient.has_exercise(@exercise_template.name, create_group_hierarchy)
+    session[:error] = "#{full_name_plus_username(patient)} already has an exercise called '#{@exercise_template.name}'. Please change either the name of the template or the patient's exercise."
+    redirect "/users/#{@patient.username}/exercises/add_from_library#{create_full_query_str({group: params[:group], pt: params[:pt] })}"
+  end
+
+  @patient.add_exercise(@exercise, create_group_hierarchy)
+
+  @patient.save
 
   # # session[:success] = "Successfully added template #{template.name} for #{full_name_plus_username(patient)}"
   # session[:toast_title] = "Template Added"
   # session[:toast] = "Successfully added template #{template.name} for #{full_name_plus_username(patient)}"
   { toast_title: "Template Added",
-    toast_msg: "Successfully added template #{template.name} for #{full_name_plus_username(patient)}" }.to_json
-  end
+    toast_msg: "Successfully added template #{@exercise_template.name} for #{full_name_plus_username(@patient)}" }.to_json
+end
 
 # display page for creating exercise template
 get "/exercise_library/add_template" do
@@ -281,6 +292,7 @@ get "/exercise_library/:exercise_name/edit" do
 
   @exercise_library = ExerciseLibrary.load('main')
   @browse_group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
+  @patient = User.get(params[:pt])
 
   # session[:debug] = params[:group]
   # redirect "/test"
@@ -289,7 +301,7 @@ get "/exercise_library/:exercise_name/edit" do
   unless @exercise # requested exercise not found
     session[:error] = "Exercise template '#{params[:exercise_name]}' not found."
     if @patient
-      redirect "/users/#{@patient.username}/exercises/add_from_library"
+      redirect "/users/#{@patient.username}/exercises/add_from_library#{'?pt=' + @patient.username if @patient}"
     else
       redirect "/exercise_library"
     end
@@ -316,6 +328,7 @@ get "/exercise_library" do
   # @group contains subgroups + template items
   @group = @exercise_library.get_group(@group_hierarchy)
 
+  @patient = User.get(params[:pt])
   # debug
   # @exercise_library.add_subgroup('group 1', create_group_hierarchy)
   # @exercise_library.add_subgroup('group 2', create_group_hierarchy)
@@ -338,6 +351,7 @@ post "/exercise_library/:exercise_name/edit" do
 
   @dest_group_hierarchy = create_group_hierarchy(params[:group_lvl_1], params[:group_lvl_2])
 
+  @patient = params[:pt]
 
 
   @exercise_library = ExerciseLibrary.load('main')
@@ -378,7 +392,7 @@ post "/exercise_library/:exercise_name/edit" do
 
   @exercise_library.save
 
-  redirect "/exercise_library/#{@exercise.name}/edit?group=#{GroupOperations::make_group_query_str(@dest_group_hierarchy)}"
+  redirect "/exercise_library/#{@exercise.name}/edit#{create_full_query_str({group: make_group_query_str(@dest_group_hierarchy), pt: params[:pt]})}"
 end
 
 # delete exercise template
@@ -1191,7 +1205,7 @@ post "/exercise_library/delete_group" do
 
   @exercise_library.save
 
-  redirect "/exercise_library?group=#{params[:group]}"
+  redirect "/exercise_library#{create_full_query_str({group: params[:group], pt: params[:pt] })}"
 end
 
 post "/exercise_library/create_group" do
@@ -1239,7 +1253,7 @@ post "/exercise_library/create_group" do
 
   @exercise_library.save
 
-  redirect "/exercise_library?group=#{params[:group]}"
+  redirect "/exercise_library#{create_full_query_str({group: params[:group], pt: params[:pt] })}"
 
   rescue GroupOperations::GroupNameEmptyErr
     session[:error] = "Group name cannot be blank."
@@ -1265,5 +1279,5 @@ get "/test" do
   # # @patient.get_group(['main', 'stretches']).items.inspect
   # main_grp = @patient.get_group(['main']).name
 
-  create_full_query_str({group: '1', stats: '2'})
+  session[:debug]
 end

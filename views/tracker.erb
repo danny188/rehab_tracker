@@ -276,7 +276,7 @@
         <% if session[:user].role == :therapist || session[:user].role == :admin %>
         <br>
         <div class="">
-          <a href="/users/<%= @patient.username %>/exercises/add_from_library" class="btn btn-outline-primary ml-1">Choose From Exercise Library</a>
+          <a href="/users/<%= @patient.username %>/exercises/add_from_library<%= '?pt=' + @patient.username %>" class="btn btn-outline-primary ml-1">Choose From Exercise Library</a>
         </div>
         <% end %>
       </div>
