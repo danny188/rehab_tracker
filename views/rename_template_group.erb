@@ -1,0 +1,11 @@
+<h3>Rename <%= @group_hierarchy.drop(1).join('/') %></h3>
+<% @parent_group_query_str = make_group_query_str(@group_hierarchy[0..-2]) %>
+<form class="form-inline" method="post" action="/exercise_library/rename_group<%= create_full_query_str({group: params[:group], pt: params[:pt]}) %>">
+  <div class="form-group">
+    <label for="staticEmail2" class="sr-only">New Group Name</label>
+    <input type="text" name="new_group_name" placeholder="New Group Name">
+    <input type="hidden" name="cur_group_name" value="<%= @cur_group_name %>">
+  </div>
+  <button type="submit" class="mx-2 btn btn-primary">Rename</button>
+  <a href="/exercise_library<%= create_full_query_str({group: @parent_group_query_str, pt: params[:pt]}) %>" class="btn btn-outline-secondary">Cancel</a>
+</form>

@@ -1220,6 +1220,51 @@ post "/users/:username/exercises/group/:delete_group/delete" do
   redirect "/users/#{@patient.username}/exercises"
 end
 
+get "/exercise_library/rename_group" do
+  unless verify_user_access(required_authorization: :therapist)
+    redirect "/access_error"
+  end
+
+  @group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
+  @cur_group_name = @group_hierarchy.last
+
+  erb :rename_template_group
+end
+
+post "/exercise_library/rename_group" do
+  unless verify_user_access(required_authorization: :therapist)
+    redirect "/access_error"
+  end
+
+  @exercise_library = ExerciseLibrary.load('main')
+
+  @cur_group_name = params[:cur_group_name].strip
+  @new_group_name = params[:new_group_name].strip
+  @current_group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
+  @parent_hierarchy = @current_group_hierarchy[0..-2]
+
+  @new_group_hierarchy = @parent_hierarchy + [@new_group_name]
+
+
+  @group = @exercise_library.get_group(@current_group_hierarchy)
+
+  if @exercise_library.subgroup_exists?(@new_group_name, @parent_hierarchy)
+    session[:error] = "A group called #{@new_group_name} already exists."
+    redirect "/exercise_library#{create_full_query_str({group: params[:group], pt: params[:pt] })}"
+  end
+
+  if @new_group_name.empty?
+    session[:error] = "Group name cannot be blank."
+    redirect "/exercise_library#{create_full_query_str({group: params[:group], pt: params[:pt] })}"
+  end
+
+  @exercise_library.rename_group(@group.name, @parent_hierarchy, @new_group_name)
+
+  @exercise_library.save
+
+  redirect "/exercise_library#{create_full_query_str({group: make_group_query_str(@parent_hierarchy), pt: params[:pt] })}"
+end
+
 post "/users/:username/exercises/group/:group_name/rename" do
   unless verify_user_access(required_authorization: :patient, required_username: params[:username])
     redirect "/access_error"

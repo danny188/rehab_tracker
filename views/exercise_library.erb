@@ -111,34 +111,6 @@
 <!-- Existing groups -->
 <div class="row row-cols-1 row-cols-lg-6 row-cols-md-4">
   <% @group.subgroups.each_with_index do |subgroup, index| %>
-
-
-<!-- Rename group Modal -->
-    <div class="modal fade" id="modal_rename_group_<%= index %>" tabindex="-1" role="dialog" aria-labelledby="modal_rename_group" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Rename Group</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <form class="form-inline" method="post" action="/exercise_library/rename_group<%= create_full_query_str({group: make_group_query_str(@group_hierarchy.take(index + 2)), pt: params[:pt]}) %>">
-              <div class="form-group mb-2">
-                <label for="staticEmail2" class="sr-only">New Group Name</label>
-                <input type="text" name="new_group_name" placeholder="New Group Name">
-                <input type="hidden" name="cur_group_name" value="<%= subgroup.name %>">
-              </div>
-              <button type="submit" class="mx-2 btn btn-primary">Rename</button>
-              <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" aria-label="Close">Cancel</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
   <div class="col mb-4">
     <div class="card text-center">
       <div class="card-body">
@@ -151,9 +123,7 @@
 
             <a href="/exercise_library<%=create_full_query_str({group: make_group_query_str(@group_hierarchy + [subgroup.name]), pt: params[:pt]}) %>" class="dropdown-item text-primary" data-toggle="tooltip" title="Open group exercise template">Open</a>
 
-            <a type="button" class="dropdown-item text-primary" data-toggle="modal" data-target="#modal_rename_group_<%= index %>">
-            Rename Group
-            </a>
+            <a href="/exercise_library/rename_group<%=create_full_query_str({group: make_group_query_str(@group_hierarchy + [subgroup.name]), pt: params[:pt]}) %>" class="dropdown-item text-primary">Rename Group</a>
 
             <hr>
 
