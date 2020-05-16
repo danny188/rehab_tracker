@@ -65,7 +65,7 @@
 <br>
 <div class="row">
   <div class="col">
-    <h4 class="d-inline mr-4">Template Groups </h4>
+    <h4 class="d-inline mr-4">Template <%= @group_hierarchy.size <= 1 ? 'Groups' : 'Subgroups' %> </h4>
     <!-- trigger modal to create new group -->
     <!--  only allow 2 group levels -->
     <a type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#create_group">Create New <%= @group_hierarchy.size <= 1 ? 'Group' : 'Subgroup' %></a>

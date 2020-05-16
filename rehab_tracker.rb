@@ -193,7 +193,6 @@ post "/users/:username/exercises/add_from_library" do
 
   @patient = User.get(params[:username])
 
-
   @exercise_library = ExerciseLibrary.load('main')
 
   # group hierarchy from which we're pulling exercise template
@@ -414,7 +413,7 @@ post "/exercise_library/:exercise_name/delete" do
   @exercise_library = ExerciseLibrary.load('main')
   @delete_exercise = @exercise_library.get_exercise(params[:exercise_name], @browse_group_hierarchy)
 
-  @exercise_library.delete_exercise(@delete_exercise.name, @browse_group_hierarchy)
+  @exercise_library.delete_exercise(@delete_exercise.name, @browse_group_hierarchy, true)
 
   @exercise_library.save
 
@@ -450,7 +449,7 @@ post "/users/:username/exercises/add" do
   # validate exercise name
   raise GroupOperations::ItemNameInGroupNotUniqueErr if @patient.has_exercise(@new_exercise_name, create_group_hierarchy(@group_name))
 
-  raise GroupOperations::ItemNameEmpty if @new_exercise_name.empty?
+  raise GroupOperations::ItemNameEmptyErr if @new_exercise_name.empty?
 
   @patient.add_exercise_by_name(params[:new_exercise_name], create_group_hierarchy(@group_name))
 
@@ -461,7 +460,7 @@ post "/users/:username/exercises/add" do
 rescue GroupOperations::ItemNameInGroupNotUniqueErr
   session[:error] = "An exercise called '#{@new_exercise_name}' already exists. Please pick a new name."
   redirect "/users/#{@patient.username}/exercises"
-rescue GroupOperations::ItemNameEmpty
+rescue GroupOperations::ItemNameEmptyErr
   session[:error] = "Exercise name cannot be blank"
   redirect "/users/#{@patient.username}/exercises"
 end
@@ -683,7 +682,7 @@ post "/users/:username/exercises/:exercise_name/delete" do
   @patient = User.get(params[:username])
   @current_group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
 
-  @patient.delete_exercise(params[:exercise_name], @current_group_hierarchy)
+  @patient.delete_exercise(params[:exercise_name], @current_group_hierarchy, true)
 
   @patient.save
 
@@ -1122,18 +1121,38 @@ will be applied as a subgroup for the patient.
   @source_group_copy = Group.deep_copy(@source_group)
 
   if @source_level == 1 # apply source group contents to patient's main group
-    @source_group_copy.items.each do |exercise|
-      exercise.group_hierarchy = create_group_hierarchy()
-      @patient.add_exercise(Exercise.new_from_template(exercise), create_group_hierarchy)
+    # copy templates to patient's top level group
+    @source_group_copy.items.each do |template|
+      template.group_hierarchy = create_group_hierarchy()
+
+      dest_exercise = Exercise.new_from_template(template)
+      dest_exercise.patient_username = @patient.username
+
+      # copy image files from template
+      GroupOperations.replace_all_supp_files(@exercise_library, template, dest_exercise)
+
+      @patient.add_exercise(dest_exercise, create_group_hierarchy)
     end
 
+    # copy subgroup templates into subgroups under patient's exercises
     @source_group_copy.subgroups.each do |subgroup|
-      subgroup.items.each { |exercise| exercise.group_hierarchy = create_group_hierarchy(subgroup.name) }
-      @patient.exercise_collection.add_subgroup(subgroup)
+      subgroup.items.each do |template|
+        dest_exercise = Exercise.new_from_template(template)
+        dest_exercise.patient_username = @patient.username
+        dest_exercise.group_hierarchy = create_group_hierarchy(subgroup.name)
+        GroupOperations.replace_all_supp_files(@exercise_library, template, dest_exercise)
+        @patient.add_exercise(dest_exercise, dest_exercise.group_hierarchy)
+      end
     end
   elsif @source_level == 2 # apply source group as a subgroup under patient's main group
-    @source_group_copy.items.each { |exercise| exercise.group_hierarchy = create_group_hierarchy(@source_group_copy.name) }
-    @patient.exercise_collection.add_subgroup(@source_group_copy)
+    @source_group_copy.items.each do |template|
+      dest_exercise = Exercise.new_from_template(template)
+      dest_exercise.patient_username = @patient.username
+      dest_exercise.group_hierarchy = create_group_hierarchy(@source_group_copy.name)
+      GroupOperations.replace_all_supp_files(@exercise_library, template, dest_exercise)
+      @patient.add_exercise(dest_exercise, dest_exercise.group_hierarchy)
+    end
+    # @patient.exercise_collection.add_subgroup(@source_group_copy)
   end
 
   # session[:debug] = @patient.exercise_collection.items[0].name
@@ -1335,5 +1354,7 @@ get "/test" do
   # # @patient.get_group(['main', 'stretches']).items.inspect
   # main_grp = @patient.get_group(['main']).name
 
-  session[:debug]
+  # session[:debug]
+
+  Amazon_AWS.delete_all_objs(bucket: :images, prefix: 'coffee')
 end

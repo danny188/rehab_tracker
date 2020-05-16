@@ -70,10 +70,19 @@ module GroupOperations
     end
   end
 
+
+
   def delete_group(delete_group_name, parent_hierarchy)
     parent_group = get_group(parent_hierarchy)
 
     if subgroup_exists?(delete_group_name, parent_hierarchy)
+      # delete elements within group
+      group_to_delete = get_group(parent_hierarchy + [delete_group_name])
+      temp_group_hierarchy = [parent_hierarchy] + [delete_group_name]
+      # delete s3 sup files of group recursively
+
+      Amazon_AWS.delete_all_objs(bucket: :images, prefix: image_link_prefix + "/" + make_group_query_str(temp_group_hierarchy))
+
       parent_group.delete_subgroup_by_name(delete_group_name)
     end
   end
@@ -125,8 +134,18 @@ module GroupOperations
     group.get_item(exercise_name)
   end
 
-  def delete_exercise(exercise_name, group_hierarchy = TOP_HIERARCHY)
+  def delete_exercise(exercise_name, group_hierarchy = TOP_HIERARCHY, delete_supp_files = false)
     group = get_group(group_hierarchy)
+    exercise = get_exercise(exercise_name, group_hierarchy)
+
+    if delete_supp_files
+      # delete supplementary (image) files from s3
+      exercise.image_links.each do |link|
+        exercise.delete_file(link)
+      end
+    end
+
+    # delete exercise object
     group.delete_item_by_name(exercise_name)
   end
 
@@ -147,10 +166,14 @@ module GroupOperations
     raise GroupOperations::ItemNameInGroupNotUniqueErr if has_exercise(exercise.name, to_group_hierarchy)
 
     exercise.group_hierarchy = to_group_hierarchy
-    add_exercise(exercise, to_group_hierarchy)
 
     # move related images/files on cloud
     move_all_exercise_supp_files(exercise_name, from_group_hierarchy, to_group_hierarchy)
+
+    exercise_copy = exercise.deep_copy
+    exercise_copy.group_hierarchy = to_group_hierarchy
+
+    add_exercise(exercise_copy, to_group_hierarchy)
 
     delete_exercise(exercise.name, from_group_hierarchy)
   end
@@ -166,21 +189,6 @@ module GroupOperations
     # self.save
     # the cloud files will already have been moved even if self.save is not run
   end
-
-  def move_exercise_supp_file(exercise_name, filename, from_group_hierarchy, to_group_hierarchy, source_key, target_key)
-    exercise = get_exercise(exercise_name, from_group_hierarchy)
-    image_index = exercise.image_links.index{ |link| File.basename(link) == filename }
-
-    Amazon_AWS.move_obj(source_bucket: :images,
-                        source_key: source_key,
-                        target_bucket: :images,
-                        target_key: target_key)
-
-    exercise.image_links[image_index] = exercise.image_link_path(target_key)
-
-    # self.save
-  end
-
 end
 
 module DataPersistence
@@ -246,6 +254,10 @@ class ExerciseTemplate
   DEFAULT_REPS = '30'
   DEFAULT_SETS = '3'
   DEFAULT_EXERCISE_LIBRARY_NAME = 'main'
+
+  def deep_copy
+    Marshal.load(Marshal.dump(self))
+  end
 
   def initialize(name, group_hierarchy = GroupOperations::TOP_HIERARCHY, reps = DEFAULT_REPS, sets = DEFAULT_SETS)
     @name = name
@@ -484,6 +496,10 @@ class ExerciseLibrary
     @template_collection = TemplateGroup.new(TOP_GROUP)
   end
 
+  def image_link_prefix()
+    "images/exercise_library_#{self.name}"
+  end
+
   def file_prefix
     "exercise_library_"
   end
@@ -503,7 +519,17 @@ class ExerciseLibrary
     source_key = "images/exercise_library_#{self.name}/#{make_group_query_str(from_group_hierarchy)}/#{exercise_name}/#{filename}"
     target_key = "images/exercise_library_#{self.name}/#{make_group_query_str(to_group_hierarchy)}/#{exercise_name}/#{filename}"
 
-    super(exercise_name, filename, from_group_hierarchy, to_group_hierarchy, source_key, target_key)
+    exercise = get_exercise(exercise_name, from_group_hierarchy)
+    image_index = exercise.image_links.index{ |link| File.basename(link) == filename }
+
+    Amazon_AWS.move_obj(source_bucket: :images,
+                        source_key: source_key,
+                        target_bucket: :images,
+                        target_key: target_key)
+
+    exercise.image_links[image_index] = exercise.image_link_path(target_key)
+
+    # self.save
   end
 end
 
@@ -586,7 +612,7 @@ class Exercise < ExerciseTemplate
     self.add_image_link(image_link_path(dest_path))
   end
 
-  def delete_file(link:)
+  def delete_file(link)
     filename = File.basename(link)
 
     case ENV['custom_env']
@@ -740,6 +766,11 @@ class Patient < User
     get_all_users_locally.select { |user| user_role(user) == :patient }
   end
 
+
+  def image_link_prefix()
+    "images/#{self.username}"
+  end
+
   def add_exercise_by_name(exercise_name, group_hierarchy = TOP_HIERARCHY)
     new_exercise = Exercise.new(exercise_name, group_hierarchy)
 
@@ -760,7 +791,17 @@ class Patient < User
     source_key = "images/#{self.username}/#{make_group_query_str(from_group_hierarchy)}/#{exercise_name}/#{filename}"
     target_key = "images/#{self.username}/#{make_group_query_str(to_group_hierarchy)}/#{exercise_name}/#{filename}"
 
-    super(exercise_name, filename, from_group_hierarchy, to_group_hierarchy, source_key, target_key)
+    exercise = get_exercise(exercise_name, from_group_hierarchy)
+    image_index = exercise.image_links.index{ |link| File.basename(link) == filename }
+
+    Amazon_AWS.move_obj(source_bucket: :images,
+                        source_key: source_key,
+                        target_bucket: :images,
+                        target_key: target_key)
+
+    exercise.image_links[image_index] = exercise.image_link_path(target_key)
+
+    # self.save
   end
 
   def mark_done_all_exercises(date)
@@ -892,6 +933,14 @@ class Amazon_AWS
       result.push(obj.get.body.string)
     end
     result
+  end
+
+  def self.delete_all_objs(bucket:, prefix:)
+    s3 = Aws::S3::Resource.new(region: REGION)
+
+    s3.bucket(bucket_name(bucket)).objects(prefix: prefix).each do |obj|
+      obj.delete
+    end
   end
 
   def self.upload_obj(source_obj:, bucket:, dest_path:)
