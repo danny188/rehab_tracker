@@ -921,6 +921,7 @@ GEM
       rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
+    redcarpet (3.5.0)
     ruby2_keywords (0.0.2)
     sinatra (2.0.8.1)
       mustermann (~> 1.0)
@@ -948,6 +949,7 @@ DEPENDENCIES
   pry-byebug
   puma
   rack-test
+  redcarpet
   sinatra
   sinatra-contrib
   tilt

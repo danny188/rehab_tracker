@@ -24,6 +24,9 @@ require_relative "../custom_classes.rb"
 #   end
 # end
 
+def local_test_data_path
+  "test/"
+end
 
 class Group_Class_Test < Minitest::Test
   def test_duplicate_from
@@ -216,30 +219,34 @@ class Rehab_Tracker_Test < Minitest::Test
      # Amazon_AWS.delete_all_objs(bucket: :data, prefix: "")
   end
 
-  def create_patient_nina
+  def create_patient_nina_s3
     @patient_username = "nina"
     @patient_filename = "user_" + @patient_username + ".store"
-    File.open("test/" + @patient_filename) do |file|
+    File.open(local_test_data_path + @patient_filename) do |file|
       Amazon_AWS.upload_obj(source_obj: file,
                             bucket: :data,
                             dest_path: @patient_filename)
     end
   end
 
-  def delete_patient_nina
-    Amazon_AWS.delete_obj(bucket: :data, key: @patient_filename)
+  def user_data_filename(username)
+    "user_#{username}.store"
+  end
+
+  def delete_user_data_file_s3(username)
+    Amazon_AWS.delete_obj(bucket: :data, key: user_data_filename(username))
   end
 
   def create_admin_admin_1
-
-    File.open("test/" + @admin_filename) do |file|
+    @admin_filename = "user_admin_1.store"
+    File.open(local_test_data_path + @admin_filename) do |file|
       Amazon_AWS.upload_obj(source_obj: file,
                             bucket: :data,
                             dest_path: @admin_filename)
     end
   end
 
-  def test_sign_in_as_patient
+  def test_sign_in_as_patient_nina
     create_patient_nina
 
     post "/login", {username: @patient_username, password: 'secret'}
@@ -250,11 +257,10 @@ class Rehab_Tracker_Test < Minitest::Test
 
     assert_includes last_response.body, "Nina's Exercises"
 
-    delete_patient_nina
+    delete_user_data_file_s3('nina')
   end
 
   def test_sign_in_as_admin
-    @admin_filename = "user_admin_1.store"
     create_admin_admin_1
 
     post "/login", {username: 'admin_1', password: 'secret1'}

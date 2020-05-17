@@ -69,6 +69,7 @@ end
 configure do
   enable :sessions
   set :session_secret, "secret"
+  set :markdown, :layout_engine => :erb
 end
 
 helpers do
@@ -1454,6 +1455,15 @@ post "/exercise_library/create_group" do
   rescue GroupOperations::GroupNameEmptyErr
     session[:error] = "Group name cannot be blank."
     redirect "/exercise_library?group=#{params[:group]}"
+end
+
+get "/privacy_policy" do
+  erb :privacy_policy
+end
+
+get "/terms" do
+
+  markdown :terms, layout: :layout
 end
 
 get "/test" do
