@@ -948,6 +948,7 @@ DEPENDENCIES
   rack-test
   sinatra
   sinatra-contrib
+  tilt
 
 RUBY VERSION
    ruby 2.6.3p62
