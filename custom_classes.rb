@@ -268,10 +268,11 @@ module DataPersistence
   end
 
   def save
-    case ENV["custom_env"]
-    when 'testing_local'
-      save_to_local_filesystem
-    when 'testing_s3', 'production_s3'
+    case ENV["RACK_ENV"]
+    # when 'testing_local'
+    #   save_to_local_filesystem
+    # when 'testing_s3', 'production_s3'
+    when 'production'
       Amazon_AWS.upload_obj(source_obj: self.to_yaml,
       bucket: :data,
       dest_path: "#{file_prefix + self.name}.store")
@@ -319,14 +320,17 @@ class ExerciseTemplate
   end
 
   def image_link_path(filename)
-    case ENV["custom_env"]
-    when 'testing_local'
-      File.join("/images/exercise_library/#{self.name}", filename)
-    when 'testing_s3'
-      "https://test-rehab-buddy-images.s3-ap-southeast-2.amazonaws.com/#{filename}"
-    when 'production_s3'
-      "https://rehab-buddy-images.s3-ap-southeast-2.amazonaws.com/#{filename}"
-    end
+    # case ENV["RACK_ENV"]
+    # when 'testing_local'
+    #   File.join("/images/exercise_library/#{self.name}", filename)
+    # when 'testing_s3'
+    #   "https://#{Amazon_AWS.bucket_name(:images)}.s3-ap-southeast-2.amazonaws.com/#{filename}"
+    # when 'production_s3'
+    #   "https://#{Amazon_AWS.bucket_name(:images)}.s3-ap-southeast-2.amazonaws.com/#{filename}"
+    # end
+
+      "https://#{Amazon_AWS.bucket_name(:images)}.s3-ap-southeast-2.amazonaws.com/#{filename}"
+
   end
 
   def has_file(filename)
@@ -354,14 +358,17 @@ class ExerciseTemplate
   end
 
   def add_file(file:, filename:)
-    case ENV['custom_env']
-    when 'testing_local'
-      upload_file_to_local(source: file, dest: files_path_local(filename))
-      dest_path = filename
-    else
-      dest_path = "images/exercise_library_#{exercise_library_name}/#{make_group_query_str(self.group_hierarchy)}/#{self.name}/#{filename}"
-      upload_supp_file(file_obj: file, dest_path: dest_path)
-    end
+    # case ENV["RACK_ENV"]
+    # when 'testing_local'
+    #   upload_file_to_local(source: file, dest: files_path_local(filename))
+    #   dest_path = filename
+    # when 'production'
+    #   dest_path = "images/exercise_library_#{exercise_library_name}/#{make_group_query_str(self.group_hierarchy)}/#{self.name}/#{filename}"
+    #   upload_supp_file(file_obj: file, dest_path: dest_path)
+    # end
+
+    dest_path = "images/exercise_library_#{exercise_library_name}/#{make_group_query_str(self.group_hierarchy)}/#{self.name}/#{filename}"
+    upload_supp_file(file_obj: file, dest_path: dest_path)
 
     self.add_image_link(image_link_path(dest_path))
   end
@@ -369,13 +376,16 @@ class ExerciseTemplate
   def delete_file(link)
     filename = File.basename(link)
 
-    case ENV['custom_env']
-    when 'testing_local'
-      FileUtils.rm(files_path_local(filename))
-    when 'testing_s3', 'production_s3'
-      key = "images/exercise_library_#{exercise_library_name}/#{make_group_query_str(self.group_hierarchy)}/#{self.name}/#{filename}"
-      delete_supp_file(key: key)
-    end
+    # case ENV['custom_env']
+    # when 'testing_local'
+    #   FileUtils.rm(files_path_local(filename))
+    # when 'testing_s3', 'production_s3'
+    #   key = "images/exercise_library_#{exercise_library_name}/#{make_group_query_str(self.group_hierarchy)}/#{self.name}/#{filename}"
+    #   delete_supp_file(key: key)
+    # end
+
+    key = "images/exercise_library_#{exercise_library_name}/#{make_group_query_str(self.group_hierarchy)}/#{self.name}/#{filename}"
+    delete_supp_file(key: key)
 
     self.delete_image_link(link)
   end
@@ -626,25 +636,30 @@ class Exercise < ExerciseTemplate
   end
 
   def image_link_path(filename)
-    case ENV["custom_env"]
-    when 'testing_local'
-      File.join("/images/#{patient_username}/#{make_group_query_str(self.group_hierarchy)}/#{self.name}", filename)
-    when 'testing_s3'
-      "https://test-rehab-buddy-images.s3-ap-southeast-2.amazonaws.com/#{filename}"
-    when 'production_s3'
-      "https://rehab-buddy-images.s3-ap-southeast-2.amazonaws.com/#{filename}"
-    end
+    # case ENV["custom_env"]
+    # when 'testing_local'
+    #   File.join("/images/#{patient_username}/#{make_group_query_str(self.group_hierarchy)}/#{self.name}", filename)
+    # when 'testing_s3'
+    #   "https://#{Amazon_AWS.bucket_name(:images)}.s3-ap-southeast-2.amazonaws.com/#{filename}"
+    # when 'production_s3'
+    #   "https://#{Amazon_AWS.bucket_name(:images)}.s3-ap-southeast-2.amazonaws.com/#{filename}"
+    # end
+
+    "https://#{Amazon_AWS.bucket_name(:images)}.s3-ap-southeast-2.amazonaws.com/#{filename}"
   end
 
   def add_file(file:, filename:)
-    case ENV['custom_env']
-    when 'testing_local'
-      upload_file_to_local(source: file, dest: files_path_local(filename))
-      dest_path = filename
-    else
-      dest_path = "images/#{patient_username}/#{make_group_query_str(self.group_hierarchy)}/#{self.name}/#{filename}"
-      upload_supp_file(file_obj: file, dest_path: dest_path)
-    end
+    # case ENV['custom_env']
+    # when 'testing_local'
+    #   upload_file_to_local(source: file, dest: files_path_local(filename))
+    #   dest_path = filename
+    # else
+    #   dest_path = "images/#{patient_username}/#{make_group_query_str(self.group_hierarchy)}/#{self.name}/#{filename}"
+    #   upload_supp_file(file_obj: file, dest_path: dest_path)
+    # end
+
+    dest_path = "images/#{patient_username}/#{make_group_query_str(self.group_hierarchy)}/#{self.name}/#{filename}"
+    upload_supp_file(file_obj: file, dest_path: dest_path)
 
     self.add_image_link(image_link_path(dest_path))
   end
@@ -652,13 +667,16 @@ class Exercise < ExerciseTemplate
   def delete_file(link)
     filename = File.basename(link)
 
-    case ENV['custom_env']
-    when 'testing_local'
-      FileUtils.rm(files_path_local(filename: filename))
-    when 'testing_s3', 'production_s3'
-      key = "images/#{patient_username}/#{make_group_query_str(self.group_hierarchy)}/#{self.name}/#{filename}"
-      delete_supp_file(key: key)
-    end
+    # case ENV['custom_env']
+    # when 'testing_local'
+    #   FileUtils.rm(files_path_local(filename: filename))
+    # when 'testing_s3', 'production_s3'
+    #   key = "images/#{patient_username}/#{make_group_query_str(self.group_hierarchy)}/#{self.name}/#{filename}"
+    #   delete_supp_file(key: key)
+    # end
+
+    key = "images/#{patient_username}/#{make_group_query_str(self.group_hierarchy)}/#{self.name}/#{filename}"
+    delete_supp_file(key: key)
 
     self.delete_image_link(link)
   end
@@ -953,10 +971,10 @@ class Amazon_AWS
   REGION = "ap-southeast-2"
 
   BUCKETS = { data: 'rehab-buddy-data', images: 'rehab-buddy-images'}
-  TEST_BUCKETS = { data: 'test-rehab-buddy-data', images: 'test-rehab-buddy-images'}
+  TEST_BUCKETS = { data: 'auto-test-rehab-buddy-data', images: 'auto-test-rehab-buddy-images'}
 
   def self.bucket_name(bucket)
-    ENV['custom_env'] == 'testing_s3' ? TEST_BUCKETS[bucket] : BUCKETS[bucket]
+    ENV['RACK_ENV'] == 'production' ? BUCKETS[bucket] : TEST_BUCKETS[bucket]
   end
 
   # returns an array of objects downloaded

@@ -12,7 +12,7 @@ require 'json'
 require_relative 'custom_classes'
 include GroupOperations
 
-ENV['custom_env'] = 'testing_s3'
+# ENV['custom_env'] = 'production_s3'
 
 ROLES = [:public, :patient, :therapist, :admin]
 STAFF_ROLES = [:therapist, :admin]

@@ -1,4 +1,5 @@
-ENV["RACK_ENV"] = "test"
+# ENV["RACK_ENV"] = "test"
+# ENV['custom_env'] = 'testing_s3'
 
 require 'minitest/autorun'
 require 'rack/test'
@@ -58,6 +59,10 @@ end
 class Patient_Class_Test < Minitest::Test
   def setup
     @pt = Patient.new('patient1', 'secret')
+  end
+
+  def teardown
+
   end
 
   def test_can_add_exercise
@@ -130,13 +135,13 @@ class Patient_Class_Test < Minitest::Test
     @pt.get_all_exercises.all? { |exercise| assert exercise.done_on?(done_date)}
   end
 
-  def test_add_subgroup
+  def test_add_group
     @pt.add_group('stretches', create_group_hierarchy)
 
     assert @pt.get_group(create_group_hierarchy + ['stretches'])
   end
 
-  def test_delete_subgroup
+  def test_delete_group
     @pt.add_group('stretches', create_group_hierarchy)
     @pt.delete_group('stretches', create_group_hierarchy)
 
@@ -195,6 +200,34 @@ class Rehab_Tracker_Test < Minitest::Test
     Sinatra::Application
   end
 
+  def setup
+    @admin_filename = "user_admin_1.store"
+    create_admin_account
+    # puts ENV["RACK_ENV"] + " is rack_env"
+  end
+
+  def teardown
+    # Amazon_AWS.delete_obj(bucket: :data, key: @admin_filename)
+  end
+
+  def create_admin_account
+
+    File.open("test/" + @admin_filename) do |file|
+      Amazon_AWS.upload_obj(source_obj: file,
+                            bucket: :data,
+                            dest_path: @admin_filename)
+    end
+  end
+
+  def test_sign_in_as_admin
+    post "/login", {username: 'admin_1', password: 'secret1'}
+
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "Here is your admin panel"
+  end
 
 end
 
