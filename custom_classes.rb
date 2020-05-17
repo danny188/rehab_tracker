@@ -13,6 +13,7 @@ module GroupOperations
   class GroupNameEmptyErr < StandardError; end
 
   # replaces exercise's supplementary files with those of template's
+  # used when creating new exercise for patient from existing template
   def self.replace_all_supp_files(exercise_library, template, exercise)
     exercise.clear_image_links
 
@@ -53,6 +54,7 @@ module GroupOperations
     str.split("_") if str
   end
 
+  # Used by ExerciseLibrary and Patient
   def add_group(new_group_name, parent_hierarchy)
     parent_group = get_group(parent_hierarchy)
 
@@ -70,7 +72,8 @@ module GroupOperations
     end
   end
 
-  # basically creates a new group,
+  # basically creates a new group.
+  # Used by ExerciseLibrary and Patient
   def rename_group(current_name, parent_hierarchy, new_name)
     current_group_hierarchy = parent_hierarchy + [current_name]
     new_group_hierarchy = parent_hierarchy + [new_name]
@@ -97,6 +100,7 @@ module GroupOperations
     delete_group(current_name, parent_hierarchy)
   end
 
+  # Used by ExerciseLibrary and Patient
   def delete_group(delete_group_name, parent_hierarchy)
     parent_group = get_group(parent_hierarchy)
 
@@ -112,17 +116,20 @@ module GroupOperations
     end
   end
 
+
   def get_groups(parent_hierarchy)
     parent_group = get_group(parent_hierarchy)
     parent_group.subgroups
   end
 
+  # Used by ExerciseLibrary and Patient
   def subgroup_exists?(test_group_name, parent_hierarchy)
     parent_group = get_group(parent_hierarchy)
     return false unless parent_group
     parent_group.get_subgroup(test_group_name)
   end
 
+  # Used by ExerciseLibrary and Patient
   def get_group(hierarchy = TOP_HIERARCHY)
     hierarchy_copy = hierarchy.dup
 
@@ -138,7 +145,7 @@ module GroupOperations
     result_group
   end
 
-
+  # Used by ExerciseLibrary and Patient
   def add_exercise(exercise, group_hierarchy = TOP_HIERARCHY)
     group = get_group(group_hierarchy)
 
@@ -154,11 +161,13 @@ module GroupOperations
     group.add_item(exercise)
   end
 
+  # Used by ExerciseLibrary and Patient
   def get_exercise(exercise_name, group_hierarchy = TOP_HIERARCHY)
     group = get_group(group_hierarchy)
     group.get_item(exercise_name)
   end
 
+  # Used by ExerciseLibrary and Patient
   def delete_exercise(exercise_name, group_hierarchy = TOP_HIERARCHY, delete_supp_files = false)
     group = get_group(group_hierarchy)
     exercise = get_exercise(exercise_name, group_hierarchy)
@@ -174,6 +183,7 @@ module GroupOperations
     group.delete_item_by_name(exercise_name)
   end
 
+  # Used by ExerciseLibrary and Patient
   def has_exercise(exercise_name, group_hierarchy = TOP_HIERARCHY)
     group = get_group(group_hierarchy)
 
@@ -182,6 +192,7 @@ module GroupOperations
     group.has_item?(exercise_name)
   end
 
+  # Used by ExerciseLibrary and Patient
   def move_exercise(exercise_name, from_group_hierarchy, to_group_hierarchy)
     from_group = get_group(from_group_hierarchy)
     to_group = get_group(to_group_hierarchy)
@@ -203,6 +214,7 @@ module GroupOperations
     delete_exercise(exercise.name, from_group_hierarchy)
   end
 
+  # Used by GroupOperations::move_exercise
   def move_all_exercise_supp_files(exercise_name, from_group_hierarchy, to_group_hierarchy)
     exercise = get_exercise(exercise_name, from_group_hierarchy)
     filenames = exercise.image_links.map { |link| File.basename(link) }
@@ -539,7 +551,7 @@ class ExerciseLibrary
     add_exercise(new_exercise, group_hierarchy)
   end
 
-  # local method ExerciseLibrary
+  # this is called by move_all_exercise_supp_files method included from GroupOperations
   def move_exercise_supp_file(exercise_name, filename, from_group_hierarchy, to_group_hierarchy)
     source_key = "images/exercise_library_#{self.name}/#{make_group_query_str(from_group_hierarchy)}/#{exercise_name}/#{filename}"
     target_key = "images/exercise_library_#{self.name}/#{make_group_query_str(to_group_hierarchy)}/#{exercise_name}/#{filename}"
@@ -811,7 +823,7 @@ class Patient < User
     @exercise_collection.get_all_items_recursive
   end
 
-  # local method patient
+  # this is called by move_all_exercise_supp_files method included from GroupOperations
   def move_exercise_supp_file(exercise_name, filename, from_group_hierarchy, to_group_hierarchy)
     source_key = "images/#{self.username}/#{make_group_query_str(from_group_hierarchy)}/#{exercise_name}/#{filename}"
     target_key = "images/#{self.username}/#{make_group_query_str(to_group_hierarchy)}/#{exercise_name}/#{filename}"
