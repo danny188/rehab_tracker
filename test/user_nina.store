@@ -1,0 +1,17 @@
+--- !ruby/object:Patient
+username: nina
+pw: !ruby/string:BCrypt::Password
+  str: "$2a$12$.6/xvQJGvkJ62HMXrIGFW.BXbQ3Zbpbt/wwIoq8Xpea7wMMybhj4S"
+  version: 2a
+  cost: 12
+  salt: "$2a$12$.6/xvQJGvkJ62HMXrIGFW."
+  checksum: BXbQ3Zbpbt/wwIoq8Xpea7wMMybhj4S
+change_pw_next_login: false
+account_status: :active
+exercise_collection: !ruby/object:ExerciseGroup
+  name: main
+  items: []
+  subgroups: []
+email: nina@g
+first_name: Nina
+last_name: Grace

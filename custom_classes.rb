@@ -268,15 +268,18 @@ module DataPersistence
   end
 
   def save
-    case ENV["RACK_ENV"]
-    # when 'testing_local'
-    #   save_to_local_filesystem
-    # when 'testing_s3', 'production_s3'
-    when 'production'
-      Amazon_AWS.upload_obj(source_obj: self.to_yaml,
-      bucket: :data,
-      dest_path: "#{file_prefix + self.name}.store")
-    end
+    # case ENV["RACK_ENV"]
+    # # when 'testing_local'
+    # #   save_to_local_filesystem
+    # # when 'testing_s3', 'production_s3'
+    # when 'production', 'development'
+    #   Amazon_AWS.upload_obj(source_obj: self.to_yaml,
+    #   bucket: :data,
+    #   dest_path: "#{file_prefix + self.name}.store")
+    # end
+    Amazon_AWS.upload_obj(source_obj: self.to_yaml,
+    bucket: :data,
+    dest_path: "#{file_prefix + self.name}.store")
   end
 end
 
@@ -971,7 +974,7 @@ class Amazon_AWS
   REGION = "ap-southeast-2"
 
   BUCKETS = { data: 'rehab-buddy-data', images: 'rehab-buddy-images'}
-  TEST_BUCKETS = { data: 'auto-test-rehab-buddy-data', images: 'auto-test-rehab-buddy-images'}
+  TEST_BUCKETS = { data: 'test-rehab-buddy-data', images: 'test-rehab-buddy-images'}
 
   def self.bucket_name(bucket)
     ENV['RACK_ENV'] == 'production' ? BUCKETS[bucket] : TEST_BUCKETS[bucket]

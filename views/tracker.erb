@@ -1,5 +1,5 @@
 <div class=" d-flex justify-content-between">
-  <h1><%= @patient.first_name || @patient.username %>'s Exercises</h1></span>
+  <h1><%= address_user(@patient) %>'s Exercises</h1></span>
 
   <span >
     <% if session[:error] %>

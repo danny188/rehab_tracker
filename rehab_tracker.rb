@@ -840,34 +840,38 @@ post "/new_account" do
   @first_name = params[:first_name]
   @last_name = params[:last_name]
   @password = params[:password]
+  @confirm_password = params[:confirm_password]
   @role = params[:role]
   @hashed_pw = BCrypt::Password.create(@password)
 
+  if @password != @confirm_password
+    session[:error] = "Please correctly confirm your password."
+    halt erb(:new_account)
+  end
+
   if @role == 'patient'
-    new_user = Patient.new(@username, @hashed_pw)
+    @new_user = Patient.new(@username, @hashed_pw)
   elsif @role == 'therapist'
     unless verify_user_access(required_authorization: :admin)
       redirect "/access_error"
     end
 
-    new_user = Therapist.new(@username, @hashed_pw)
+    @new_user = Therapist.new(@username, @hashed_pw)
   elsif @role == 'admin'
     unless verify_user_access(required_authorization: :admin)
       redirect "/access_error"
     end
 
-    new_user = Admin.new(@username, @hashed_pw)
+    @new_user = Admin.new(@username, @hashed_pw)
   else # no role chosen
     session[:error] = "Please choose a role."
     halt erb(:new_account)
   end
 
-  new_user.email = @email
-  new_user.first_name = @first_name
-  new_user.last_name = @last_name
-  new_user.change_pw_next_login = true if params[:prompt_change_pw]
-
-
+  @new_user.email = @email
+  @new_user.first_name = @first_name
+  @new_user.last_name = @last_name
+  @new_user.change_pw_next_login = true if params[:prompt_change_pw]
 
   if User.exists?(@username)
     session[:error] = "Username already exists. Please pick another."
@@ -875,20 +879,10 @@ post "/new_account" do
     halt erb(:new_account)
   end
 
-  new_user.save
-  # store = YAML::Store.new("./data/#{@username}.store")
-  # store.transaction do
-  #   store[:data] = new_user
 
-  #   # if user_records.key?(@username.to_sym)
-  #   #   session[:error] = "Username already exists. Please pick another."
 
-  #   #   halt erb(:new_account)
-  #   # end
 
-  #   # user_record[:data] = new_user
-  #   # store[:users] = user_records
-  # end
+  @new_user.save
 
   session[:success] = "Account #{@username} has been created"
   redirect_to_home_page(session[:user])
@@ -1426,7 +1420,7 @@ get "/test" do
   # # @patient.get_group(['main', 'stretches']).items.inspect
   # main_grp = @patient.get_group(['main']).name
 
-  # session[:debug]
+   session[:debug]
 
-  Amazon_AWS.delete_all_objs(bucket: :images, prefix: 'coffee')
+  # Amazon_AWS.delete_all_objs(bucket: :images, prefix: 'coffee')
 end

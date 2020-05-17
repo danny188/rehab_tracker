@@ -201,16 +201,36 @@ class Rehab_Tracker_Test < Minitest::Test
   end
 
   def setup
-    @admin_filename = "user_admin_1.store"
-    create_admin_account
-    # puts ENV["RACK_ENV"] + " is rack_env"
+
+  end
+
+  def sign_in(username, password)
+    post "/login", {username: username, password: password}
+  end
+
+  def sign_out()
+    post "/user/logout"
   end
 
   def teardown
-    # Amazon_AWS.delete_obj(bucket: :data, key: @admin_filename)
+     # Amazon_AWS.delete_all_objs(bucket: :data, prefix: "")
   end
 
-  def create_admin_account
+  def create_patient_nina
+    @patient_username = "nina"
+    @patient_filename = "user_" + @patient_username + ".store"
+    File.open("test/" + @patient_filename) do |file|
+      Amazon_AWS.upload_obj(source_obj: file,
+                            bucket: :data,
+                            dest_path: @patient_filename)
+    end
+  end
+
+  def delete_patient_nina
+    Amazon_AWS.delete_obj(bucket: :data, key: @patient_filename)
+  end
+
+  def create_admin_admin_1
 
     File.open("test/" + @admin_filename) do |file|
       Amazon_AWS.upload_obj(source_obj: file,
@@ -219,7 +239,24 @@ class Rehab_Tracker_Test < Minitest::Test
     end
   end
 
+  def test_sign_in_as_patient
+    create_patient_nina
+
+    post "/login", {username: @patient_username, password: 'secret'}
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_equal 200, last_response.status
+
+    assert_includes last_response.body, "Nina's Exercises"
+
+    delete_patient_nina
+  end
+
   def test_sign_in_as_admin
+    @admin_filename = "user_admin_1.store"
+    create_admin_admin_1
+
     post "/login", {username: 'admin_1', password: 'secret1'}
 
     assert_equal 302, last_response.status
@@ -227,6 +264,10 @@ class Rehab_Tracker_Test < Minitest::Test
     get last_response["Location"]
     assert_equal 200, last_response.status
     assert_includes last_response.body, "Here is your admin panel"
+  end
+
+  def test_create_exercise_template
+
   end
 
 end
