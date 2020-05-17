@@ -13,3 +13,4 @@ gem 'pry-byebug'
 gem "chartkick"
 gem "puma"
 gem "tilt"
+gem "erubis"
