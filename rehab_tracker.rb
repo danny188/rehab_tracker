@@ -30,7 +30,13 @@ def nil_or_empty?(value)
   value.nil? || value.empty?
 end
 
+def invalid_name(name)
+  name =~ /[^a-z0-9\s]/i
+end
 
+def invalid_username(name)
+  name =~ /[^-_a-z0-9\s]/i
+end
 
 def create_test_patient_flora
   flora = Patient.new('flora_username', 'secret')
@@ -241,7 +247,7 @@ post "/users/:username/exercises/add_from_library" do
 end
 
 # display page for creating exercise template
-get "/exercise_library/add_template" do
+get "/exercise_library/add_exercise" do
   unless verify_user_access(required_authorization: :therapist)
     redirect "/access_error"
   end
@@ -272,20 +278,33 @@ post "/exercise_library/add_exercise" do
   end
 
   @new_exercise_name = params[:new_exercise_name].to_s.strip
-
-  if nil_or_empty?(params[:group_lvl_1]) && !nil_or_empty?(params[:group_lvl_2])
-    session[:error] = "Group name cannot be empty if a subgroup is specified."
-    halt erb(:exercise_template_base_info_edit)
-  end
-
   @browse_group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
-
   @dest_group_hierarchy = create_group_hierarchy(params[:group_lvl_1], params[:group_lvl_2])
 
   @exercise = ExerciseTemplate.new(@new_exercise_name, params[:reps], params[:sets])
   @exercise.instructions = params[:instructions]
 
   @exercise_library = ExerciseLibrary.load('main')
+
+  @title = "Create Exercise Template"
+
+  # validate exercise name
+  if invalid_name(@new_exercise_name)
+    session[:error] = "Exercise names can only contain letters and/or numbers."
+    halt erb(:exercise_template_base_info_edit)
+  end
+
+  # validate group names
+  if (!params[:group_lvl_1].empty? && invalid_name(params[:group_lvl_1])) ||
+    (!params[:group_lvl_2].empty? && invalid_name(params[:group_lvl_2]))
+    session[:error] = "Group names can only contain letters and/or numbers."
+    halt erb(:exercise_template_base_info_edit)
+  end
+
+  if nil_or_empty?(params[:group_lvl_1]) && !nil_or_empty?(params[:group_lvl_2])
+    session[:error] = "Group name cannot be empty if a subgroup is specified."
+    halt erb(:exercise_template_base_info_edit)
+  end
 
   if @exercise_library.has_exercise(@new_exercise_name, @dest_group_hierarchy)
     session[:error] = "Exercise Library already has a template named '#{@new_exercise_name} in group #{[params[:group_lvl_1], params[:group_lvl_1]].join('/')}'. Please choose another name."
@@ -372,7 +391,6 @@ post "/exercise_library/:exercise_name/edit" do
 
   @patient = params[:pt]
 
-
   @exercise_library = ExerciseLibrary.load('main')
   # session[:debug] = @exercise_library.get_exercise('jumping ropes',@browse_group_hierarchy).name
   # redirect "/test"
@@ -386,6 +404,17 @@ post "/exercise_library/:exercise_name/edit" do
   # check for empty group names
   if nil_or_empty?(params[:group_lvl_1]) && !nil_or_empty?(params[:group_lvl_2])
     session[:error] = "Group name cannot be empty if a subgroup is specified."
+    erb :exercise_template_base_info_edit, :layout => :layout do
+      erb :template_images_edit
+    end
+    halt
+  end
+
+  # validate group names
+  if (!params[:group_lvl_1].empty? && invalid_name(params[:group_lvl_1])) ||
+    (!params[:group_lvl_2].empty? && invalid_name(params[:group_lvl_2]))
+    session[:error] = "Group names can only contain letters and/or numbers."
+
     erb :exercise_template_base_info_edit, :layout => :layout do
       erb :template_images_edit
     end
@@ -457,6 +486,15 @@ post "/users/:username/exercises/add" do
   @new_exercise_name = params[:new_exercise_name].strip
   @group_name = params[:group].strip
 
+  if invalid_name(@new_exercise_name)
+    session[:error] = "Exercise names can only contain letters and/or numbers."
+    redirect "/users/#{@patient.username}/exercises"
+  end
+
+  if !@group_name.empty? && invalid_name(@group_name)
+    session[:error] = "Group name can only contain letters and/or numbers."
+    redirect "/users/#{@patient.username}/exercises"
+  end
 
   # validate exercise name
   raise GroupOperations::ItemNameInGroupNotUniqueErr if @patient.has_exercise(@new_exercise_name, create_group_hierarchy(@group_name))
@@ -649,9 +687,6 @@ post "/users/:username/exercises/:exercise_name/update" do
     @patient.move_exercise(params[:exercise_name], @current_group_hierarchy, @dest_group_hierarchy)
   end
 
-  # session[:debug] = (@current_group_hierarchy + ["----"] + @dest_group_hierarchy).inspect
-  # redirect "/test"
-
   @exercise = @patient.get_exercise(params[:exercise_name], create_group_hierarchy(*@dest_group_hierarchy))
 
   @exercise.reps = params[:reps]
@@ -664,6 +699,11 @@ post "/users/:username/exercises/:exercise_name/update" do
   exercise_name_not_unique = @patient.has_exercise(params[:new_exercise_name], @dest_group_hierarchy) && @exercise.name != params[:new_exercise_name]
 
   raise GroupOperations::ItemNameInGroupNotUniqueErr if exercise_name_not_unique
+
+  if invalid_name(params[:new_exercise_name])
+    session[:error] = "Exercise name can only contain letters and/or numbers."
+    halt erb(:edit_exercise)
+  end
 
   @exercise.name = params[:new_exercise_name]
 
@@ -835,14 +875,19 @@ get "/new_account" do
 end
 
 post "/new_account" do
-  @username = params[:username]
-  @email = params[:email]
-  @first_name = params[:first_name]
-  @last_name = params[:last_name]
+  @username = params[:username].strip
+  @email = params[:email].strip
+  @first_name = params[:first_name].strip
+  @last_name = params[:last_name].strip
   @password = params[:password]
   @confirm_password = params[:confirm_password]
-  @role = params[:role]
+  @role = params[:role].strip
   @hashed_pw = BCrypt::Password.create(@password)
+
+  if invalid_username(@username)
+    session[:error] = "Username can only contain letters, numbers and/or '_' (underscore) and '-' (hyphen) characters."
+    halt erb(:new_account)
+  end
 
   if @password != @confirm_password
     session[:error] = "Please correctly confirm your password."
@@ -1189,7 +1234,7 @@ post "/users/:username/exercises/add_group" do
     redirect "/users/#{@patient.username}/exercises"
   end
 
-  unless @new_group_name =~ /[a-z0-9\s]/i # save underscore chr as delimiter for group names in query strings
+  if invalid_name(@new_group_name)
     session[:error] = "Group name can only contain letters, numbers or space characters."
     redirect "/users/#{@patient.username}/exercises"
   end
@@ -1253,6 +1298,11 @@ post "/exercise_library/rename_group" do
     redirect "/exercise_library#{create_full_query_str({group: params[:group], pt: params[:pt] })}"
   end
 
+  if invalid_name(@new_group_name)
+    session[:error] = "Group name can only contain letters and/or numbers."
+    redirect "/exercise_library#{create_full_query_str({group: params[:group], pt: params[:pt] })}"
+  end
+
   @exercise_library.rename_group(@group.name, @parent_hierarchy, @new_group_name)
 
   @exercise_library.save
@@ -1268,6 +1318,11 @@ post "/users/:username/exercises/group/:group_name/rename" do
   @patient = User.get(params[:username])
   @group = @patient.get_group(create_group_hierarchy(params[:group_name]))
   @new_group_name = params[:new_group_name].strip
+
+  if invalid_name(@new_group_name)
+    session[:error] = "Group name can only contain letters and/or numbers."
+    redirect "/users/#{@patient.username}/exercises"
+  end
 
   if @patient.subgroup_exists?(@new_group_name, Patient::TOP_HIERARCHY)
     session[:error] = "A group called #{@new_group_name} already exists."
@@ -1360,8 +1415,8 @@ post "/exercise_library/create_group" do
   lvl_1_group_name_empty = nil_or_empty?(@group_lvl_1)
   lvl_2_group_name_empty = nil_or_empty?(@group_lvl_2)
 
-  if !lvl_1_group_name_empty && @group_lvl_1 =~ /[^a-z0-9\s]/i ||
-     !lvl_2_group_name_empty && @group_lvl_2 =~ /[^a-z0-9\s]/i
+  if !lvl_1_group_name_empty && invalid_name(@group_lvl_1) ||
+     !lvl_2_group_name_empty && invalid_name(@group_lvl_2)
     session[:error] = "Group name can only contain letters, numbers or space characters."
     redirect "/exercise_library?group=#{params[:group]}"
   end
