@@ -105,7 +105,7 @@ helpers do
 end
 
 get "/weather" do
-  url = "https://api.openweathermap.org/data/2.5/weather?id=2147714&appid=a987a5af5f795697f65534eeb4c91f39&units=metric"
+  url = "https://api.openweathermap.org/data/2.5/weather?id=2147714&appid=#{ENV['OPEN_WEATHER_MAP_API_KEY']}&units=metric"
   uri = URI(url)
   response = Net::HTTP.get(uri)
   @data = JSON.parse(response)
