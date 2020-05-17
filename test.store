@@ -1,8 +1,0 @@
----
-exercise:
-- !ruby/object:Exercise
-  name: bridge
-  reps: 30
-- !ruby/object:Exercise
-  name: hip abd
-  reps: 20
