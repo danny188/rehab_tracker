@@ -278,12 +278,6 @@ module DataPersistence
     #   dest_path: "#{file_prefix + self.name}.store")
     # end
 
-    # record review date by therapist whenever updating patient
-    if session[:user].role == :therapist && self.is_a?(Patient)
-      self.last_review_date = Date.today
-      self.last_review_by = session[:user].username
-    end
-
     Amazon_AWS.upload_obj(source_obj: self.to_yaml,
     bucket: :data,
     dest_path: "#{file_prefix + self.name}.store")

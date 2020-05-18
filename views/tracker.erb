@@ -1,5 +1,5 @@
 <div class=" d-flex justify-content-between">
-  <h1><%= address_user(@patient) %>'s Exercises</h1></span>
+  <h1 class="ml-3"><%= address_user(@patient) %>'s Exercises</h1></span>
 
   <span >
     <% if session[:error] %>
@@ -27,6 +27,11 @@
     <a href="/users/<%= @patient.username %>/exercises?end_date=<%= (@end_date+7).strftime("%Y%m%d") %>" class="btn btn-info date-nav-button" data-toggle="tooltip" title="View later days"><i class="fas fa-arrow-right"></i></a>
   </span>
 </div>
+
+<!-- display last review date by therapist -->
+<% if !nil_or_empty?(@patient.last_review_by) %>
+<span class="ml-3"><em>Last reviewed by <%= address_user(User.get(@patient.last_review_by)) %> on <%= @patient.last_review_date.strftime("%Y/%m/%d") %> </em></span>
+<% end %>
 
 <!--
   <div class="row d-flex justify-content-between">

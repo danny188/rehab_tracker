@@ -48,6 +48,14 @@ def past_num_days(num: 7, from:)
   result
 end
 
+def log_date_if_therapist_doing_edit(patient)
+  # record review date by therapist whenever updating patient
+  if session[:user].role == :therapist
+    patient.last_review_date = Date.today
+    patient.last_review_by = session[:user].username
+  end
+end
+
 # Routes -----------------------------------------------------------
 
 configure do
@@ -232,6 +240,7 @@ post "/users/:username/exercises/add_from_library" do
   # exercise will be added to top group of patient's exercises
   @patient.add_exercise(@exercise, create_group_hierarchy)
 
+  log_date_if_therapist_doing_edit(@patient)
   @patient.save
 
   # # session[:success] = "Successfully added template #{template.name} for #{full_name_plus_username(patient)}"
@@ -498,6 +507,7 @@ post "/users/:username/exercises/add" do
 
   @patient.add_exercise_by_name(params[:new_exercise_name], create_group_hierarchy(@group_name))
 
+  log_date_if_therapist_doing_edit(@patient)
   @patient.save
 
   redirect "/users/#{@patient.username}/exercises"
@@ -582,6 +592,7 @@ post "/users/:username/exercises/:exercise_name/upload_file" do
 
     # @exercise.add_file_link(image_link)
     @exercise.add_file(file: file_hash[:tempfile], filename: file_hash[:filename])
+    log_date_if_therapist_doing_edit(@patient)
     @patient.save
   end
 
@@ -702,6 +713,7 @@ post "/users/:username/exercises/:exercise_name/update" do
 
   @exercise.name = params[:new_exercise_name]
 
+  log_date_if_therapist_doing_edit(@patient)
   @patient.save
 
   session[:success] = "Your changes have been saved"
@@ -731,6 +743,7 @@ post "/users/:username/exercises/:exercise_name/delete" do
 
   @patient.delete_exercise(params[:exercise_name], @current_group_hierarchy, true)
 
+  log_date_if_therapist_doing_edit(@patient)
   @patient.save
 
   redirect "/users/#{@patient.username}/exercises"
@@ -752,6 +765,8 @@ post "/users/:username/exercises/:exercise_name/delete_file" do
   if @exercise.has_file(filename)
     # delete_file(public_path + "/images/#{params[:username]}/#{params[:exercise_name]}/#{filename}")
     @exercise.delete_file(link: @file_path)
+
+    log_date_if_therapist_doing_edit(@patient)
     @patient.save
     session[:success] = "File succcessfuly removed"
   else
@@ -1202,6 +1217,7 @@ will be applied as a subgroup for the patient.
   # session[:debug] = @patient.exercise_collection.items[0].name
   # redirect "/test"
 
+  log_date_if_therapist_doing_edit(@patient)
   @patient.save
 
   { toast_title: "Template Added",
@@ -1233,6 +1249,8 @@ post "/users/:username/exercises/add_group" do
   end
 
   @patient.add_group(@new_group_name, Patient::TOP_HIERARCHY)
+
+  log_date_if_therapist_doing_edit(@patient)
   @patient.save
   redirect "/users/#{@patient.username}/exercises"
 end
@@ -1248,6 +1266,7 @@ post "/users/:username/exercises/group/:delete_group/delete" do
 
   @patient.delete_group(delete_group_name, create_group_hierarchy)
 
+  log_date_if_therapist_doing_edit(@patient)
   @patient.save
 
   redirect "/users/#{@patient.username}/exercises"
@@ -1336,6 +1355,7 @@ post "/users/:username/exercises/group/:group_name/rename" do
   @parent_hierarchy = create_group_hierarchy
   @patient.rename_group(@group.name, @parent_hierarchy, @new_group_name)
 
+  log_date_if_therapist_doing_edit(@patient)
   @patient.save
 
   redirect "/users/#{@patient.username}/exercises"
@@ -1363,6 +1383,7 @@ post "/users/:username/exercises/:exercise_name/move" do
   # @patient.delete_exercise(@exercise.name, from_group_hierarchy)
   @patient.move_exercise(params[:exercise_name], from_group_hierarchy, dest_group_hierarchy)
 
+  log_date_if_therapist_doing_edit(@patient)
   @patient.save
 
   redirect "/users/#{@patient.username}/exercises"
