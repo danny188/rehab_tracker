@@ -687,7 +687,7 @@ end
 
 class User
   attr_accessor :username, :pw, :first_name, :last_name, :email,
-  :change_pw_next_login, :account_status
+  :change_pw_next_login, :account_status, :deactivate_time
 
   include DataPersistence
 
@@ -789,7 +789,7 @@ class User
 
   def deactivate
     self.account_status = :deactivated
-    # todod: save deactivate date time
+    self.deactivate_time = Time.now
     self.save
 
     # rename user file on s3 data bucket
@@ -978,7 +978,7 @@ class Amazon_AWS
   REGION = "ap-southeast-2"
 
   BUCKETS = { data: 'rehab-buddy-data', images: 'rehab-buddy-images'}
-  TEST_BUCKETS = { data: 'test-rehab-buddy-data', images: 'test-rehab-buddy-images'}
+  TEST_BUCKETS = { data: 'auto-test-rehab-buddy-data', images: 'auto-test-rehab-buddy-images'}
 
   def self.bucket_name(bucket)
     ENV['RACK_ENV'] == 'production' ? BUCKETS[bucket] : TEST_BUCKETS[bucket]
