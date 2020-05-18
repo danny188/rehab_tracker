@@ -1,3 +1,14 @@
+<% if session[:error] %>
+  <div class=" col-lg-4 alert alert-danger fade show text-center mx-auto" role="alert">
+    <span><%= session.delete(:error) %></span>
+  </div>
+<% end %>
+<% if session[:success] %>
+  <div class=" col-lg-4 alert alert-success fade show text-center mx-auto" role="alert">
+    <span><%= session.delete(:success) %></span>
+  </div>
+<% end %>
+
 <h1 class="row justify-content-center">Create an account</h1>
 <br>
 
