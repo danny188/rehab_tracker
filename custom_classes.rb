@@ -277,6 +277,13 @@ module DataPersistence
     #   bucket: :data,
     #   dest_path: "#{file_prefix + self.name}.store")
     # end
+
+    # record review date by therapist whenever updating patient
+    if session[:user].role == :therapist && self.is_a?(Patient)
+      self.last_review_date = Date.today
+      self.last_review_by = session[:user].username
+    end
+
     Amazon_AWS.upload_obj(source_obj: self.to_yaml,
     bucket: :data,
     dest_path: "#{file_prefix + self.name}.store")
@@ -810,7 +817,8 @@ class User
 end
 
 class Patient < User
-  attr_accessor :exercise_collection, :wellness_ratings, :last_updated
+  attr_accessor :exercise_collection, :wellness_ratings, :last_updated,
+                :last_review_date, :last_review_by
   include GroupOperations
 
   alias_method :top_collection, :exercise_collection

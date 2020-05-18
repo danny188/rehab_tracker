@@ -156,7 +156,7 @@ get "/users/:username/exercises" do
   unless verify_user_access(required_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
-  @end_date_str = params[:end_date].strip
+  @end_date_str = params[:end_date].strip if params[:end_date]
 
   @end_date = if nil_or_empty?(@end_date_str) || !valid_date_str(@end_date_str)
                 Date.today
@@ -918,9 +918,6 @@ post "/new_account" do
 
     halt erb(:new_account)
   end
-
-
-
 
   @new_user.save
 

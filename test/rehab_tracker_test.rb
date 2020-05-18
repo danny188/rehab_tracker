@@ -25,7 +25,113 @@ require_relative "../custom_classes.rb"
 # end
 
 def local_test_data_path
-  "test/"
+  ""
+end
+
+module CommonUserOperations
+  def user_data_filename(username)
+    "user_#{username}.store"
+  end
+
+  def sign_in(username, password)
+    post "/login", {username: username, password: password}
+  end
+
+  def sign_out()
+    post "/user/logout"
+  end
+
+  def delete_user_data_file_s3(username)
+    Amazon_AWS.delete_obj(bucket: :data, key: user_data_filename(username))
+  end
+end
+
+# test user experience as existing user with role Patient
+class Rehab_Tracker_Test_As_Patient < Minitest::Test
+  include Rack::Test::Methods
+  include CommonUserOperations
+
+  def app
+    Sinatra::Application
+  end
+
+  def create_patient_nina_s3
+    @patient_filename = "user_" + @patient_username + ".store"
+    # upload test user data file from local
+    File.open(local_test_data_path + @patient_filename) do |file|
+      Amazon_AWS.upload_obj(source_obj: file,
+                            bucket: :data,
+                            dest_path: @patient_filename)
+    end
+  end
+
+  def setup
+    @patient_username = 'nina'
+    @patient_password = 'secret'
+    create_patient_nina_s3
+  end
+
+  def teardown
+    sign_out()
+    delete_user_data_file_s3(@patient_username)
+  end
+
+  def test_sign_in_as_patient
+    post "/login", {username: @patient_username, password: @patient_password}
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_equal 200, last_response.status
+
+    assert_includes last_response.body, "Nina's Exercises"
+  end
+
+  def test_patient_add_exercise
+    # log in as patient
+    sign_in(@patient_username, @patient_password)
+
+    assert_equal 302, last_response.status
+
+    # redirection after successful signin
+    get last_response["Location"]
+    assert_equal 200, last_response.status
+
+    @add_exercise_name = 'squat'
+
+    post "/users/#{@patient_username}/exercises/add", {username: @patient_username,
+                                                       new_exercise_name: @add_exercise_name,
+                                                       group: ''}
+
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_equal 200, last_response.status
+
+    assert_includes last_response.body, @add_exercise_name
+  end
+
+  def test_patient_delete_exercise
+    # log in as patient
+    sign_in(@patient_username, @patient_password)
+
+    assert_equal 302, last_response.status
+
+    # redirection after successful signin
+    get last_response["Location"]
+    assert_equal 200, last_response.status
+
+    # add exercise
+    @add_exercise_name = 'squat'
+    post "/users/#{@patient_username}/exercises/add", {username: @patient_username,
+                                                       new_exercise_name: @add_exercise_name,
+                                                       group: ''}
+
+    @delete_exercise_name = @add_exercise_name
+    # delete exercise
+    post "/users/#{@patient_username}/exercises/#{@delete_exercise_name}/delete"
+
+    # Rack Test doesn't support javascript. So cannot yet test modal confirm boxes.
+  end
 end
 
 class Group_Class_Test < Minitest::Test
@@ -196,6 +302,8 @@ class Patient_Class_Test < Minitest::Test
   end
 end
 
+
+
 class Rehab_Tracker_Test < Minitest::Test
   include Rack::Test::Methods
 
@@ -207,35 +315,18 @@ class Rehab_Tracker_Test < Minitest::Test
 
   end
 
-  def sign_in(username, password)
-    post "/login", {username: username, password: password}
-  end
 
-  def sign_out()
-    post "/user/logout"
-  end
+
+
 
   def teardown
      # Amazon_AWS.delete_all_objs(bucket: :data, prefix: "")
   end
 
-  def create_patient_nina_s3
-    @patient_username = "nina"
-    @patient_filename = "user_" + @patient_username + ".store"
-    File.open(local_test_data_path + @patient_filename) do |file|
-      Amazon_AWS.upload_obj(source_obj: file,
-                            bucket: :data,
-                            dest_path: @patient_filename)
-    end
-  end
 
-  def user_data_filename(username)
-    "user_#{username}.store"
-  end
 
-  def delete_user_data_file_s3(username)
-    Amazon_AWS.delete_obj(bucket: :data, key: user_data_filename(username))
-  end
+
+
 
   def create_admin_admin_1
     @admin_filename = "user_admin_1.store"
@@ -246,19 +337,7 @@ class Rehab_Tracker_Test < Minitest::Test
     end
   end
 
-  def test_sign_in_as_patient_nina
-    create_patient_nina
 
-    post "/login", {username: @patient_username, password: 'secret'}
-    assert_equal 302, last_response.status
-
-    get last_response["Location"]
-    assert_equal 200, last_response.status
-
-    assert_includes last_response.body, "Nina's Exercises"
-
-    delete_user_data_file_s3('nina')
-  end
 
   def test_sign_in_as_admin
     create_admin_admin_1

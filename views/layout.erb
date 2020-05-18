@@ -108,16 +108,6 @@
         <a class="nav-link" href="/about">About</a>
       </li>
 
-
-
-      <!-- <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
-        <div class="dropdown-menu" aria-labelledby="dropdown01">
-          <a class="dropdown-item" href="#">Action</a>
-          <a class="dropdown-item" href="#">Another action</a>
-          <a class="dropdown-item" href="#">Something else here</a>
-        </div>
-      </li> -->
     </ul>
     <% if session[:user] %>
     <span class="text-white">Logged in as <%= session[:user].username %><button class="btn btn-light mx-3" onclick="logOut()">Log out</a></span>
@@ -150,46 +140,7 @@
   <% end %>
 -->
 
-
-
 <%= yield %>
-
-
-
-<!--     <div class="col-lg-5">
-      <p>Exercise 1</p>
-    </div>
-
-    <div class="col-lg-1">
-      <form action="/users/flora/update_exercise" method="post">
-        <div class="custom-control custom-checkbox text-center">
-          <input type="checkbox" class="custom-control-input" id="customCheck" name="example1" value="checkbox_value">
-          <input type="hidden" name="exercise_id" value="2">
-          <label class="custom-control-label" for="customCheck"></label>
-        </div>
-      </form>
-    </div>
-
-    <div class="col-lg-1">
-      <input id="chk2" type="checkbox">
-    </div>
-    <div class="col-lg-1">
-      <input type="checkbox">
-    </div>
-    <div class="col-lg-1">
-      <input type="checkbox">
-    </div>
-    <div class="col-lg-1">
-      <input type="checkbox">
-    </div>
-    <div class="col-lg-1">
-      <input type="checkbox">
-    </div>
-    <div class="col-lg-1">
-      <input type="checkbox">
-    </div>
-  </div> -->
-
 
 </main><!-- /.container -->
 
@@ -232,13 +183,6 @@
           <a href="#" class="">Back to top</a>
         </span>
       </div>
-      <!-- <p class="mb-1">&copy; 2017-2018 Company Name
-
-
-      </p>
-    -->
-
-
   </div>
 </div>
 </footer>
