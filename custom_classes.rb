@@ -789,15 +789,19 @@ class User
 
   def deactivate
     self.account_status = :deactivated
+    # todod: save deactivate date time
     self.save
 
+    # rename user file on s3 data bucket
     source_key = "#{file_prefix + self.name}.store"
-    # rename user file on s3
     Amazon_AWS.copy_obj(source_bucket: :data,
                         target_bucket: :data,
                         source_key: source_key,
                         target_key: "deactivated_#{file_prefix + self.name}.store")
     Amazon_AWS.delete_obj(bucket: :data, key: source_key)
+
+    # delete all supplementary/image files of exercises of patient
+    Amazon_AWS.delete_all_objs(bucket: :images, prefix: 'images/' + self.name)
   end
 
   def activate
