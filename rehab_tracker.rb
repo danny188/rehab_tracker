@@ -982,7 +982,8 @@ end
 
 
 post "/user/logout" do
-  session.delete(:user)
+  # session.delete(:user)
+  session.clear
 
   "/login"
 end
