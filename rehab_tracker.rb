@@ -9,6 +9,7 @@ require 'pry-byebug'
 require 'chartkick'
 require 'net/http'
 require 'json'
+require 'securerandom'
 
 require_relative 'custom_classes'
 include GroupOperations
@@ -38,23 +39,6 @@ def invalid_username(name)
   name =~ /[^-_a-z0-9\s]/i
 end
 
-def create_test_patient_flora
-  flora = Patient.new('flora_username', 'secret')
-  bridge_for_flora = Exercise.new('bridge', 30, flora)
-  bridge_for_flora.record_of_days = [Date.today-1, Date.today - 3]
-  plank_for_flora = Exercise.new('plank', 3, flora)
-  plank_for_flora.record_of_days = [Date.today, Date.today - 2]
-  plank_for_flora.duration = '30 seconds'
-
-
-  flora.exercises.push(bridge_for_flora)
-  flora.exercises.push(plank_for_flora)
-
-
-
-  flora
-end
-
 # returns array of dates of past 'n' days starting from given date (as Date object)
 def past_num_days(num: 7, from:)
   result = []
@@ -68,7 +52,8 @@ end
 
 configure do
   enable :sessions
-  set :session_secret, "secret"
+  # set :session_secret, ENV.fetch('SINATRA_SESSION_KEY') { SecureRandom.hex(64) }
+  set :session_secret, 'secret'
   set :markdown, :layout_engine => :erb
 end
 

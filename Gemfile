@@ -14,4 +14,5 @@ gem "chartkick"
 gem "puma"
 gem "tilt"
 gem "erubis"
+gem 'securerandom'
 # gem 'redcarpet'
