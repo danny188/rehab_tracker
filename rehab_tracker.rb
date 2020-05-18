@@ -144,6 +144,10 @@ def user_role(user_obj)
   end
 end
 
+def valid_date_str(date_str)
+  date_str =~ /^(19|20)\d\d(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$/
+end
+
 not_found do
   erb :custom_404
 end
@@ -152,8 +156,13 @@ get "/users/:username/exercises" do
   unless verify_user_access(required_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
+  @end_date_str = params[:end_date].strip
 
-  @end_date = nil_or_empty?(params[:end_date]) ? Date.today : Date.parse(params[:end_date])
+  @end_date = if nil_or_empty?(@end_date_str) || !valid_date_str(@end_date_str)
+                Date.today
+              else
+                Date.parse(@end_date_str)
+              end
 
   @dates = past_num_days(from: @end_date)
   @patient = User.get(params[:username])
@@ -807,7 +816,7 @@ post "/users/:username/update_tracker" do
   @ticked = params[:checkbox_value]
   @group_name = params[:group]
   @current_group_hierarchy = create_group_hierarchy(@group_name)
-  @end_date = params[:end_date]
+  @end_date = params[:end_date].strip
 
   # session[:debug] = @current_group_hierarchy.inspect
   # redirect "/test"
