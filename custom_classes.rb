@@ -162,7 +162,7 @@ module GroupOperations
   end
 
   # Used by ExerciseLibrary and Patient
-  def get_exercise(exercise_name, group_hierarchy = TOP_HIERARCHY)
+  def get_exercise(exercise_name, group_hierarchy = TOP_HIERARCHYCHY)
     group = get_group(group_hierarchy)
     group.get_item(exercise_name)
   end
@@ -830,6 +830,47 @@ class Patient < User
     get_all_users_locally.select { |user| user_role(user) == :patient }
   end
 
+  def move_exercise_up(exercise_name, group_name)
+    if group_name && !group_name.empty?
+      exercise_list = self.exercise_collection.get_subgroup(group_name).items
+    else
+      exercise_list = self.exercise_collection.items
+    end
+
+    exercise_1_index = exercise_list.find_index { |exercise| exercise.name == exercise_name }
+    exercise_2_index = exercise_1_index - 1 % exercise_list.size
+
+    swap_element_position(exercise_list, exercise_1_index, exercise_2_index)
+  end
+
+  def move_exercise_down(exercise_name, group_name)
+    if group_name && !group_name.empty?
+      exercise_list = self.exercise_collection.get_subgroup(group_name).items
+    else
+      exercise_list = self.exercise_collection.items
+    end
+
+    exercise_1_index = exercise_list.find_index { |exercise| exercise.name == exercise_name }
+    exercise_2_index = (exercise_1_index + 1) % exercise_list.size
+
+    swap_element_position(exercise_list, exercise_1_index, exercise_2_index)
+  end
+
+  def move_group_up(group_name)
+    grp_1_index = self.exercise_collection.subgroups.find_index { |group| group.name == group_name }
+    grp_2_index = (grp_1_index - 1) % self.exercise_collection.subgroups.size
+
+    swap_element_position(self.exercise_collection.subgroups, grp_1_index, grp_2_index)
+  end
+
+  def move_group_down(group_name)
+    grp_1_index = self.exercise_collection.subgroups.find_index { |group| group.name == group_name }
+    grp_2_index = (grp_1_index + 1) % self.exercise_collection.subgroups.size
+
+    swap_element_position(self.exercise_collection.subgroups, grp_1_index, grp_2_index)
+  end
+
+
 
   def image_link_prefix()
     "images/#{self.username}"
@@ -949,6 +990,14 @@ class Patient < User
   end
 
   private
+
+  def swap_element_position(ary, index_1, index_2)
+    return if ary.size == 1
+
+    tmp = ary[index_1]
+    ary[index_1] = ary[index_2]
+    ary[index_2] = tmp
+  end
 
   def date_strings(from, to)
     (Date.parse(from)..Date.parse(to)).map { |date| date.strftime("%Y%m%d") }

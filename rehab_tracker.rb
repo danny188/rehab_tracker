@@ -1470,6 +1470,107 @@ post "/exercise_library/create_group" do
     redirect "/exercise_library?group=#{params[:group]}"
 end
 
+post "/users/:username/exercises/:exercise_name/move_up" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+
+  @patient = User.get(params[:username])
+
+  unless @patient.get_exercise(params[:exercise_name], create_group_hierarchy(params[:group]))
+    session[:error] = "Exercise doesn't exist"
+    redirect "/users/#{@patient.username}/exercises"
+  end
+
+  @patient.move_exercise_up(params[:exercise_name], params[:group])
+  @patient.save
+
+  redirect "/users/#{@patient.username}/exercises"
+end
+
+post "/users/:username/exercises/groups/:group_name/move_all_exercises_out" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+
+  @patient = User.get(params[:username])
+  @from_group_hierarchy = create_group_hierarchy(params[:group_name])
+  @group = @patient.get_group(@from_group_hierarchy)
+
+  unless @group
+    session[:error] = "Group doesn't exist"
+    redirect "/users/#{@patient.username}/exercises"
+  end
+
+
+
+  exercise_names = @group.items.map { |exercise| exercise.name.dup }
+  exercise_names.each do |exercise_name|
+    @patient.move_exercise(exercise_name, @from_group_hierarchy, create_group_hierarchy)
+  end
+
+  @patient.save
+
+  session[:success] = "Move all exercises out of group '#{@group.name}'"
+
+  redirect "/users/#{@patient.username}/exercises"
+end
+
+post "/users/:username/exercises/:exercise_name/move_down" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+
+  @patient = User.get(params[:username])
+
+  unless @patient.get_exercise(params[:exercise_name], create_group_hierarchy(params[:group]))
+    session[:error] = "Exercise doesn't exist"
+    redirect "/users/#{@patient.username}/exercises"
+  end
+
+  @patient.move_exercise_down(params[:exercise_name], params[:group])
+  @patient.save
+
+  redirect "/users/#{@patient.username}/exercises"
+
+end
+
+post "/users/:username/exercises/groups/:group_name/move_up" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+
+  @patient = User.get(params[:username])
+
+  unless @patient.get_group(create_group_hierarchy(params[:group_name]))
+    session[:error] = "Group doesn't exist"
+    redirect "/users/#{@patient.username}/exercises"
+  end
+
+  @patient.move_group_up(params[:group_name])
+  @patient.save
+
+  redirect "/users/#{@patient.username}/exercises"
+end
+
+post "/users/:username/exercises/groups/:group_name/move_down" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+
+  @patient = User.get(params[:username])
+
+  unless @patient.get_group(create_group_hierarchy(params[:group_name]))
+    session[:error] = "Group doesn't exist"
+    redirect "/users/#{@patient.username}/exercises"
+  end
+
+  @patient.move_group_down(params[:group_name])
+  @patient.save
+
+  redirect "/users/#{@patient.username}/exercises"
+end
+
 get "/privacy_policy" do
   erb :privacy_policy
 end
