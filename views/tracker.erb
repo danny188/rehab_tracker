@@ -30,7 +30,7 @@
 
 <!-- display last review date by therapist -->
 <% if !nil_or_empty?(@patient.last_review_by) %>
-<span class="ml-3"><em>Last reviewed by <%= address_user(User.get(@patient.last_review_by)) %> on <%= @patient.last_review_date.strftime("%Y/%m/%d") %> </em></span>
+<span class="ml-3"><em>Last modified by <%= address_user(User.get(@patient.last_review_by)) %> on <%= @patient.last_review_date.strftime("%Y/%m/%d") %> </em></span>
 <% end %>
 
 <!--
