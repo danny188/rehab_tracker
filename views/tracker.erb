@@ -210,9 +210,9 @@
           </div>
           <div class="modal-body">
             <form class="form-inline" method="post" action="/users/<%= @patient.username %>/exercises/group/<%= group.name %>/rename">
-              <div class="form-group mb-2">
-                <label for="staticEmail2" class="sr-only">New Group Name</label>
-                <input type="text" name="new_group_name" placeholder="New Group Name">
+              <div class="form-group">
+                <label for="new_group_name" class="sr-only">New Group Name</label>
+                <input type="text" id="new_group_name" name="new_group_name" placeholder="New Group Name">
               </div>
               <button type="submit" class="mx-2 btn btn-primary">Rename</button>
               <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" aria-label="Close">Cancel</button>
