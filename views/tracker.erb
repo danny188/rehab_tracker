@@ -1,5 +1,6 @@
 <div class=" d-flex justify-content-between">
-  <h1 class="ml-3"><%= address_user(@patient) %>'s Exercises</h1></span>
+  <h1 class="ml-3"><%= address_user(@patient) %>'s Exercises
+    <a href="/users/<%= @patient.username %>/exercises/print_view" class="btn btn-light ml-1">Print View</a></h1>
 
   <span >
     <% if session[:error] %>
