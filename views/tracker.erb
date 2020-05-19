@@ -66,12 +66,12 @@
 
 
       <div class="row spacer-top header-row">
-        <div class="col-lg-5 col-9">
+        <div class="col-lg-5 col-9 col-md-7">
           <span class="ml-3 header dates">Exercises (<%= @patient.num_of_exercises %>)</span>
         </div>
 
         <% @dates.each_with_index do |date, index| %>
-        <div class="col-lg-1 text-center col-1 <%= 'd-none d-lg-block' if index < 6 %>">
+        <div class="col-lg-1 text-center col-1 <%= checkbox_display_class(index) %> %>">
           <span class="dates"><%= format_date(date) %></span>
         </div>
         <% end %>
@@ -80,13 +80,13 @@
       <!-- select all/none button -->
       <% if @patient.num_of_exercises > 0 %>
       <div class="row exercise-row">
-        <div class="col-lg-5 col-9">
+        <div class="col-lg-5 col-9 col-md-7">
           <span class="ml-3 header"></span>
         </div>
 
         <% @dates.each_with_index do |date, index| %>
 
-        <div class="col-1 text-center mb-3  <%= 'd-none d-lg-block' if index < 6 %>">
+        <div class="col-1 text-center mb-3  <%= checkbox_display_class(index) %>">
          <form method="post" action="/users/<%= @patient.username %>/exercises/mark_all">
           <!-- <button type="button" class="border-0 px-4 btn btn-outline-secondary square"></button> -->
 
@@ -111,17 +111,17 @@
 
     <% content_for :exercise_row do |exercise, indent, ex_index, group, grp_index|%>
     <div class="row exercise-row">
-      <div class="col-lg-3 col-3 ml-<%= indent ? indent * 4 : 0 %> mr-n<%= indent ? indent * 4 : 0 %>">
+      <div class="col-lg-4 col-6 col-md-5 col-xl-3 ml-<%= indent ? indent * 4 : 0 %> mr-n<%= indent ? indent * 4 : 0 %>">
         <span class="exercise"><%= exercise.name %></span>
       </div>
-      <div class="col-lg-1 col-3">
+      <div class="col-lg-1 col-3 d-none d-xl-block">
         <% if exercise.reps || exercise.sets %>
         <span class="badge badge-secondary reps-sets my-2"><%= reps_and_sets_str(exercise) %></span>
         <% end %>
 
 
       </div>
-      <div class="col-lg-1 col-3">
+      <div class="col-lg-1 col-3 col-md-2">
         <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button" id="exercise_actions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Actions
         </a>
@@ -178,7 +178,7 @@
 
       <!-- Checkboxes for each day for each exercise -->
       <% @dates.each_with_index do |date, index| %>
-      <div class="col-1  <%= 'd-none d-lg-block' if index < 6 %>">
+      <div class="col-1  <%= checkbox_display_class(index) %> %>">
         <form action="/users/<%= @patient.username %>/update_tracker?end_date=<%= params[:end_date] %>" method="post">
           <div class="custom-control custom-checkbox text-center">
             <input type="checkbox" class="custom-control-input" id="chk_<%= grp_index.to_s %>_<%= ex_index.to_s + "_" + date.strftime("%Y%m%d") %>" name="checkbox_value" value="checkbox_value <%= check_value(date, exercise.record_of_days) %>" <%= "checked" if exercise.done_on?(date.strftime("%Y%m%d")) %>>

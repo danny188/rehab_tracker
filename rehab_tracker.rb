@@ -82,6 +82,17 @@ helpers do
     end
   end
 
+  def checkbox_display_class(day_idx)
+    case day_idx
+    when 0..3
+      "d-none d-lg-block"
+    when 4..5
+      "d-none d-md-block"
+    when 6
+      ''
+    end
+  end
+
   def check_value(test_date, dates_ary)
     "checked" if dates_ary.include?(test_date)
   end
