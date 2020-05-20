@@ -18,6 +18,7 @@ include GroupOperations
 
 ROLES = [:public, :patient, :therapist, :admin]
 STAFF_ROLES = [:therapist, :admin]
+FILE_UPLOAD_SIZE_LIMIT_MB = 3.0
 
 def data_path
   if ENV["RACK_ENV"] == "test"
@@ -567,6 +568,12 @@ post "/exercise_library/:exercise_name/upload_file" do
       redirect "/exercise_library/#{@exercise.name}/edit"
     end
 
+        # validate file size
+    if File.size(file_hash[:tempfile]) / (1024 * 1024 * 1.0) > FILE_UPLOAD_SIZE_LIMIT_MB
+      session[:error] = "Please ensure each image has a file size of under #{FILE_UPLOAD_SIZE_LIMIT_MB} megabytes."
+      redirect "/exercise_library/#{@exercise.name}/edit"
+    end
+
     @exercise.add_file(file: file_hash[:tempfile], filename: file_hash[:filename])
     @exercise_library.save
   end
@@ -598,6 +605,12 @@ post "/users/:username/exercises/:exercise_name/upload_file" do
       redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit?group=#{params[:group]}"
     end
 
+    # validate file size
+    if File.size(file_hash[:tempfile]) / (1024 * 1024 * 1.0) > FILE_UPLOAD_SIZE_LIMIT_MB
+      session[:error] = "Please ensure each image has a file size of under #{FILE_UPLOAD_SIZE_LIMIT_MB} megabytes."
+      redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit?group=#{params[:group]}"
+    end
+
     # upload_file(source: file_hash[:tempfile], dest: dest_path)
     # image_link = File.join("/images/#{params[:username]}/#{params[:exercise_name]}", file_hash[:filename])
 
@@ -607,7 +620,8 @@ post "/users/:username/exercises/:exercise_name/upload_file" do
     @patient.save
   end
 
-  # todo: validate file sizes
+
+
   redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit?group=#{params[:group]}"
 end
 
@@ -773,9 +787,10 @@ post "/users/:username/exercises/:exercise_name/delete_file" do
   @file_path = params[:file_path]
   filename = File.basename(@file_path)
 
+
   if @exercise.has_file(filename)
     # delete_file(public_path + "/images/#{params[:username]}/#{params[:exercise_name]}/#{filename}")
-    @exercise.delete_file(link: @file_path)
+    @exercise.delete_file(@file_path)
 
     log_date_if_therapist_doing_edit(@patient)
     @patient.save
