@@ -493,6 +493,7 @@ def create_group_hierarchy(*groups)
   groups
 end
 
+# adds a new exercise by name to patient's exercise list
 post "/users/:username/exercises/add" do
   unless verify_user_access(required_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
@@ -504,6 +505,11 @@ post "/users/:username/exercises/add" do
 
   if invalid_name(@new_exercise_name)
     session[:error] = "Exercise names can only contain letters and/or numbers."
+    redirect "/users/#{@patient.username}/exercises"
+  end
+
+  if @patient.num_of_exercises >= Patient::MAX_NUM_EXERCISES
+    session[:error] = "You've reached the limit of having #{Patient::MAX_NUM_EXERCISES} exercises."
     redirect "/users/#{@patient.username}/exercises"
   end
 
