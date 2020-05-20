@@ -18,7 +18,7 @@ include GroupOperations
 
 ROLES = [:public, :patient, :therapist, :admin]
 STAFF_ROLES = [:therapist, :admin]
-FILE_UPLOAD_SIZE_LIMIT_MB = 3.0
+
 
 def data_path
   if ENV["RACK_ENV"] == "test"
@@ -569,8 +569,8 @@ post "/exercise_library/:exercise_name/upload_file" do
     end
 
         # validate file size
-    if File.size(file_hash[:tempfile]) / (1024 * 1024 * 1.0) > FILE_UPLOAD_SIZE_LIMIT_MB
-      session[:error] = "Please ensure each image has a file size of under #{FILE_UPLOAD_SIZE_LIMIT_MB} megabytes."
+    if File.size(file_hash[:tempfile]) / (1024 * 1024 * 1.0) > ExerciseTemplate::FILE_UPLOAD_SIZE_LIMIT_MB
+      session[:error] = "Please ensure each image has a file size of under #{ExerciseTemplate::FILE_UPLOAD_SIZE_LIMIT_MB} megabytes."
       redirect "/exercise_library/#{@exercise.name}/edit"
     end
 
@@ -606,8 +606,8 @@ post "/users/:username/exercises/:exercise_name/upload_file" do
     end
 
     # validate file size
-    if File.size(file_hash[:tempfile]) / (1024 * 1024 * 1.0) > FILE_UPLOAD_SIZE_LIMIT_MB
-      session[:error] = "Please ensure each image has a file size of under #{FILE_UPLOAD_SIZE_LIMIT_MB} megabytes."
+    if File.size(file_hash[:tempfile]) / (1024 * 1024 * 1.0) > ExerciseTemplate::FILE_UPLOAD_SIZE_LIMIT_MB
+      session[:error] = "Please ensure each image has a file size of under #{ExerciseTemplate::FILE_UPLOAD_SIZE_LIMIT_MB} megabytes."
       redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit?group=#{params[:group]}"
     end
 

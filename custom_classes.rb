@@ -130,7 +130,7 @@ module GroupOperations
   end
 
   # Used by ExerciseLibrary and Patient
-  def get_group(hierarchy = TOP_HIERARCHY)
+  def get_group(hierarchy = TOP_HIERARCHY)Array
     hierarchy_copy = hierarchy.dup
 
     hierarchy_copy.shift
@@ -293,6 +293,7 @@ class ExerciseTemplate
                 :group_hierarchy
 
   FILES_LIMIT = 4
+  FILE_UPLOAD_SIZE_LIMIT_MB = 3.0
   DEFAULT_REPS = '30'
   DEFAULT_SETS = '3'
   DEFAULT_EXERCISE_LIBRARY_NAME = 'main'
