@@ -1,5 +1,5 @@
 <div class="">
-  <h1 class="ml-3"><%= address_user(@patient) %>'s Exercises (<%= @patient.num_of_exercises %>)
+  <h1 class="ml-3"><%= session[:user].role == :patient ? address_user(@patient) : full_name_plus_username(@patient) %>'s Exercises (<%= @patient.num_of_exercises %>)
     <a href="/users/<%= @patient.username %>/exercises<%= '?end_date=' + params[:end_date] if params[:end_date] %>" class="btn btn-dark ml-1 d-print-none">Tracker View</a></h1>
 
   <span >

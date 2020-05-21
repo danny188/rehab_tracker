@@ -1,5 +1,5 @@
 <div class=" d-flex justify-content-between">
-  <h1 class="ml-3"><%= address_user(@patient) %>'s Exercises (<%= @patient.num_of_exercises %>)
+  <h1 class="ml-3"><%= session[:user].role == :patient ? address_user(@patient) : full_name_plus_username(@patient) %>'s Exercises (<%= @patient.num_of_exercises %>)
     <a href="/users/<%= @patient.username %>/exercises/print_view<%= '?end_date=' + params[:end_date] if params[:end_date] %>" class="btn btn-light ml-1 d-print-none">List View</a></h1>
 
   <span >
@@ -92,7 +92,7 @@
     <% content_for :exercise_row do |exercise, indent, ex_index, group, grp_index|%>
     <div class="row exercise-row">
       <div class="col-lg-4 col-6 col-md-5 col-xl-3 ml-<%= indent ? indent * 4 : 0 %> mr-n<%= indent ? indent * 4 : 0 %>">
-        <span class="exercise"><%= exercise.name %></span>
+        <a href="/users/<%= @patient.username %>/exercises/<%= exercise.name %>/edit?group=<%= group.name if group %>" class="exercise" data-toggle="tooltip" title="<%= exercise.instructions %>"><%= exercise.name %></a>
       </div>
       <div class="col-lg-1 col-3 d-none d-xl-block d-print-block">
         <% if exercise.reps || exercise.sets %>
