@@ -85,12 +85,14 @@ helpers do
 
   def checkbox_display_class(day_idx)
     case day_idx
-    when 0..3
-      "d-none d-lg-block"
+    when 0..1
+      "d-none d-lg-block d-print-none"
+    when 2..3
+      "d-none d-lg-block d-print-block"
     when 4..5
-      "d-none d-md-block"
+      "d-none d-md-block d-print-block"
     when 6
-      ''
+      'd-print-block'
     end
   end
 
@@ -187,6 +189,23 @@ get "/users/:username/exercises" do
   @dates = past_num_days(from: @end_date)
   @patient = User.get(params[:username])
   erb :tracker
+end
+
+get "/users/:username/exercises/print_view" do
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+  @end_date_str = params[:end_date].strip if params[:end_date]
+
+  @end_date = if nil_or_empty?(@end_date_str) || !valid_date_str(@end_date_str)
+                Date.today
+              else
+                Date.parse(@end_date_str)
+              end
+
+  @dates = past_num_days(from: @end_date)
+  @patient = User.get(params[:username])
+  erb :print_view
 end
 
 def exercise_library_title(group_hierarchy)

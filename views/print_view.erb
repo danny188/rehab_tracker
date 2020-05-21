@@ -1,0 +1,158 @@
+<div class="">
+  <h1 class="ml-3"><%= address_user(@patient) %>'s Exercises (<%= @patient.num_of_exercises %>)
+    <a href="/users/<%= @patient.username %>/exercises<%= '?end_date=' + params[:end_date] if params[:end_date] %>" class="btn btn-dark ml-1 d-print-none">Tracker View</a></h1>
+
+  <span >
+    <% if session[:error] %>
+    <div class="row justify-content-center">
+      <div class="alert alert-danger fade show" role="alert">
+        <span><%= session.delete(:error) %></span>
+      </div>
+    </div>
+    <% end %>
+
+    <% if session[:success] %>
+    <div class="alert alert-success fade show text-center mx-auto" role="alert">
+      <span><%= session.delete(:success) %></span>
+    </div>
+    <% end %>
+    <span class="spinner-border text-info" id="save-change-spinner" role="status">
+      <span class="sr-only">Saving changes, please wait...</span>
+    </span>
+    <span class="text-info ml-2 pt-1" id="save-change-spinner-label">Saving changes, please wait...</span>
+  </span>
+
+</div>
+
+<div class="row ml-3">
+<!-- display last review date by therapist -->
+<% if !nil_or_empty?(@patient.last_review_by) %>
+<span class=""><em>Last modified by <%= address_user(User.get(@patient.last_review_by)) %> on <%= @patient.last_review_date.strftime("%d/%m/%Y") %> </em></span>
+
+<span class="d-none d-print-block"><em><%= ", printed on #{Date.today.strftime('%d/%m/%Y')}" %> </em></span>
+<% end %>
+
+</div>
+
+<hr>
+
+
+<% if @patient.num_of_exercises > 0 %>
+  <div class="row exercise-row">
+    <div class="col-lg-5 col-9 col-md-7">
+      <span class="ml-3 header"></span>
+    </div>
+  </div>
+<% else %>
+  <div class="col-lg-5 col-7">
+    <span class="">No exercises added yet</span>
+  </div>
+<% end %>
+
+
+<% content_for :exercise_row do |exercise, indent, ex_index, group, grp_index|%>
+<div class="row exercise-row">
+  <div class="col-lg-4 col-6 col-md-5 col-xl-3 ml-<%= indent ? indent * 4 : 0 %> mr-n<%= indent ? indent * 4 : 0 %>">
+    <span class="exercise"><%= exercise.name %></span>
+  </div>
+  <div class="col-lg-1 col-3 d-none d-xl-block d-print-block">
+    <% if exercise.reps || exercise.sets %>
+    <span class="badge badge-secondary reps-sets my-2"><%= reps_and_sets_str(exercise) %></span>
+    <% end %>
+  </div>
+</div>
+
+<div class="row exercise-row">
+  <div class="col-lg-10 col-12 col-md-10 col-xl-10 ml-<%= indent ? indent * 4 : 0 %> mr-n<%= indent ? indent * 4 : 0 %>">
+    <% if !nil_or_empty?(exercise.instructions) %>
+      <p> <%= exercise.instructions %></p>
+    <% end %>
+  </div>
+</div>
+
+
+  <!-- display first 2 images of exercise -->
+  <% if !exercise.image_links.empty? %>
+    <div class="row exercise-row">
+      <% exercise.image_links.take(2).each do |link| %>
+        <div class="col-5 mb-4">
+          <div class="card text-center">
+            <img src="<%= link %>" class="card-img-top" alt="...">
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+<hr class="col-10 ml-0">
+<% end %>
+
+    <!-- display exercise groups -->
+    <% @patient.get_groups(Patient::TOP_HIERARCHY).each_with_index do |group, grp_index| %>
+
+    <!-- Rename group Modal -->
+    <div class="modal fade" id="modal_rename_group_<%= grp_index %>" tabindex="-1" role="dialog" aria-labelledby="modal_rename_group" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Rename Group</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form class="form-inline" method="post" action="/users/<%= @patient.username %>/exercises/group/<%= group.name %>/rename">
+              <div class="form-group">
+                <label for="new_group_name" class="sr-only">New Group Name</label>
+                <input type="text" id="new_group_name" name="new_group_name" placeholder="New Group Name">
+              </div>
+              <button type="submit" class="mx-2 btn btn-primary">Rename</button>
+              <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" aria-label="Close">Cancel</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <div class="row exercise-row">
+      <div class="col">
+        <!-- <span class="exercise">
+          <u><%= group.name %></u>
+        </span> -->
+
+        <h4 class="text-info">Group: <%= group.name %> (<%= group.items.size %>)</h4>
+
+
+      </div>
+
+      <div class="col-lg-1">
+
+      </div>
+    </div>
+
+    <!-- display exercises in group -->
+    <% group.items.each_with_index do |exercise, ex_index| %>
+      <%= yield_content :exercise_row, exercise, 1, ex_index, group, grp_index %>
+    <% end %>
+    <% end %>
+
+    <!-- display top level exercises -->
+    <% @patient.get_group(Patient::TOP_HIERARCHY).items.each_with_index do |exercise, ex_index| %>
+    <%= yield_content :exercise_row, exercise, 0, ex_index, nil, -1 %>
+    <% end %>
+
+    <br>
+    <br>
+    <br>
+
+  <!--  <div class="form-row mt-3">
+    <div class="input-group col-5">
+      <a href="#" class="btn btn-outline-primary">New Group</a>
+    </div> -->
+  </div>
+
+</form>
+
+<br>
+

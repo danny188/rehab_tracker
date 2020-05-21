@@ -1,6 +1,6 @@
 <div class=" d-flex justify-content-between">
-  <h1 class="ml-3"><%= address_user(@patient) %>'s Exercises
-    <a href="/users/<%= @patient.username %>/exercises/print_view" class="btn btn-light ml-1">Print View</a></h1>
+  <h1 class="ml-3"><%= address_user(@patient) %>'s Exercises (<%= @patient.num_of_exercises %>)
+    <a href="/users/<%= @patient.username %>/exercises/print_view<%= '?end_date=' + params[:end_date] if params[:end_date] %>" class="btn btn-light ml-1 d-print-none">List View</a></h1>
 
   <span >
     <% if session[:error] %>
@@ -22,45 +22,21 @@
     <span class="text-info ml-2 pt-1" id="save-change-spinner-label">Saving changes, please wait...</span>
   </span>
 
-  <span class="">
+  <span class="mr-4 d-print-none">
     <h3 class="d-inline date-controller">Dates</h3>
     <a href="/users/<%= @patient.username %>/exercises?end_date=<%= (@end_date-7).strftime("%Y%m%d") %>" class="btn btn-info date-nav-button" data-toggle="tooltip" title="View earlier days"><i class="fas fa-arrow-left"></i></a>
     <a href="/users/<%= @patient.username %>/exercises?end_date=<%= (@end_date+7).strftime("%Y%m%d") %>" class="btn btn-info date-nav-button" data-toggle="tooltip" title="View later days"><i class="fas fa-arrow-right"></i></a>
   </span>
 </div>
 
-<!-- display last review date by therapist -->
-<% if !nil_or_empty?(@patient.last_review_by) %>
-<span class="ml-3"><em>Last modified by <%= address_user(User.get(@patient.last_review_by)) %> on <%= @patient.last_review_date.strftime("%Y/%m/%d") %> </em></span>
-<% end %>
+<div class="row ml-3">
+  <!-- display last review date by therapist -->
+  <% if !nil_or_empty?(@patient.last_review_by) %>
+  <span class=""><em>Last modified by <%= address_user(User.get(@patient.last_review_by)) %> on <%= @patient.last_review_date.strftime("%d/%m/%Y") %> </em></span>
 
-<!--
-  <div class="row d-flex justify-content-between">
-    <div class="col-8 ml-4 mr-5">
-
-      <div class="row heading-row">
-        <h1><%= @patient.first_name || @patient.username %>'s Exercises</h1>
-        <div class="col">
-          <div class="spinner-border text-info" id="save-change-spinner" role="status">
-            <span class="sr-only">Saving changes, please wait...</span>
-          </div>
-          <span class="text-info ml-2 pt-1" id="save-change-spinner-label">Saving changes, please wait...</span>
-        </div>
-      </div>
-
-    </div>
-    <div class="col-2 offset-1  mr-0 pr-0">
-      <div class="row float-right">
-        <h3 class="date-controller">Dates</h3>
-        <a href="/users/<%= @patient.username %>/exercises?end_date=<%= (@end_date-7).strftime("%Y%m%d") %>" class="btn btn-info date-nav-button" data-toggle="tooltip" title="View earlier days"><i class="fas fa-arrow-left"></i></a>
-        <a href="/users/<%= @patient.username %>/exercises?end_date=<%= (@end_date+7).strftime("%Y%m%d") %>" class="btn btn-info date-nav-button" data-toggle="tooltip" title="View later days"><i class="fas fa-arrow-right"></i></a>
-      </div>
-    </div>
-     ajax versions of date nav
-    - <button type="button" onclick="reloadDates(<%= (@end_date-1).strftime("%Y%m%d") %>)" class="btn btn-warning date-nav-button" data-toggle="tooltip" title="View earlier days"><i class="fas fa-arrow-left"></i></a>
-      <button type="button" onclick="reloadDates(<%= (@end_date+1).strftime("%Y%m%d") %>)" class="btn btn-warning date-nav-button" data-toggle="tooltip" title="View later days"><i class="fas fa-arrow-right"></i></a>
-      </div> -->
-
+  <span class="d-none d-print-block"><em><%= ", printed on #{Date.today.strftime('%d/%m/%Y')}" %> </em></span>
+  <% end %>
+</div>
 
       <hr>
 
@@ -68,12 +44,14 @@
 
       <div class="row spacer-top header-row">
         <div class="col-lg-5 col-9 col-md-7">
-          <span class="ml-3 header dates">Exercises (<%= @patient.num_of_exercises %>)</span>
+
+
         </div>
+        <div class="col-1 d-print-block d-none"></div>
 
         <% @dates.each_with_index do |date, index| %>
-        <div class="col-lg-1 text-center col-1 <%= checkbox_display_class(index) %> %>">
-          <span class="dates"><%= format_date(date) %></span>
+        <div class="dates col-lg-1 text-center col-1 <%= checkbox_display_class(index) %> %>">
+          <span class=""><%= format_date(date) %></span>
         </div>
         <% end %>
       </div>
@@ -81,13 +59,14 @@
       <!-- select all/none button -->
       <% if @patient.num_of_exercises > 0 %>
       <div class="row exercise-row">
+        <div class="col-1 d-print-block d-none"></div>
         <div class="col-lg-5 col-9 col-md-7">
           <span class="ml-3 header"></span>
         </div>
 
         <% @dates.each_with_index do |date, index| %>
 
-        <div class="col-1 text-center mb-3  <%= checkbox_display_class(index) %>">
+        <div class="tick-box col-1 text-center mb-3  <%= checkbox_display_class(index) %>">
          <form method="post" action="/users/<%= @patient.username %>/exercises/mark_all">
           <!-- <button type="button" class="border-0 px-4 btn btn-outline-secondary square"></button> -->
 
@@ -115,14 +94,14 @@
       <div class="col-lg-4 col-6 col-md-5 col-xl-3 ml-<%= indent ? indent * 4 : 0 %> mr-n<%= indent ? indent * 4 : 0 %>">
         <span class="exercise"><%= exercise.name %></span>
       </div>
-      <div class="col-lg-1 col-3 d-none d-xl-block">
+      <div class="col-lg-1 col-3 d-none d-xl-block d-print-block">
         <% if exercise.reps || exercise.sets %>
         <span class="badge badge-secondary reps-sets my-2"><%= reps_and_sets_str(exercise) %></span>
         <% end %>
 
 
       </div>
-      <div class="col-lg-1 col-3 col-md-2">
+      <div class="col-lg-1 col-3 col-md-2 d-print-none">
         <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button" id="exercise_actions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Actions
         </a>
@@ -179,7 +158,7 @@
 
       <!-- Checkboxes for each day for each exercise -->
       <% @dates.each_with_index do |date, index| %>
-      <div class="col-1  <%= checkbox_display_class(index) %> %>">
+      <div class="tick-box col-1  <%= checkbox_display_class(index) %> %>">
         <form action="/users/<%= @patient.username %>/update_tracker?end_date=<%= params[:end_date] %>" method="post">
           <div class="custom-control custom-checkbox text-center">
             <input type="checkbox" class="custom-control-input" id="chk_<%= grp_index.to_s %>_<%= ex_index.to_s + "_" + date.strftime("%Y%m%d") %>" name="checkbox_value" value="checkbox_value <%= check_value(date, exercise.record_of_days) %>" <%= "checked" if exercise.done_on?(date.strftime("%Y%m%d")) %>>
@@ -276,7 +255,7 @@
     <br>
 
     <!-- Form to add new exercises -->
-    <form class="col-lg-12" id="form_add_exercise" action="/users/<%=@patient.username%>/exercises/add" method="post">
+    <form class="col-lg-12 d-print-none" id="form_add_exercise" action="/users/<%=@patient.username%>/exercises/add" method="post">
       <div class="form-row">
         <div class="form-group col-lg-5">
 
@@ -298,7 +277,7 @@
 
       <!-- Add exercise to particular group, or create new group -->
 
-      <div class="form-row">
+      <div class="form-row d-print-none">
         <div class="form-group col-lg-5">
           <div class="input-group">
             <label for="group" class="col-lg-4">For group: </label>

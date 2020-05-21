@@ -1,5 +1,13 @@
 @page {
-  size: landscape;
+  /*size: A4 landscape;*/
 }
 
+@media print {
+  .dates {
+    max-width: 6%;
+  }
 
+  .tick-box {
+    max-width: 6%;
+  }
+}
