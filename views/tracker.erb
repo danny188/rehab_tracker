@@ -44,8 +44,6 @@
 
       <div class="row spacer-top header-row">
         <div class="col-lg-5 col-9 col-md-7">
-
-
         </div>
         <div class="col-1 d-print-block d-none"></div>
 
@@ -59,9 +57,11 @@
       <!-- select all/none button -->
       <% if @patient.num_of_exercises > 0 %>
       <div class="row exercise-row">
+
         <div class="col-1 d-print-block d-none"></div>
-        <div class="col-lg-5 col-9 col-md-7">
-          <span class="ml-3 header"></span>
+
+        <div class="col-lg-5 col-9 col-md-7 text-right pt-2">
+          <span class="">Select/Unselect all</span>
         </div>
 
         <% @dates.each_with_index do |date, index| %>
@@ -94,6 +94,7 @@
       <div class="col-lg-4 col-6 col-md-5 col-xl-3 ml-<%= indent ? indent * 4 : 0 %> mr-n<%= indent ? indent * 4 : 0 %>">
         <a href="/users/<%= @patient.username %>/exercises/<%= exercise.name %>/edit?group=<%= group.name if group %>" class="exercise" data-toggle="tooltip" title="<%= exercise.instructions %>"><%= exercise.name %></a>
       </div>
+      <div class="d-block d-sm-none col-3"></div>
       <div class="col-lg-1 col-3 d-none d-xl-block d-print-block">
         <% if exercise.reps || exercise.sets %>
         <span class="badge badge-secondary reps-sets my-2"><%= reps_and_sets_str(exercise) %></span>
@@ -101,7 +102,8 @@
 
 
       </div>
-      <div class="col-lg-1 col-3 col-md-2 d-print-none">
+
+      <div class="d-none d-sm-block col-lg-1 col-3 col-md-2 d-print-none">
         <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button" id="exercise_actions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Actions
         </a>
