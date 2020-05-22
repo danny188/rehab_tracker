@@ -83,6 +83,8 @@ helpers do
     end
   end
 
+
+
   def checkbox_display_class(day_idx)
     case day_idx
     when 0..1
@@ -179,17 +181,25 @@ get "/users/:username/exercises" do
     redirect "/access_error"
   end
   @end_date_str = params[:end_date].strip if params[:end_date]
+  @nav = params[:nav]
+  @day_step = params[:day_step].to_s.to_i
+
+  @day_step *= -1 if @nav == 'back'
+
+
 
   @end_date = if nil_or_empty?(@end_date_str) || !valid_date_str(@end_date_str)
                 Date.today
               else
-                Date.parse(@end_date_str)
+                Date.parse(@end_date_str) + @day_step
               end
 
   @dates = past_num_days(from: @end_date)
   @patient = User.get(params[:username])
   erb :tracker
 end
+
+
 
 get "/users/:username/exercises/print_view" do
   unless verify_user_access(required_authorization: :patient, required_username: params[:username])
@@ -1145,9 +1155,9 @@ def verify_user_access(required_authorization: :public, required_username: nil)
   access_level_diff = ROLES.index(current_role) - ROLES.index(required_authorization)
   role_ok = access_level_diff >= 0
   username_ok = if required_username
-                  session[:user].username == required_username || access_level_diff > 0
+                  (session[:user].username == required_username) || access_level_diff > 0
                  # if required_username is provided, access is only granted
-                 # if username matches, OR logged-in user has higher access level than required
+                 #    if username matches, OR logged-in user has higher access level than required
                 else
                   true
                 end

@@ -24,8 +24,27 @@
 
   <span class="mr-4 d-print-none">
     <h3 class="d-inline date-controller">Dates</h3>
-    <a href="/users/<%= @patient.username %>/exercises?end_date=<%= (@end_date-7).strftime("%Y%m%d") %>" class="btn btn-info date-nav-button" data-toggle="tooltip" title="View earlier days"><i class="fas fa-arrow-left"></i></a>
-    <a href="/users/<%= @patient.username %>/exercises?end_date=<%= (@end_date+7).strftime("%Y%m%d") %>" class="btn btn-info date-nav-button" data-toggle="tooltip" title="View later days"><i class="fas fa-arrow-right"></i></a>
+    <!-- <a href="/users/<%= @patient.username %>/exercises?end_date=<%= (@end_date-7).strftime("%Y%m%d") %>" class="btn btn-info date-nav-button mb-1" data-toggle="tooltip" title="View earlier days"><i class="fas fa-arrow-left"></i></a>
+    <a href="/users/<%= @patient.username %>/exercises?end_date=<%= (@end_date+7).strftime("%Y%m%d") %>" class="btn btn-info date-nav-button mb-1" data-toggle="tooltip" title="View later days"><i class="fas fa-arrow-right"></i></a> -->
+    <button form="date_nav_form" name="nav" value="back" type="submit" formaction="/users/<%= @patient.username %>/exercises" class="btn btn-info date-nav-button mb-1" data-toggle="tooltip" title="View earlier days"><i class="fas fa-arrow-left"></i></button>
+    <button form="date_nav_form" name="nav" value="fwd" type="submit" method="get" formaction="/users/<%= @patient.username %>/exercises" class="btn btn-info date-nav-button mb-1" data-toggle="tooltip" title="View later days"><i class="fas fa-arrow-right"></i></button>
+
+    <form method="get" id="date_nav_form">
+
+
+
+      <input type="hidden" value="<%= @end_date.strftime("%Y%m%d") %>" name="end_date">
+      <div class="input-group">
+        <label for="day_step" class="mr-3">Jump by: </label>
+        <select id="day_step" name="day_step" class="custom-select">
+          <option value="7" <%= 'selected' if params[:day_step] == '7' %> >7</option>
+          <option value="5" <%= 'selected' if params[:day_step] == '5' %>>5</option>
+          <option value="3" <%= 'selected' if params[:day_step] == '3' %>>3</option>
+          <option value="1" <%= 'selected' if params[:day_step] == '1' %>>1</option>
+        </select>
+        <label class="ml-1">Days</label>
+    </div>
+    </form>
   </span>
 </div>
 
@@ -91,7 +110,7 @@
 
     <% content_for :exercise_row do |exercise, indent, ex_index, group, grp_index|%>
     <div class="row exercise-row">
-      <div class="col-lg-4 col-6 col-md-5 col-xl-3 ml-<%= indent ? indent * 4 : 0 %> mr-n<%= indent ? indent * 4 : 0 %>">
+      <div class="mb-2 col-lg-4 col-6 col-md-5 col-xl-3 ml-<%= indent ? indent * 4 : 0 %> mr-n<%= indent ? indent * 4 : 0 %>">
         <a href="/users/<%= @patient.username %>/exercises/<%= exercise.name %>/edit?group=<%= group.name if group %>" class="exercise" data-toggle="tooltip" title="<%= exercise.instructions %>"><%= exercise.name %></a>
       </div>
       <div class="d-block d-sm-none col-3"></div>
@@ -258,7 +277,7 @@
 
     <!-- Form to add new exercises -->
     <form class="col-lg-12 d-print-none" id="form_add_exercise" action="/users/<%=@patient.username%>/exercises/add" method="post">
-      <div class="form-row">
+      <div class="form-row mb-1">
         <div class="form-group col-lg-5">
 
           <div class="input-group">
