@@ -116,7 +116,16 @@ $(document).ready(function(){
               $('.toast-header-text').html(json.toast_title);
               $('.toast-body').html(json.toast_msg);
                $('.toast').toast('show');
-             }
+
+              if (json.type == 'success') {
+                $('#toast-header-text').addClass('text-success');
+                $('#toast-header-text').removeClass('text-danger');
+              } else {
+                $('#toast-header-text').removeClass('text-success');
+                $('#toast-header-text').addClass('text-danger');
+              }
+
+            }
            });
 
    });

@@ -268,27 +268,35 @@ post "/users/:username/exercises/add_from_library" do
   # apply exercise template to top group level of patient
 
   if @patient.has_exercise(@exercise_template.name, create_group_hierarchy)
-    session[:error] = "#{full_name_plus_username(@patient)} already has an exercise called '#{@exercise_template.name}'. Please change either the name of the template or the patient's exercise."
-    redirect "/users/#{@patient.username}/exercises/add_from_library#{create_full_query_str({group: params[:group], pt: params[:pt] })}"
+
+    # session[:error] = "#{full_name_plus_username(@patient)} already has an exercise called '#{@exercise_template.name}'. Please change either the name of the template or the patient's exercise."
+
+    { toast_title: "Unable to add template",
+    type: 'error',
+    toast_msg: "#{full_name_plus_username(@patient)} already has an exercise called '#{@exercise_template.name}'" }.to_json
+    # redirect "/users/#{@patient.username}/exercises/add_from_library#{create_full_query_str({group: params[:group], pt: params[:pt] })}"
+
+  else
+
+    # copy image files from template
+    GroupOperations.replace_all_supp_files(@exercise_library, @exercise_template, @exercise)
+
+    # session[:debug] = @exercise.image_links.inspect
+    # redirect "/test"
+
+    # exercise will be added to top group of patient's exercises
+    @patient.add_exercise(@exercise, create_group_hierarchy)
+
+    log_date_if_therapist_doing_edit(@patient)
+    @patient.save
+
+    # # session[:success] = "Successfully added template #{template.name} for #{full_name_plus_username(patient)}"
+    # session[:toast_title] = "Template Added"
+    # session[:toast] = "Successfully added template #{template.name} for #{full_name_plus_username(patient)}"
+    { toast_title: "Template Added",
+      type: 'success',
+      toast_msg: "Successfully added template #{@exercise_template.name} for #{full_name_plus_username(@patient)}" }.to_json
   end
-
-  # copy image files from template
-  GroupOperations.replace_all_supp_files(@exercise_library, @exercise_template, @exercise)
-
-  # session[:debug] = @exercise.image_links.inspect
-  # redirect "/test"
-
-  # exercise will be added to top group of patient's exercises
-  @patient.add_exercise(@exercise, create_group_hierarchy)
-
-  log_date_if_therapist_doing_edit(@patient)
-  @patient.save
-
-  # # session[:success] = "Successfully added template #{template.name} for #{full_name_plus_username(patient)}"
-  # session[:toast_title] = "Template Added"
-  # session[:toast] = "Successfully added template #{template.name} for #{full_name_plus_username(patient)}"
-  { toast_title: "Template Added",
-    toast_msg: "Successfully added template #{@exercise_template.name} for #{full_name_plus_username(@patient)}" }.to_json
 end
 
 # display page for creating exercise template
