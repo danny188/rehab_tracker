@@ -982,7 +982,7 @@ post "/users/:username/update_tracker" do
   @ticked = params[:checkbox_value]
   @group_name = params[:group]
   @current_group_hierarchy = create_group_hierarchy(@group_name)
-  @end_date = params[:end_date].strip
+  @end_date = params[:end_date].strip if params[:end_date]
 
   # session[:debug] = @current_group_hierarchy.inspect
   # redirect "/test"
@@ -1009,7 +1009,7 @@ post "/users/:username/update_tracker" do
   #   "not checked, exercise_id=#{params[:exercise_id]}"
   # end
 
-  redirect "/users/#{@patient.username}/exercises?end_date=#{@end_date}"
+  redirect "/users/#{@patient.username}/exercises#{create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})}"
 end
 
 # post "/upload" do

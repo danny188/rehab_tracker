@@ -86,7 +86,7 @@
         <% @dates.each_with_index do |date, index| %>
 
         <div class="tick-box col-1 text-center mb-3  <%= checkbox_display_class(index) %>">
-         <form method="post" action="/users/<%= @patient.username %>/exercises/mark_all">
+         <form method="post" action="/users/<%= @patient.username %>/exercises/mark_all<%= create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})  %>">
           <!-- <button type="button" class="border-0 px-4 btn btn-outline-secondary square"></button> -->
 
           <div class="custom-control custom-checkbox">
@@ -180,7 +180,7 @@
       <!-- Checkboxes for each day for each exercise -->
       <% @dates.each_with_index do |date, index| %>
       <div class="tick-box col-1  <%= checkbox_display_class(index) %> %>">
-        <form action="/users/<%= @patient.username %>/update_tracker?end_date=<%= params[:end_date] %>" method="post">
+        <form action="/users/<%= @patient.username %>/update_tracker<%= create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})  %>" method="post">
           <div class="custom-control custom-checkbox text-center">
             <input type="checkbox" class="custom-control-input" id="chk_<%= grp_index.to_s %>_<%= ex_index.to_s + "_" + date.strftime("%Y%m%d") %>" name="checkbox_value" value="checkbox_value <%= check_value(date, exercise.record_of_days) %>" <%= "checked" if exercise.done_on?(date.strftime("%Y%m%d")) %>>
             <input type="hidden" name="exercise_name" value="<%= exercise.name %>">
