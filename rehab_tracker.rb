@@ -1193,6 +1193,12 @@ post "/login" do
       redirect "/users/#{@username}/profile"
     end
 
+    if params[:keep_signed_in]
+      session.options.delete(:expire_after)
+    else
+      session.options[:expire_after] = 14400 # 4 hrs
+    end
+
     redirect_to_home_page(@user)
   else
     session[:error] = "Please check your details and try again."

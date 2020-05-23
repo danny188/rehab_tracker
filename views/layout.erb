@@ -67,7 +67,7 @@
         <!-- Exercise page -->
         <li class="nav-item <%= active_class("/users/#{session[:user].username if session[:user] }/exercises") %>">
           <% if session[:user] && session[:user].role == :patient %>
-          <a class="nav-link" href="/users/<%= session[:user].username if session[:user] %>/exercises">Exercises</a>
+          <a class="nav-link" href="/users/<%= (session[:user].username if session[:user]) %>/exercises">Exercises</a>
           <% end %>
         </li>
 
@@ -81,7 +81,7 @@
         <!-- Exercise Stats  -->
         <li class="nav-item <%= active_class("/users/#{ session[:user].username if session[:user] }/stats") %>">
           <% if session[:user] && session[:user].role == :patient %>
-          <a class="nav-link" href="/users/<%= session[:user].username if session[:user] %>/stats">Stats</a>
+          <a class="nav-link" href="/users/<%= (session[:user].username if session[:user]) %>/stats">Stats</a>
           <% end %>
         </li>
       <!-- <li class="nav-item">
@@ -91,7 +91,7 @@
       <!-- Profile page -->
       <% if session[:user] %>
       <li class="nav-item <%= active_class("/users/#{ session[:user].username if session[:user] }/profile")%>">
-        <a class="nav-link" href="/users/<%= session[:user].username if session[:user] %>/profile">Profile</a>
+        <a class="nav-link" href="/users/<%= (session[:user].username if session[:user]) %>/profile">Profile</a>
       </li>
       <% end %>
 
