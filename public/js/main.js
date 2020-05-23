@@ -190,23 +190,6 @@ $(function(){
 });
 
 
-// $("#add-template-for-patient").on('submit', function(e) {
-
-//     window.alert("HI");
-//     e.preventDefault(); // avoid to execute the actual submit of the form.
-
-//     var form = $(this);
-//     var url = form.attr('action');
-
-//     $.ajax({
-//      type: "POST",
-//      url: url,
-//      success: function(data)
-//      {
-//                alert(data); // show response from the php script.
-//              }
-//            });
-
-//     return false;
-//   });
-
+function goBack() {
+  window.history.back();
+}
