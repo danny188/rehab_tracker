@@ -10,11 +10,18 @@ require 'chartkick'
 require 'net/http'
 require 'json'
 require 'securerandom'
+require 'logger'
+
+
 
 require_relative 'custom_classes'
 include GroupOperations
 
 # ENV['custom_env'] = 'production_s3'
+
+
+set :logger, Logger.new($stdout)
+
 
 ROLES = [:public, :patient, :therapist, :admin]
 STAFF_ROLES = [:therapist, :admin]
@@ -186,7 +193,7 @@ get "/users/:username/exercises" do
 
   @day_step *= -1 if @nav == 'back'
 
-
+  logger.info "display exercises for #{params[:username]}"
 
   @end_date = if nil_or_empty?(@end_date_str) || !valid_date_str(@end_date_str)
                 Date.today
@@ -796,7 +803,7 @@ rescue GroupOperations::ItemNameInGroupNotUniqueErr
 end
 
 get "/about" do
-
+  logger.info 'visit about page'
   erb :about
 end
 

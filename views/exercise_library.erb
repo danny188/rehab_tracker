@@ -188,13 +188,6 @@
           </a>
 
           <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-
-            <a href="/exercise_library/<%= exercise.name %>/edit<%=create_full_query_str({group: params[:group], pt: params[:pt]}) %>" class="dropdown-item text-primary" data-toggle="tooltip" title="View/Edit exercise template">View/Edit</a>
-
-            <form action="/exercise_library/<%= exercise.name %>/delete<%=create_full_query_str({group: params[:group], pt: params[:pt]}) %>" method="post" onsubmit="return confirm('Are you sure you want to delete this exercise template? This cannot be reversed. Click OK to proceed.');">
-              <button type="submit"  class="dropdown-item text-danger" data-toggle="tooltip" title="Delete template and associated data.">Delete</button>
-            </form>
-
             <% if @patient %>
             <form id="template-form-apply-exercise" class="template-form" action="/users/<%= @patient.username %>/exercises/add_from_library<%=create_full_query_str({group: params[:group], pt: params[:pt]}) %>" method="POST">
               <input type="hidden" name="exercise_name" value="<%= exercise.name %>">
@@ -202,6 +195,15 @@
               <button id="template-form-btn-apply-exercise" type="submit" class="dropdown-item text-light bg-dark" value="submit">Add for <%= full_name_plus_username(@patient) %></button>
             </form>
             <% end %>
+
+            <a href="/exercise_library/<%= exercise.name %>/edit<%=create_full_query_str({group: params[:group], pt: params[:pt]}) %>" class="dropdown-item text-primary" data-toggle="tooltip" title="View/Edit exercise template">View/Edit</a>
+
+            <form action="/exercise_library/<%= exercise.name %>/delete<%=create_full_query_str({group: params[:group], pt: params[:pt]}) %>" method="post" onsubmit="return confirm('Are you sure you want to delete this exercise template? This cannot be reversed. Click OK to proceed.');">
+
+              <button type="submit"  class="dropdown-item text-danger" data-toggle="tooltip" title="Delete template and associated data.">Delete</button>
+            </form>
+
+
           </div>
 
         </div>
