@@ -474,11 +474,13 @@ post "/exercise_library/:exercise_name/edit" do
     redirect "/access_error"
   end
 
+  @title = "Edit Exercise Template"
+
   @browse_group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
 
   @dest_group_hierarchy = create_group_hierarchy(params[:group_lvl_1], params[:group_lvl_2])
 
-  @patient = params[:pt]
+  @patient = User.get(params[:pt])
 
   @exercise_library = ExerciseLibrary.load('main')
   # session[:debug] = @exercise_library.get_exercise('jumping ropes',@browse_group_hierarchy).name
@@ -493,30 +495,24 @@ post "/exercise_library/:exercise_name/edit" do
   # check for empty group names
   if nil_or_empty?(params[:group_lvl_1]) && !nil_or_empty?(params[:group_lvl_2])
     session[:error] = "Group name cannot be empty if a subgroup is specified."
-    erb :exercise_template_base_info_edit, :layout => :layout do
-      erb :template_images_edit
-    end
-    halt
+    raise GroupOperations::GroupNameEmptyErr
   end
 
   # validate group names
   if (!params[:group_lvl_1].empty? && invalid_name(params[:group_lvl_1])) ||
     (!params[:group_lvl_2].empty? && invalid_name(params[:group_lvl_2]))
-    session[:error] = "Group names can only contain letters and/or numbers."
 
-    erb :exercise_template_base_info_edit, :layout => :layout do
-      erb :template_images_edit
-    end
-    halt
+    session[:error] = "Group names can only contain letters and/or numbers."
+    raise GroupOperations::GroupNameEmptyErr
   end
 
   # ensuring not changing exercise name to clash with another existing exercise
   if @exercise_library.has_exercise(@new_exercise_name, @dest_group_hierarchy) && @new_exercise_name != @exercise.name
     session[:error] = "Exercise Library already has a exercise template named '#{@new_exercise_name}'. Please choose another name."
-    erb :exercise_template_base_info_edit, :layout => :layout do
+
+    halt erb :exercise_template_base_info_edit, :layout => :layout do
       erb :template_images_edit
     end
-    halt
   end
 
   # update exercise name
@@ -532,6 +528,12 @@ post "/exercise_library/:exercise_name/edit" do
   logger.info "#{logged_in_user} updated exercise template '#{@exercise.name}', dest group #{@dest_group_hierarchy}"
 
   redirect "/exercise_library/#{@exercise.name}/edit#{create_full_query_str({group: make_group_query_str(@dest_group_hierarchy), pt: params[:pt]})}"
+
+rescue GroupOperations::GroupNameEmptyErr
+
+  erb :exercise_template_base_info_edit, :layout => :layout do
+      erb :template_images_edit
+  end
 end
 
 # delete exercise template
