@@ -21,15 +21,15 @@
 
 <div class="row">
 
-  <div class="col-6">
+  <div class="col-lg-6">
     <form action="/users/<%= @patient.username %>/exercises/<%= @exercise.name %>/update?group=<%= make_group_query_str(@current_group_hierarchy) %>" method="post">
       <div class="form-group row">
-        <label for="new_exercise_name" class="col-3 col-form-label"><b>Name of exercise</b></label>
-        <input type="text" class="form-control col-6" id="new_exercise_name" name="new_exercise_name" value="<%== @exercise.name %>">
+        <label for="new_exercise_name" class="col-lg-3 col-form-label"><b>Name of exercise</b></label>
+        <input type="text" class="form-control col-lg-6" id="new_exercise_name" name="new_exercise_name" value="<%== @exercise.name %>">
       </div>
       <div class="form-group row">
-        <label for="instructions" class="col-3 col-form-label"><b>Group</b></label>
-        <input name="dest_group" list="group" class="form-control col-6" value="<%= display_current_group(@current_group_hierarchy) %>" placeholder="">
+        <label for="instructions" class="col-lg-3 col-form-label"><b>Group</b></label>
+        <input name="dest_group" list="group" class="form-control col-lg-6" value="<%= display_current_group(@current_group_hierarchy) %>" placeholder="">
         <datalist id="group">
           <% @patient.get_groups(GroupOperations::TOP_HIERARCHY).each do |group| %>
           <option value="<%== group.name %>"></option>
@@ -37,8 +37,8 @@
         </datalist>
       </div>
       <div class="form-group row">
-        <label for="reps" class="col-3 col-form-label"><b>Repetitions</b></label>
-        <input name="reps" list="reps" class="col-2 form-control" value="<%== @exercise.reps %>">
+        <label for="reps" class="col-lg-3 col-form-label"><b>Repetitions</b></label>
+        <input name="reps" list="reps" class="col-lg-2 form-control" value="<%== @exercise.reps %>">
         <datalist id="reps">
          <option value="5"></option>
          <option value="10"></option>
@@ -49,8 +49,8 @@
          <option value="100"></option>
        </datalist>
 
-       <label for="reps" class="col-1 offset-1 col-form-label"><b>Sets</b></label>
-       <input name="sets" list="sets" class="col-2 form-control" value="<%== @exercise.sets %>">
+       <label for="reps" class="col-lg-1 offset-1 col-form-label"><b>Sets</b></label>
+       <input name="sets" list="sets" class="col-lg-2 form-control" value="<%== @exercise.sets %>">
        <datalist id="sets">
          <option value="1"></option>
          <option value="2"></option>
@@ -62,26 +62,26 @@
 
 
     <div class="form-group row">
-      <label for="instructions" class="col-3 col-form-label"><b>Instructions</b></label>
-      <textarea class="form-control col-8" id="instructions" name="instructions" rows="3"><%== @exercise.instructions %></textarea>
+      <label for="instructions" class="col-lg-3 col-form-label"><b>Instructions</b></label>
+      <textarea class="form-control col-lg-8" id="instructions" name="instructions" rows="3"><%== @exercise.instructions %></textarea>
     </div>
     <div class="form-group row">
-      <label for="patient_comment" class="col-3 col-form-label"><b>Comments</b></label>
-      <textarea class="form-control col-8" id="patient_comment" name="patient_comment" rows="3"><%= @exercise.comment_by_patient %></textarea>
+      <label for="patient_comment" class="col-lg-3 col-form-label"><b>Comments</b></label>
+      <textarea class="form-control col-lg-8" id="patient_comment" name="patient_comment" rows="3"><%= @exercise.comment_by_patient %></textarea>
     </div>
 
     <% unless nil_or_empty?(@exercise.comment_by_therapist) && session[:user].role == :patient %>
     <div class="form-group row">
-      <label for="therapist_comment" class="col-3 col-form-label"><b>Therapist's reply</b></label>
-      <textarea class="form-control col-8" id="therapist_comment" name="therapist_comment" rows="3" <%= 'readonly' if session[:user].role == :patient %>><%== @exercise.comment_by_therapist %></textarea>
+      <label for="therapist_comment" class="col-lg-3 col-form-label"><b>Therapist's reply</b></label>
+      <textarea class="form-control col-lg-8" id="therapist_comment" name="therapist_comment" rows="3" <%= 'readonly' if session[:user].role == :patient %>><%== @exercise.comment_by_therapist %></textarea>
     </div>
     <% end %>
 
 
     <div class="row">
 
-      <label class="col-3 col-form-label" id="empty-label"></label>
-      <div class="col-8">
+      <label class="col-lg-3 col-form-label" id="empty-label"></label>
+      <div class="col-lg-8">
         <div class="row">
       <div class="col mx-1 px-0">
         <div class="form-group">
@@ -106,7 +106,7 @@
     </div>
     </div>
 
-    <label class="col-3 col-form-label"></label>
+    <label class="col-lg-3 col-form-label"></label>
 
     <!-- success/error messages - current repositioned at top -->
 
@@ -125,9 +125,9 @@
 </div>
 
 <!-- exercise images section -->
-<div class="col-6">
+<div class="col-lg-6">
   <form class="form-group row mb-4" action="/users/<%=@patient.username %>/exercises/<%= @exercise.name %>/upload_file?group=<%= make_group_query_str(@current_group_hierarchy) %>" id="upload_form" method="post" enctype="multipart/form-data">
-    <label for="patient_comment" class="col-5 col-form-label  "><b>Upload Exercise Images</b></label>
+    <label for="patient_comment" class="col-lg-5 col-form-label  "><b>Upload Exercise Images</b></label>
     <input type="file" id="chosen_file" accept="image/*" name="images[]" multiple />
     <input type="submit" value="Upload"/>
   </form>
