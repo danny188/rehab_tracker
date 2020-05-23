@@ -1,19 +1,19 @@
 <% if session[:warning] %>
-<div class="offset-4 col-4 alert alert-warning fade show text-center" role="alert">
+<div class="mx-auto col-lg-4 alert alert-warning fade show text-center" role="alert">
 
   <span><%= session.delete(:warning) %></span>
 </div>
 <% end %>
 
 <% if session[:success] %>
-<div class="offset-4 col-4 alert alert-success fade show text-center" role="alert">
+<div class="mx-auto col-lg-4  alert alert-success fade show text-center" role="alert">
 
   <span><%= session.delete(:success) %></span>
 </div>
 <% end %>
 
 <% if session[:error] %>
-<div class="offset-4 col-4 alert alert-danger fade show text-center" role="alert">
+<div class="mx-auto col-lg-4  alert alert-danger fade show text-center" role="alert">
 
   <span><%= session.delete(:error) %></span>
 </div>
@@ -27,7 +27,7 @@
 <div class="row justify-content-center">
 
 
-  <form action="/users/<%= @user.username %>/profile/update" method="post" class="form-horizontal col-3">
+  <form action="/users/<%= @user.username %>/profile/update" method="post" class="form-horizontal col-lg-3">
 
 
     <div class="form-group">
@@ -98,13 +98,13 @@
 
     <div class="form-group text-center">
       <label class="sr-only" for="create">Create Account</label>
-      <button type="submit" class="btn btn-outline-primary col-5 mr-2" id="create">Save Changes</button>
-      <a href="/" class="btn btn-outline-secondary col-5" id="create">Cancel</a>
+      <button type="submit" class="btn btn-outline-primary col-lg-5 mr-2" id="create">Save Changes</button>
+      <a href="/" class="btn btn-outline-secondary col-lg-5" id="create">Cancel</a>
     </div>
   </form>
 </div>
 
-<hr class="col-3">
+<hr class="col-lg-3">
 <div class="row justify-content-center">
   <form method="get" action="/users/<%= @user.username %>/deactivate_account">
     <button type="submit" class="btn btn-outline-danger">Deactivate Account</button>
