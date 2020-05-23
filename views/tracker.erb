@@ -301,7 +301,7 @@
       <div class="form-row d-print-none">
         <div class="form-group col-lg-5">
           <div class="input-group">
-            <label for="group" class="col-lg-4">For group: </label>
+            <label for="group" class="col-lg-3 pl-0">For group: </label>
 
             <input name="group" list="group" class="form-control col-lg-5" value="<%= @new_group_name || '' %>" placeholder="Group Name">
             <datalist id="group">
@@ -311,9 +311,9 @@
 
             </datalist>
             <div class="col-1"></div><!--  spacer-column -->
-           <!-- <a href="/users/<%= @patient.name %>/exercises/add_group" class="col-3 btn btn-outline-primary">New
-           Group</a> -->
-           <button type="submit" class="col-lg-3 btn btn-outline-primary" formaction="/users/<%=@patient.username%>/exercises/add_group">Create Group</button>
+
+
+           <!-- <button type="submit" class="col-lg-3 btn btn-outline-primary" formaction="/users/<%=@patient.username%>/exercises/add_group">Create Group</button> -->
          </div>
        </div>
      </div>
