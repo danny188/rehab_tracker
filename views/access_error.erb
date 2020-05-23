@@ -6,7 +6,7 @@
   <% if session[:access_error] %>
     <%= session.delete(:access_error) %>
   <% else %>
-    Sorry, you do not have access to the requested page, or your session has timed out.
+    Sorry, you do not have access to the requested page, or your session has timed out. Please sign in again.
   <% end %>
   </h5>
 </div>
