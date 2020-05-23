@@ -14,4 +14,4 @@ gem "chartkick"
 gem "puma"
 gem "tilt"
 gem "erubis"
-# gem 'redcarpet'
+gem 'redcarpet'

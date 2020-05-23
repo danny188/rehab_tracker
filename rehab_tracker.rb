@@ -11,6 +11,7 @@ require 'net/http'
 require 'json'
 require 'securerandom'
 require 'logger'
+require 'redcarpet'
 
 
 
