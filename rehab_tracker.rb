@@ -725,7 +725,11 @@ end
 get "/users/:username/deactivate_account" do
   @deactivate_user = User.get(params[:username])
 
-  logger.info "#{logged_in_user} displays deactivate account page"
+  logger.info "#{logged_in_user} displays deactivate account page for user #{params[:username]}"
+
+  unless @deactivate_user
+    halt erb(:custom_404)
+  end
 
   if @deactivate_user.username == session[:user].username
     if @deactivate_user.role == :therapist
