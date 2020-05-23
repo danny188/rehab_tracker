@@ -114,13 +114,18 @@
   <div class="col mb-4">
     <div class="card text-center">
       <div class="card-body">
-        <h5 class="card-title"><strong><%= subgroup.name %></strong></h5>
+        <h5 class="card-title"><a href="/exercise_library<%=create_full_query_str({group: make_group_query_str(@group_hierarchy + [subgroup.name]), pt: params[:pt]}) %>"><strong><%= subgroup.name %></strong></a></h5>
         <div class="row justify-content-center">
           <a class="float-right btn btn-outline-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Actions
           </a>
           <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-
+            <% if params[:pt] %>
+            <form id="template-form-apply-group" class="template-form" action="/users/<%= params[:pt] %>/exercises/add_exercise_group_from_library<%=create_full_query_str({group: params[:group], pt: params[:pt]}) %>" method="POST">
+              <input type="hidden" name="group_hierarchy_str" value="<%= make_group_query_str(@group_hierarchy + [subgroup.name]) %>">
+              <button id="template-form-btn-apply-group" type="submit" class="dropdown-item text-light bg-dark" value="submit">Add exercise group for <%= full_name_plus_username(@patient) %></button>
+            </form>
+            <% end %>
             <a href="/exercise_library<%=create_full_query_str({group: make_group_query_str(@group_hierarchy + [subgroup.name]), pt: params[:pt]}) %>" class="dropdown-item text-primary" data-toggle="tooltip" title="Open group exercise template">Open</a>
 
             <a href="/exercise_library/rename_group<%=create_full_query_str({group: make_group_query_str(@group_hierarchy + [subgroup.name]), pt: params[:pt]}) %>" class="dropdown-item text-primary">Rename Group</a>
@@ -131,12 +136,7 @@
               <input type="hidden" name="delete_group_query_str" value="<%= make_group_query_str(@group_hierarchy + [subgroup.name]) %>">
               <button type="submit"  class="dropdown-item text-danger" data-toggle="tooltip" title="Delete template and associated data.">Delete</button>
             </form>
-            <% if params[:pt] %>
-            <form id="template-form-apply-group" class="template-form" action="/users/<%= params[:pt] %>/exercises/add_exercise_group_from_library<%=create_full_query_str({group: params[:group], pt: params[:pt]}) %>" method="POST">
-              <input type="hidden" name="group_hierarchy_str" value="<%= make_group_query_str(@group_hierarchy + [subgroup.name]) %>">
-              <button id="template-form-btn-apply-group" type="submit" class="dropdown-item text-light bg-dark" value="submit">Add exercise group for <%= full_name_plus_username(@patient) %></button>
-            </form>
-            <% end %>
+
           </div>
 
         </div>
@@ -173,11 +173,11 @@
   <div class="col mb-4">
     <div class="card text-center">
 
-      <img src="<%= exercise.get_image_link(0) || '/images/noimage.jpg' %>" class="card-img-top"  alt="...">
+      <a href="/exercise_library/<%= exercise.name %>/edit<%=create_full_query_str({group: params[:group], pt: params[:pt]}) %>"><img src="<%= exercise.get_image_link(0) || '/images/noimage.jpg' %>" class="card-img-top"  alt="..."></a>
       <hr class="mt-0">
 
       <div class="card-body pt-0">
-        <h5 class="card-title"><strong><%= exercise.name %></strong></h5>
+        <h5 class="card-title"><a href="/exercise_library/<%= exercise.name %>/edit<%=create_full_query_str({group: params[:group], pt: params[:pt]}) %>"><strong><%= exercise.name %></strong></a></h5>
 
 
 
