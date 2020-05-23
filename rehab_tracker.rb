@@ -1124,16 +1124,22 @@ post "/users/:username/profile/update" do
   @first_name = params[:first_name]
   @last_name = params[:last_name]
 
-  if invalid_name( @first_name) || invalid_name(@last_name)
+  if invalid_name(@first_name) || invalid_name(@last_name)
     session[:error] = "Names can only contain letters and/or numbers."
     halt erb(:profile)
   end
 
   if authenticate_user(@user.username, @current_password) || session[:user].role == :admin
 
-    @user.first_name = @first_name
-    @user.last_name = @last_name
-    @user.email = params[:email]
+    # disallow edit of admin's personal details by another admin
+    if (session[:user].role != :admin) || (session[:user].role == :admin && session[:user].username == @user.username)
+      @user.first_name = @first_name
+      @user.last_name = @last_name
+      @user.email = params[:email]
+    else
+      session[:error] = "Editing of another admin's personal details is disallowed."
+      halt erb(:profile)
+    end
 
     @new_role = params[:role].to_sym
     @new_password = params[:new_password]
@@ -1283,7 +1289,7 @@ def save_exercises(patient)
   end
 end
 
-def verify_user_access(required_authorization: :public, required_username: nil)
+def verify_user_access(required_authorization: :public, required_username: nil, allow_peer_access: true)
   return false unless session[:user] || required_authorization == :public
 
   session_role = session[:user].role if session[:user]
@@ -1292,9 +1298,11 @@ def verify_user_access(required_authorization: :public, required_username: nil)
   access_level_diff = ROLES.index(current_role) - ROLES.index(required_authorization)
   role_ok = access_level_diff >= 0
   username_ok = if required_username
-                  (session[:user].username == required_username) || access_level_diff > 0
+                  (session[:user].username == required_username) || (access_level_diff > 0 && allow_peer_access)
                  # if required_username is provided, access is only granted
-                 #    if username matches, OR logged-in user has higher access level than required
+                 #    if username matches, OR logged-in user has higher access level than required and
+                 #    allow_peer_access (e.g. therapist can access another therapist's resources)
+                 #    Currently the only admin- or therapist-specific resource is the profile page
                 else
                   true
                 end
@@ -1319,7 +1327,8 @@ get "/therapist_dashboard" do
 end
 
 get "/users/:username/profile" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+  # disallow a therapist to view profile of other therapists or admins
+  unless verify_user_access(required_authorization: :patient, required_username: params[:username], allow_peer_access: false)
     redirect "/access_error"
   end
 
