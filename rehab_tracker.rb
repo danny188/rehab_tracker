@@ -1159,6 +1159,8 @@ post "/users/:username/profile/update" do
 end
 
 get "/login" do
+  redirect_to_home_page(session[:user]) if session[:user]
+
   erb :login, layout: :layout
 end
 
