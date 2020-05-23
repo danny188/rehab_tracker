@@ -1,0 +1,75 @@
+<div class="row">
+<h2 class="col-6">Welcome, <%= @user.first_name || @user.username %>. Here is your dashboard.</h2>
+
+
+<% if session[:error] %>
+<div class="row justify-content-center">
+  <div class="alert alert-danger fade show" role="alert">
+    <span><%= session.delete(:error) %></span>
+  </div>
+</div>
+<% end %>
+
+<% if session[:success] %>
+<div class="row justify-content-center">
+  <div class="alert alert-success fade show text-center mx-auto" role="alert">
+    <span><%= session.delete(:success) %></span>
+  </div>
+</div>
+<% end %>
+
+<% if session[:warning] %>
+<div class="row justify-content-center">
+  <div class="alert alert-warning fade show text-center mx-auto" role="alert">
+    <span><%= session.delete(:warning) %></span>
+  </div>
+</div>
+<% end %>
+
+
+</div>
+
+<%= yield if block_given? %>
+
+<br>
+<h5><b>Current Patients</b></h5>
+<br>
+
+<div class="row justify-content-center">
+<table class="table_accounts_list table table-hover table-sm">
+  <thead class="thead-light">
+    <tr>
+      <th scope="col" style="width: 10%">#</th>
+      <th scope="col" style="width: 10%">Last</th>
+      <th scope="col" style="width: 10%">First</th>
+      <th scope="col" style="width: 10%">Username</th>
+      <th scope="col" style="width: 10%">Last login</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @all_patients.each_with_index do |patient, index| %>
+
+      <tr>
+        <td><%= index + 1 %></td>
+        <td><%= patient.last_name %></td>
+        <td><%= patient.first_name %></td>
+        <td><%= patient.username %></td>
+        <td><%= patient.last_login_time.strftime("%d/%m/%Y %k:%M") if patient.last_login_time %>
+        </td>
+        <td>
+          <a href="/users/<%= patient.username %>/exercises">View Exercises</a>
+          <a href="/users/<%= patient.username %>/stats">Stats</a>
+          <a href="/users/<%= patient.username %>/profile">View Profile</a>
+          <a href="/users/<%= patient.username %>/deactivate_account" class="text-danger">Delete</a>
+        </td>
+      </tr>
+    <% end %>
+
+  </tbody>
+</table>
+</div>
+
+<a class="btn btn-outline-primary" href="/new_account?role=patient">Create new Patient account</a>
+
+<hr>

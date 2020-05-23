@@ -780,7 +780,7 @@ post "/users/:username/deactivate_account" do
     # need at least one admin account
     if Admin.get_all.size <= 1
       session[:error] = "At least 1 Admin account need to exist. Cannot delete final Admin account."
-      redirect "/users/#{session[:user].username}/admin_panel"
+      redirect "/users/#{session[:user].username}/admin_dashboard"
     end
   end
 
@@ -1177,9 +1177,9 @@ def home_page_for(user)
   when :patient
     "/users/#{user.username}/exercises"
   when :therapist
-    "/patient_list"
+    "/therapist_dashboard"
   when :admin
-    "/users/#{user.username}/admin_panel"
+    "/users/#{user.username}/admin_dashboard"
   end
 end
 
@@ -1207,6 +1207,9 @@ post "/login" do
       session.options[:expire_after] = 14400 # 4 hrs
     end
 
+    @user.last_login_time = Time.now
+    @user.save
+
     redirect_to_home_page(@user)
   else
     session[:error] = "Please check your details and try again."
@@ -1214,7 +1217,7 @@ post "/login" do
   end
 end
 
-get "/users/:username/admin_panel" do
+get "/users/:username/admin_dashboard" do
   unless verify_user_access(required_authorization: :admin)
     redirect "/access_error"
   end
@@ -1223,7 +1226,9 @@ get "/users/:username/admin_panel" do
   @all_therapists = Therapist.get_all
   @all_admins = Admin.get_all
 
-  erb :admin_panel
+  erb :dashboard_base, :layout => :layout do
+    erb :admin_dashboard_section
+  end
 end
 
 
@@ -1275,16 +1280,16 @@ get "/access_error" do
   erb :access_error
 end
 
-get "/patient_list" do
+get "/therapist_dashboard" do
   unless verify_user_access(required_authorization: :therapist)
     redirect "/access_error"
   end
   @user = session[:user]
   @all_patients = Patient.get_all
 
-  logger.info "#{logged_in_user} displays patient list"
+  logger.info "#{logged_in_user} displays therapist dashboard"
 
-  erb :patient_list
+  erb :dashboard_base
 end
 
 get "/users/:username/profile" do

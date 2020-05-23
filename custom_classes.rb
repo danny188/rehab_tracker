@@ -3,6 +3,7 @@ require 'stringio'
 require 'set'
 require 'yaml/store'
 require 'fileutils'
+require 'date'
 
 module GroupOperations
   TOP_GROUP = 'main'
@@ -278,6 +279,8 @@ module DataPersistence
     #   dest_path: "#{file_prefix + self.name}.store")
     # end
 
+
+
     Amazon_AWS.upload_obj(source_obj: self.to_yaml,
     bucket: :data,
     dest_path: "#{file_prefix + self.name}.store")
@@ -491,7 +494,7 @@ class ExerciseLibrary
   include DataPersistence
   include GroupOperations
 
-  attr_accessor :name, :templates, :template_collection
+  attr_accessor :name, :templates, :template_collection, :last_updated
 
   alias_method :top_collection, :template_collection
 
@@ -689,7 +692,7 @@ end
 
 class User
   attr_accessor :username, :pw, :first_name, :last_name, :email,
-  :change_pw_next_login, :account_status, :deactivate_time
+  :change_pw_next_login, :account_status, :deactivate_time, :last_login_time
 
   include DataPersistence
 
@@ -813,7 +816,7 @@ end
 
 class Patient < User
   attr_accessor :exercise_collection, :wellness_ratings, :last_updated,
-                :last_review_date, :last_review_by
+                :last_review_date, :last_review_by, :last_updated
   include GroupOperations
 
   alias_method :top_collection, :exercise_collection

@@ -51,16 +51,16 @@
         </li>
 
         <!-- Patient list -->
-        <li class="nav-item <%= active_class("/patient_list") %>">
+        <li class="nav-item <%= active_class("/therapist_dashboard") %>">
           <% if session[:user] && session[:user].role == :therapist %>
-          <a class="nav-link" href="/patient_list">Patient List</a>
+          <a class="nav-link" href="/therapist_dashboard">Patient List</a>
           <% end %>
         </li>
 
         <!-- Admin Panel -->
-        <li class="nav-item <%= active_class("/users/#{session[:user].username if session[:user]}/admin_panel")%>">
+        <li class="nav-item <%= active_class("/users/#{session[:user].username if session[:user]}/admin_dashboard")%>">
           <% if session[:user] && session[:user].role == :admin %>
-          <a class="nav-link" href="/users/<%= session[:user].username %>/admin_panel">Admin Panel</a>
+          <a class="nav-link" href="/users/<%= session[:user].username %>/admin_dashboard">Admin Panel</a>
           <% end %>
         </li>
 
