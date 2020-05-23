@@ -1063,6 +1063,11 @@ post "/new_account" do
     halt erb(:new_account)
   end
 
+  if invalid_name(@first_name) || invalid_name(@last_name)
+    session[:error] = "Names can only contain letters and/or numbers."
+    halt erb(:new_account)
+  end
+
   if @password != @confirm_password
     session[:error] = "Please correctly confirm your password."
     halt erb(:new_account)
@@ -1115,10 +1120,19 @@ post "/users/:username/profile/update" do
   @user = User.get(params[:username])
   @current_password = params[:current_password]
 
+
+  @first_name = params[:first_name]
+  @last_name = params[:last_name]
+
+  if invalid_name( @first_name) || invalid_name(@last_name)
+    session[:error] = "Names can only contain letters and/or numbers."
+    halt erb(:profile)
+  end
+
   if authenticate_user(@user.username, @current_password) || session[:user].role == :admin
 
-    @user.first_name = params[:first_name]
-    @user.last_name = params[:last_name]
+    @user.first_name = @first_name
+    @user.last_name = @last_name
     @user.email = params[:email]
 
     @new_role = params[:role].to_sym

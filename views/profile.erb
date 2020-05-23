@@ -48,13 +48,13 @@
 
     <div class="form-group">
       <label class="sr-only" for="first_name">First Name</label>
-      <input type="text" class="form-control" id="first_name" name="first_name" placeholder="First Name" value="<%= @user.first_name %>">
+      <input type="text" class="form-control" id="first_name" name="first_name" placeholder="First Name" value="<%= @first_name || @user.first_name %>">
     </div>
 
 
     <div class="form-group">
       <label class="sr-only" for="last_name">Last Name</label>
-      <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Last Name" value="<%= @user.last_name %>">
+      <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Last Name" value="<%= @last_name || @user.last_name %>">
     </div>
 
     <div class="form-group">
