@@ -68,8 +68,11 @@ end
 
 configure do
   enable :sessions
-  # set :session_secret, ENV.fetch('SINATRA_SESSION_KEY') { SecureRandom.hex(64) }
-  set :session_secret, 'secret'
+  if ENV['RACK_ENV'] == 'production'
+    set :session_secret, ENV.fetch('SINATRA_SESSION_KEY') { SecureRandom.hex(64) }
+  else
+    set :session_secret, 'secret'
+  end
   set :markdown, :layout_engine => :erb
 end
 
@@ -1808,6 +1811,10 @@ get "/test" do
   # main_grp = @patient.get_group(['main']).name
 
    session[:debug]
+   # settings.environment.to_s
 
+   # ENV['RACK_ENV']
+   settings.environment.to_s
+   "ENV['RACK_ENV'] is #{ENV['RACK_ENV']}, sinatra settings.environment = #{settings.environment}"
   # Amazon_AWS.delete_all_objs(bucket: :images, prefix: 'coffee')
 end
