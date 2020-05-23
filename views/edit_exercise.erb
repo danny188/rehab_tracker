@@ -25,20 +25,20 @@
     <form action="/users/<%= @patient.username %>/exercises/<%= @exercise.name %>/update?group=<%= make_group_query_str(@current_group_hierarchy) %>" method="post">
       <div class="form-group row">
         <label for="new_exercise_name" class="col-3 col-form-label"><b>Name of exercise</b></label>
-        <input type="text" class="form-control col-6" id="new_exercise_name" name="new_exercise_name" value="<%= @exercise.name %>">
+        <input type="text" class="form-control col-6" id="new_exercise_name" name="new_exercise_name" value="<%== @exercise.name %>">
       </div>
       <div class="form-group row">
         <label for="instructions" class="col-3 col-form-label"><b>Group</b></label>
         <input name="dest_group" list="group" class="form-control col-6" value="<%= display_current_group(@current_group_hierarchy) %>" placeholder="">
         <datalist id="group">
           <% @patient.get_groups(GroupOperations::TOP_HIERARCHY).each do |group| %>
-          <option value="<%= group.name %>"></option>
+          <option value="<%== group.name %>"></option>
           <% end %>
         </datalist>
       </div>
       <div class="form-group row">
         <label for="reps" class="col-3 col-form-label"><b>Repetitions</b></label>
-        <input name="reps" list="reps" class="col-2 form-control" value="<%= @exercise.reps %>">
+        <input name="reps" list="reps" class="col-2 form-control" value="<%== @exercise.reps %>">
         <datalist id="reps">
          <option value="5"></option>
          <option value="10"></option>
@@ -50,7 +50,7 @@
        </datalist>
 
        <label for="reps" class="col-1 offset-1 col-form-label"><b>Sets</b></label>
-       <input name="sets" list="sets" class="col-2 form-control" value="<%= @exercise.sets %>">
+       <input name="sets" list="sets" class="col-2 form-control" value="<%== @exercise.sets %>">
        <datalist id="sets">
          <option value="1"></option>
          <option value="2"></option>
@@ -63,7 +63,7 @@
 
     <div class="form-group row">
       <label for="instructions" class="col-3 col-form-label"><b>Instructions</b></label>
-      <textarea class="form-control col-8" id="instructions" name="instructions" rows="3"><%= @exercise.instructions %></textarea>
+      <textarea class="form-control col-8" id="instructions" name="instructions" rows="3"><%== @exercise.instructions %></textarea>
     </div>
     <div class="form-group row">
       <label for="patient_comment" class="col-3 col-form-label"><b>Comments</b></label>
@@ -73,7 +73,7 @@
     <% unless nil_or_empty?(@exercise.comment_by_therapist) && session[:user].role == :patient %>
     <div class="form-group row">
       <label for="therapist_comment" class="col-3 col-form-label"><b>Therapist's reply</b></label>
-      <textarea class="form-control col-8" id="therapist_comment" name="therapist_comment" rows="3" <%= 'readonly' if session[:user].role == :patient %>><%= @exercise.comment_by_therapist %></textarea>
+      <textarea class="form-control col-8" id="therapist_comment" name="therapist_comment" rows="3" <%= 'readonly' if session[:user].role == :patient %>><%== @exercise.comment_by_therapist %></textarea>
     </div>
     <% end %>
 

@@ -807,9 +807,17 @@ post "/users/:username/exercises/:exercise_name/update" do
 
 
   @dest_group_name = params[:dest_group].strip
-  @dest_group_hierarchy = create_group_hierarchy(@dest_group_name)
 
   @exercise = @patient.get_exercise(params[:exercise_name], create_group_hierarchy(*@current_group_hierarchy))
+
+
+  if invalid_name(@dest_group_name)
+    session[:error] = "Group names can only contain letters and/or numbers."
+    halt erb(:edit_exercise)
+  end
+
+  @dest_group_hierarchy = create_group_hierarchy(@dest_group_name)
+
 
   # session[:debug] = @current_group_hierarchy.inspect
   # redirect "/test"
@@ -841,7 +849,7 @@ post "/users/:username/exercises/:exercise_name/update" do
   log_date_if_therapist_doing_edit(@patient)
   @patient.save
 
-  logger.info "#{logger_in_user} updates exercise '#{@exercise.name}', group #{@current_group_hierarchy} for pt #{full_name_plus_username(@patient)}"
+  logger.info "#{logged_in_user} updates exercise '#{@exercise.name}', group #{@current_group_hierarchy} for pt #{full_name_plus_username(@patient)}"
 
   session[:success] = "Your changes have been saved"
   redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit?group=#{@dest_group_name}"

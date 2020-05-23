@@ -111,7 +111,7 @@
     <% content_for :exercise_row do |exercise, indent, ex_index, group, grp_index|%>
     <div class="row exercise-row">
       <div class="mb-2 col-lg-4 col-6 col-md-5 col-xl-3 ml-<%= indent ? indent * 4 : 0 %> mr-n<%= indent ? indent * 4 : 0 %>">
-        <a href="/users/<%= @patient.username %>/exercises/<%= exercise.name %>/edit?group=<%= group.name if group %>" class="exercise" data-toggle="tooltip" title="<%= exercise.instructions %>"><%= exercise.name %></a>
+        <a href="/users/<%= @patient.username %>/exercises/<%= exercise.name %>/edit?group=<%= group.name if group %>" class="exercise" data-toggle="tooltip" title="<%= exercise.instructions %>"><%== exercise.name %></a>
       </div>
       <div class="d-block d-sm-none col-3"></div>
       <div class="col-lg-1 col-3 d-none d-xl-block d-print-block">
@@ -129,7 +129,7 @@
 
         <div class="dropdown-menu" aria-labelledby="exercise_actions">
 
-          <a href="/users/<%= @patient.username %>/exercises/<%= exercise.name %>/edit?group=<%= group.name if group %>" class="dropdown-item text-primary" data-toggle="tooltip" title="View/change exercise instructions or add comments.">View/Edit</a>
+          <a href="/users/<%= @patient.username %>/exercises/<%= exercise.name %>/edit?group=<%== (group.name if group) %>" class="dropdown-item text-primary" data-toggle="tooltip" title="View/change exercise instructions or add comments.">View/Edit</a>
           <form method="post" action="/users/<%= @patient.username %>/exercises/<%= exercise.name %>/move_down?group=<%= group.name if group %>">
             <button type="submit" class="dropdown-item"><i class="fas fa-arrow-down"></i> Move exercise down</button>
           </form>
@@ -231,7 +231,7 @@
         </span> -->
 
         <a class="btn btn-info dropdown-toggle" href="#" role="button" id="group_button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Group: <%= group.name %> (<%= group.items.size %>)
+          Group: <%== group.name %> (<%= group.items.size %>)
         </a>
 
         <div class="dropdown-menu" aria-labelledby="group_button">
