@@ -968,7 +968,7 @@ post "/users/:username/exercises/mark_all" do
 
   @patient.save
 
-  redirect "/users/#{@patient.username}/exercises"
+  redirect "/users/#{@patient.username}/exercises#{create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})}"
 end
 
 # update checkbox values for a particular exercise and day for a patient
