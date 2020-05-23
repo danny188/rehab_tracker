@@ -1039,7 +1039,7 @@ get "/new_account" do
 end
 
 post "/new_account" do
-  @username = params[:username].strip
+  @username = params[:username].strip.downcase if params[:username]
   @email = params[:email].strip
   @first_name = params[:first_name].strip
   @last_name = params[:last_name].strip
@@ -1188,7 +1188,7 @@ def redirect_to_home_page(user)
 end
 
 post "/login" do
-  @username = params[:username]
+  @username = params[:username].strip.downcase if params[:username]
   @password = params[:password]
 
   if authenticate_user(@username, @password)
