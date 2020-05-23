@@ -46,21 +46,22 @@
 
     <div class="collapse navbar-collapse" id="navbarsExampleDefault">
       <ul class="navbar-nav mr-auto">
-        <li class="nav-item <%= active_class(home_page_for(session[:user])) %>">
+        <!-- Home button -->
+<!--         <li class="nav-item <%= active_class(home_page_for(session[:user])) %>">
           <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
         </li>
-
+ -->
         <!-- Patient list -->
         <li class="nav-item <%= active_class("/therapist_dashboard") %>">
           <% if session[:user] && session[:user].role == :therapist %>
-          <a class="nav-link" href="/therapist_dashboard">Patient List</a>
+          <a class="nav-link" href="/therapist_dashboard">Dashboard</a>
           <% end %>
         </li>
 
         <!-- Admin Panel -->
         <li class="nav-item <%= active_class("/users/#{session[:user].username if session[:user]}/admin_dashboard")%>">
           <% if session[:user] && session[:user].role == :admin %>
-          <a class="nav-link" href="/users/<%= session[:user].username %>/admin_dashboard">Admin Panel</a>
+          <a class="nav-link" href="/users/<%= session[:user].username %>/admin_dashboard">Dashboard</a>
           <% end %>
         </li>
 
@@ -95,6 +96,7 @@
       </li>
       <% end %>
 
+      <!-- get current weather -->
       <li class="nav-item">
         <form method="get" action="/weather">
           <a tabindex="-1" id="weather_btn" onclick="getWeather()" class="nav-link"  data-container="body" data-toggle="popover" data-trigger="focus" title="<div class='text-center'><b>Current Sydney Weather</b></div>" data-placement="right" data-content="Loading...">
@@ -103,9 +105,12 @@
         </form>
       </li>
 
+      <!-- about page -->
+
       <li class="nav-item  <%= active_class("/about")%>">
         <a class="nav-link" href="/about">About</a>
       </li>
+
 
     </ul>
     <% if session[:user] %>
