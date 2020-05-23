@@ -991,10 +991,10 @@ post "/users/:username/update_tracker" do
 
   if @ticked
     @exercise.add_date(@check_date)
-    logger.info "#{logged_in_user} ticks exercise #{@exercise.name} from group #{@current_group_hierarchy} for day #{check_date}"
+    logger.info "#{logged_in_user} ticks exercise #{@exercise.name} from group #{@current_group_hierarchy} for day #{@check_date}"
   else
     @exercise.delete_date(@check_date)
-    logger.info "#{logged_in_user} un-ticks exercise #{@exercise.name} from group #{@current_group_hierarchy} for day #{check_date}"
+    logger.info "#{logged_in_user} un-ticks exercise #{@exercise.name} from group #{@current_group_hierarchy} for day #{@check_date}"
   end
 
   @patient.save
