@@ -83,6 +83,8 @@ helpers do
   end
 
   def full_name_plus_username(user)
+    return '' unless user
+
     if nil_or_empty?(user.full_name)
       user.username
     else
@@ -135,6 +137,8 @@ get "/weather" do
   @weather_icon_url = "http://openweathermap.org/img/wn/#{@data['weather'][0]['icon']}@2x.png"
   @cur_time = Time.now.strftime("%d/%m %a %I:%M %p")
 
+  logger.info "#{session[:user].username if session[:user]} checks weather"
+
   weather_btn_popover_content = <<-HEREDOC
   <div class="text-center">
   <p>#{@cur_time}</p>
@@ -147,7 +151,6 @@ get "/weather" do
 
   </div>
   HEREDOC
-
 end
 
 get "/" do
@@ -175,6 +178,14 @@ def user_role(user_obj)
   end
 end
 
+def logged_in_user
+  if session[:user]
+    session[:user].username
+  else
+    'unknown user'
+  end
+end
+
 def valid_date_str(date_str)
   date_str =~ /^(19|20)\d\d(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$/
 end
@@ -193,8 +204,6 @@ get "/users/:username/exercises" do
 
   @day_step *= -1 if @nav == 'back'
 
-  logger.info "display exercises for #{params[:username]}"
-
   @end_date = if nil_or_empty?(@end_date_str) || !valid_date_str(@end_date_str)
                 Date.today
               else
@@ -203,12 +212,15 @@ get "/users/:username/exercises" do
 
   @dates = past_num_days(from: @end_date)
   @patient = User.get(params[:username])
+
+  logger.info "#{logged_in_user} display exercises (tracker view) for #{full_name_plus_username(@patient)}"
+
   erb :tracker
 end
 
 
 
-get "/users/:username/exercises/print_view" do
+get "/users/:username/exercises/list_view" do
   unless verify_user_access(required_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
@@ -222,7 +234,10 @@ get "/users/:username/exercises/print_view" do
 
   @dates = past_num_days(from: @end_date)
   @patient = User.get(params[:username])
-  erb :print_view
+
+  logger.info "#{logged_in_user} display exercises (list view) for #{full_name_plus_username(@patient)}"
+
+  erb :exercise_list_view
 end
 
 def exercise_library_title(group_hierarchy)
@@ -247,9 +262,7 @@ get "/users/:username/exercises/add_from_library" do
   @exercise_library = ExerciseLibrary.load('main')
   @group = @exercise_library.get_group(@group_hierarchy)
 
-  unless verify_user_access(required_authorization: :therapist)
-    redirect "/access_error"
-  end
+  logger.info "#{logged_in_user} views exercise library for #{full_name_plus_username(@patient)}"
 
   erb :exercise_library
 end
@@ -278,6 +291,8 @@ post "/users/:username/exercises/add_from_library" do
 
     # session[:error] = "#{full_name_plus_username(@patient)} already has an exercise called '#{@exercise_template.name}'. Please change either the name of the template or the patient's exercise."
 
+    logger.info "#{logged_in_user} unsuccessfully attempted to add template '#{@exercise_template.name}' for #{full_name_plus_username(@patient)}"
+
     { toast_title: "Unable to add template",
     type: 'error',
     toast_msg: "#{full_name_plus_username(@patient)} already has an exercise called '#{@exercise_template.name}'" }.to_json
@@ -300,6 +315,9 @@ post "/users/:username/exercises/add_from_library" do
     # # session[:success] = "Successfully added template #{template.name} for #{full_name_plus_username(patient)}"
     # session[:toast_title] = "Template Added"
     # session[:toast] = "Successfully added template #{template.name} for #{full_name_plus_username(patient)}"
+
+    logger.info "#{logged_in_user} successfully added exercise template '#{@exercise_template.name}' for #{full_name_plus_username(@patient)}"
+
     { toast_title: "Template Added",
       type: 'success',
       toast_msg: "Successfully added template #{@exercise_template.name} for #{full_name_plus_username(@patient)}" }.to_json
@@ -327,6 +345,8 @@ get "/exercise_library/add_exercise" do
   # @exercise_library.add_group('B1', create_group_hierarchy('B'))
 
   @title = "Create Exercise Template"
+
+  logger.info "#{logged_in_user} displays page for creating exercise template"
 
   erb :exercise_template_base_info_edit
 end
@@ -379,7 +399,9 @@ post "/exercise_library/add_exercise" do
   @exercise_library.add_exercise(@exercise, @dest_group_hierarchy)
   @exercise_library.save
 
-  redirect "/exercise_library/#{@exercise.name}/edit?group=#{params[:group]}"
+  logger.info "#{logged_in_user} adds template '#{@new_exercise_name}' to exercise library, dest_group_hierarchy=#{@dest_group_hierarchy}"
+
+  redirect "/exercise_library/#{@exercise.name}/edit#{create_full_query_str(group: params[:group], pt: params[:pt])}"
 end
 
 # display exercise template edit page
@@ -408,6 +430,8 @@ get "/exercise_library/:exercise_name/edit" do
   @title = "Edit Exercise Template"
   @editing_exercise_template = true
 
+  logger.info "#{logged_in_user} displays exercise template edit page for '#{@exercise.name}', group:#{@browse_group_hierarchy}, attached pt is #{full_name_plus_username(@patient)}"
+
   erb :exercise_template_base_info_edit, :layout => :layout do
     erb :template_images_edit
   end
@@ -435,6 +459,7 @@ get "/exercise_library" do
   # @exercise_library.add_exercise_by_name('squat')
   # @exercise_library.add_exercise_by_name('jump')
 
+  logger.info "#{logged_in_user} views exercise library"
 
   erb :exercise_library
 end
@@ -500,6 +525,8 @@ post "/exercise_library/:exercise_name/edit" do
 
   @exercise_library.save
 
+  logger.info "#{logged_in_user} updated exercise template '#{@exercise.name}', dest group #{@dest_group_hierarchy}"
+
   redirect "/exercise_library/#{@exercise.name}/edit#{create_full_query_str({group: make_group_query_str(@dest_group_hierarchy), pt: params[:pt]})}"
 end
 
@@ -513,6 +540,8 @@ post "/exercise_library/:exercise_name/delete" do
 
   @exercise_library = ExerciseLibrary.load('main')
   @delete_exercise = @exercise_library.get_exercise(params[:exercise_name], @browse_group_hierarchy)
+
+  logger.info "#{logged_in_user} deletes exercise template '#{@delete_exercise.name}' from group #{@browse_group_hierarchy}"
 
   @exercise_library.delete_exercise(@delete_exercise.name, @browse_group_hierarchy, true)
 
@@ -569,6 +598,8 @@ post "/users/:username/exercises/add" do
 
   @patient.add_exercise_by_name(params[:new_exercise_name], create_group_hierarchy(@group_name))
 
+  logger.info "#{logged_in_user} adds exercise '#{@new_exercise_name}', under group '#{@group_name}' for patient #{full_name_plus_username(@patient)}"
+
   log_date_if_therapist_doing_edit(@patient)
   @patient.save
 
@@ -590,6 +621,9 @@ get "/users/:username/exercises/:exercise_name/edit" do
   @patient = User.get(params[:username])
   @current_group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
   @exercise = @patient.get_exercise(params[:exercise_name], @current_group_hierarchy)
+
+  logger.info "#{logged_in_user} displays exercise edit page of '#{@exercise.name}' for patient #{full_name_plus_username(@patient)}"
+
   erb :edit_exercise
 end
 
@@ -618,11 +652,16 @@ post "/exercise_library/:exercise_name/upload_file" do
       redirect "/exercise_library/#{@exercise.name}/edit"
     end
 
-        # validate file size
-    if File.size(file_hash[:tempfile]) / (1024 * 1024 * 1.0) > ExerciseTemplate::FILE_UPLOAD_SIZE_LIMIT_MB
+
+     # validate file size
+    @file_size = File.size(file_hash[:tempfile]) / (1024 * 1024 * 1.0)
+
+    if @file_size > ExerciseTemplate::FILE_UPLOAD_SIZE_LIMIT_MB
       session[:error] = "Please ensure each image has a file size of under #{ExerciseTemplate::FILE_UPLOAD_SIZE_LIMIT_MB} megabytes."
       redirect "/exercise_library/#{@exercise.name}/edit"
     end
+
+    logger.info "#{logged_in_user} uploads file #{file_hash[:filename]} (size #{@file_size}) for template #{@exercise.name}, group #{@browse_group_hierarchy}"
 
     @exercise.add_file(file: file_hash[:tempfile], filename: file_hash[:filename])
     @exercise_library.save
@@ -655,8 +694,10 @@ post "/users/:username/exercises/:exercise_name/upload_file" do
       redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit?group=#{params[:group]}"
     end
 
-    # validate file size
-    if File.size(file_hash[:tempfile]) / (1024 * 1024 * 1.0) > ExerciseTemplate::FILE_UPLOAD_SIZE_LIMIT_MB
+     # validate file size
+    @file_size = File.size(file_hash[:tempfile]) / (1024 * 1024 * 1.0)
+
+    if @file_size  > ExerciseTemplate::FILE_UPLOAD_SIZE_LIMIT_MB
       session[:error] = "Please ensure each image has a file size of under #{ExerciseTemplate::FILE_UPLOAD_SIZE_LIMIT_MB} megabytes."
       redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit?group=#{params[:group]}"
     end
@@ -665,6 +706,9 @@ post "/users/:username/exercises/:exercise_name/upload_file" do
     # image_link = File.join("/images/#{params[:username]}/#{params[:exercise_name]}", file_hash[:filename])
 
     # @exercise.add_file_link(image_link)
+
+    logger.info "#{logged_in_user} uploads file #{file_hash[:filename]} (size #{@file_size}) for exercise #{@exercise.name}, group #{@current_group_hierarchy}, for pt #{full_name_plus_username(@patient)}"
+
     @exercise.add_file(file: file_hash[:tempfile], filename: file_hash[:filename])
     log_date_if_therapist_doing_edit(@patient)
     @patient.save
@@ -678,6 +722,8 @@ end
 get "/users/:username/deactivate_account" do
   @deactivate_user = User.get(params[:username])
 
+  logger.info "#{logged_in_user} displays deactivate account page"
+
   if @deactivate_user.username == session[:user].username
     if @deactivate_user.role == :therapist
       @message = "Dear #{address_user(@deactivate_user)}, thank you for looking after your patients. Take care!"
@@ -688,6 +734,8 @@ get "/users/:username/deactivate_account" do
   else
     erb :deactivate_account_on_behalf
   end
+
+
 end
 
 post "/users/:username/deactivate_account" do
@@ -731,14 +779,16 @@ post "/users/:username/deactivate_account" do
 
     # need at least one admin account
     if Admin.get_all.size <= 1
-      session[:error] = "At least 1 Admin account need to exist. Cannot delete last Admin account."
+      session[:error] = "At least 1 Admin account need to exist. Cannot delete final Admin account."
       redirect "/users/#{session[:user].username}/admin_panel"
     end
   end
 
   session.delete(:user) if deactivating_own_account
 
-  # delete account from storage
+  logger.info "#{logged_in_user} deactivates #{@deactivate_user.role.to_s} account #{full_name_plus_username(@deactivate_user)}"
+
+  # mark account deactivated from storage
   @deactivate_user.deactivate
 
   session[:warning] = "Account '#{@deactivate_user.username}' has been deactivated."
@@ -791,6 +841,8 @@ post "/users/:username/exercises/:exercise_name/update" do
   log_date_if_therapist_doing_edit(@patient)
   @patient.save
 
+  logger.info "#{logger_in_user} updates exercise '#{@exercise.name}', group #{@current_group_hierarchy} for pt #{full_name_plus_username(@patient)}"
+
   session[:success] = "Your changes have been saved"
   redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit?group=#{@dest_group_name}"
 
@@ -803,8 +855,10 @@ rescue GroupOperations::ItemNameInGroupNotUniqueErr
 end
 
 get "/about" do
-  logger.info 'visit about page'
+  logger.info "#{logged_in_user} visits about page"
   erb :about
+
+
 end
 
 # delete exercise for patient
@@ -815,6 +869,8 @@ post "/users/:username/exercises/:exercise_name/delete" do
 
   @patient = User.get(params[:username])
   @current_group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
+
+  logger.info "#{logged_in_user} deletes exercise '#{params[:exercise_name]}', in group #{@current_group_hierarchy} for pt #{full_name_plus_username(@patient)}"
 
   @patient.delete_exercise(params[:exercise_name], @current_group_hierarchy, true)
 
@@ -840,6 +896,9 @@ post "/users/:username/exercises/:exercise_name/delete_file" do
 
   if @exercise.has_file(filename)
     # delete_file(public_path + "/images/#{params[:username]}/#{params[:exercise_name]}/#{filename}")
+
+    logger.info "#{logged_in_user} deletes supplementary file #{filename} for exercise '#{params[:exercise_name]}', in group #{@current_group_hierarchy}, for pt #{full_name_plus_username(@patient)}"
+
     @exercise.delete_file(@file_path)
 
     log_date_if_therapist_doing_edit(@patient)
@@ -866,6 +925,9 @@ post "/exercise_library/:exercise_name/delete_file" do
   filename = File.basename(@file_path)
 
   if @exercise.has_file(filename)
+
+    logger.info "#{logged_in_user} deletes supplementary file #{filename} for ex template #{@exercise.name} in group #{@browse_group_hierarchy} in exercise library."
+
     @exercise.delete_file(@file_path)
     @exercise_library.save
     session[:success] = "File succcessfuly removed"
@@ -890,6 +952,8 @@ post "/users/:username/exercises/mark_all" do
   else
     @patient.mark_undone_all_exercises(@mark_date)
   end
+
+  logger.info "#{logged_in_user} marks all exercises done for day #{@mark_date} for pt #{params[:username]}"
 
   @patient.save
 
@@ -916,8 +980,10 @@ post "/users/:username/update_tracker" do
 
   if @ticked
     @exercise.add_date(@check_date)
+    logger.info "#{logged_in_user} ticks exercise #{@exercise.name} from group #{@current_group_hierarchy} for day #{check_date}"
   else
     @exercise.delete_date(@check_date)
+    logger.info "#{logged_in_user} un-ticks exercise #{@exercise.name} from group #{@current_group_hierarchy} for day #{check_date}"
   end
 
   @patient.save
@@ -957,7 +1023,11 @@ end
 # end
 
 get "/new_account" do
+
+  logger.info "#{logged_in_user} displays new account creation page"
   erb :new_account
+
+
 end
 
 post "/new_account" do
@@ -1009,6 +1079,8 @@ post "/new_account" do
 
     halt erb(:new_account)
   end
+
+  logger.info "#{logged_in_user} creates #{@new_user.role.to_s} account for #{full_name_plus_username(@new_user)}"
 
   @new_user.save
 
@@ -1067,6 +1139,8 @@ post "/users/:username/profile/update" do
     halt erb(:profile)
   end
 
+  logger.info "#{logged_in_user} updates profile"
+
   @user.save
 
   session[:success] = "Changes have been saved."
@@ -1079,6 +1153,9 @@ end
 
 
 post "/user/logout" do
+
+  logger.info "#{logged_in_user} logs out"
+
   # session.delete(:user)
   session.clear
 
@@ -1086,7 +1163,7 @@ post "/user/logout" do
 end
 
 def home_page_for(user)
-  return "/login" unless user
+  return "/about" unless user
 
   case user.role
   when :patient
@@ -1190,6 +1267,9 @@ get "/patient_list" do
   end
   @user = session[:user]
   @all_patients = Patient.get_all
+
+  logger.info "#{logged_in_user} displays patient list"
+
   erb :patient_list
 end
 
@@ -1208,13 +1288,16 @@ get "/users/:username/stats" do
     redirect "/access_error"
   end
 
-
-
   @patient = User.get(params[:username])
+
+  logger.info "#{logged_in_user} displays stats for #{full_name_plus_username(@patient)}"
+
   erb :stats
   # @patient.exercise_completion_rates_by_day.inspect
   # rate = @patient.num_of_exercises_done_on('20200501') / @patient.num_of_exercises.to_f
   # rate.to_s
+
+
 end
 
 def upload_file(source:, dest:)
@@ -1255,49 +1338,62 @@ will be applied as a subgroup for the patient.
 
   @source_group_copy = Group.deep_copy(@source_group)
 
-  if @source_level == 1 # apply source group contents to patient's main group
-    # copy templates to patient's top level group
-    @source_group_copy.items.each do |template|
-      template.group_hierarchy = create_group_hierarchy()
+  # ensure no exercise name clashes
+  @patient_existing_exercises = @patient.get_all_exercises
+  @source_group_copy.get_all_items_recursive.each do |template|
+    @name_clash = true if @patient_existing_exercises.any? { |pt_ex| pt_ex.name == template.name }
+  end
 
-      dest_exercise = Exercise.new_from_template(template)
-      dest_exercise.patient_username = @patient.username
+  if @name_clash
+    { toast_title: "Template Group Not Added",
+    type: 'error',
+    toast_msg: "Failed to add template group #{@source_group.name} for #{full_name_plus_username(@patient)}. One or more exercises in template group already exists in patient's exercise list." }.to_json
 
-      # copy image files from template
-      GroupOperations.replace_all_supp_files(@exercise_library, template, dest_exercise)
+  else
+    if @source_level == 1 # apply source group contents to patient's main group
+      # copy templates to patient's top level group
+      @source_group_copy.items.each do |template|
+        template.group_hierarchy = create_group_hierarchy()
 
-      @patient.add_exercise(dest_exercise, create_group_hierarchy)
-    end
-
-    # copy subgroup templates into subgroups under patient's exercises
-    @source_group_copy.subgroups.each do |subgroup|
-      subgroup.items.each do |template|
         dest_exercise = Exercise.new_from_template(template)
         dest_exercise.patient_username = @patient.username
-        dest_exercise.group_hierarchy = create_group_hierarchy(subgroup.name)
+
+        # copy image files from template
+        GroupOperations.replace_all_supp_files(@exercise_library, template, dest_exercise)
+
+        @patient.add_exercise(dest_exercise, create_group_hierarchy)
+      end
+
+      # copy subgroup templates into subgroups under patient's exercises
+      @source_group_copy.subgroups.each do |subgroup|
+        subgroup.items.each do |template|
+          dest_exercise = Exercise.new_from_template(template)
+          dest_exercise.patient_username = @patient.username
+          dest_exercise.group_hierarchy = create_group_hierarchy(subgroup.name)
+          GroupOperations.replace_all_supp_files(@exercise_library, template, dest_exercise)
+          @patient.add_exercise(dest_exercise, dest_exercise.group_hierarchy)
+        end
+      end
+    elsif @source_level == 2 # apply source group as a subgroup under patient's main group
+      @source_group_copy.items.each do |template|
+        dest_exercise = Exercise.new_from_template(template)
+        dest_exercise.patient_username = @patient.username
+        dest_exercise.group_hierarchy = create_group_hierarchy(@source_group_copy.name)
         GroupOperations.replace_all_supp_files(@exercise_library, template, dest_exercise)
         @patient.add_exercise(dest_exercise, dest_exercise.group_hierarchy)
       end
+      # @patient.exercise_collection.add_subgroup(@source_group_copy)
     end
-  elsif @source_level == 2 # apply source group as a subgroup under patient's main group
-    @source_group_copy.items.each do |template|
-      dest_exercise = Exercise.new_from_template(template)
-      dest_exercise.patient_username = @patient.username
-      dest_exercise.group_hierarchy = create_group_hierarchy(@source_group_copy.name)
-      GroupOperations.replace_all_supp_files(@exercise_library, template, dest_exercise)
-      @patient.add_exercise(dest_exercise, dest_exercise.group_hierarchy)
-    end
-    # @patient.exercise_collection.add_subgroup(@source_group_copy)
+
+    logger.info "#{logged_in_user} applys template group #{@source_group_hierarchy} for pt #{params[:username]}"
+
+    log_date_if_therapist_doing_edit(@patient)
+    @patient.save
+
+    { toast_title: "Template Group Added",
+      type: 'success',
+      toast_msg: "Successfully added template group #{@source_group.name} for #{full_name_plus_username(@patient)}" }.to_json
   end
-
-  # session[:debug] = @patient.exercise_collection.items[0].name
-  # redirect "/test"
-
-  log_date_if_therapist_doing_edit(@patient)
-  @patient.save
-
-  { toast_title: "Template Added",
-    toast_msg: "Successfully added template group #{@source_group.name} for #{full_name_plus_username(@patient)}" }.to_json
 end
 
 post "/users/:username/exercises/add_group" do
@@ -1326,6 +1422,8 @@ post "/users/:username/exercises/add_group" do
 
   @patient.add_group(@new_group_name, Patient::TOP_HIERARCHY)
 
+  logger.info "#{logged_in_user} adds exercise group '#{@new_group_name}' for pt #{full_name_plus_username(@patient)}"
+
   log_date_if_therapist_doing_edit(@patient)
   @patient.save
   redirect "/users/#{@patient.username}/exercises"
@@ -1339,6 +1437,8 @@ post "/users/:username/exercises/group/:delete_group/delete" do
   @patient = User.get(params[:username])
 
   delete_group_name = params[:delete_group]
+
+  logger.info "#{logged_in_user} deletes exercise group '#{delete_group_name}' for pt #{full_name_plus_username(@patient)}"
 
   @patient.delete_group(delete_group_name, create_group_hierarchy)
 
@@ -1391,6 +1491,8 @@ post "/exercise_library/rename_group" do
     redirect "/exercise_library#{create_full_query_str({group: params[:group], pt: params[:pt] })}"
   end
 
+  logger.info "#{logged_in_user} renames template group from #{@current_group_hierarchy} to #{@new_group_hierarchy}"
+
   @exercise_library.rename_group(@group.name, @parent_hierarchy, @new_group_name)
 
   @exercise_library.save
@@ -1428,6 +1530,8 @@ post "/users/:username/exercises/group/:group_name/rename" do
 
   # @group.name = @new_group_name
 
+  logger.info "#{logged_in_user} renames group from #{params[:group_name]} to #{@new_group_name} for pt #{full_name_plus_username(@patient)}"
+
   @parent_hierarchy = create_group_hierarchy
   @patient.rename_group(@group.name, @parent_hierarchy, @new_group_name)
 
@@ -1457,6 +1561,9 @@ post "/users/:username/exercises/:exercise_name/move" do
 
   # @patient.add_exercise(@exercise, dest_group_hierarchy)
   # @patient.delete_exercise(@exercise.name, from_group_hierarchy)
+
+  logger.info "#{logged_in_user} moves exercise #{params[:exercise_name]} from #{from_group_hierarchy} to #{dest_group_hierarchy} for pt #{full_name_plus_username(@patient)}"
+
   @patient.move_exercise(params[:exercise_name], from_group_hierarchy, dest_group_hierarchy)
 
   log_date_if_therapist_doing_edit(@patient)
@@ -1480,6 +1587,8 @@ post "/exercise_library/delete_group" do
   @exercise_library = ExerciseLibrary.load('main')
   @delete_group_name = @delete_group_hierarchy.last
   @delete_group_parent_hierarchy = @delete_group_hierarchy[0..-2]
+
+  logger.info "#{logged_in_user} deletes template group #{@delete_group_hierarchy}"
 
   @exercise_library.delete_group(@delete_group_name, @delete_group_parent_hierarchy)
 
@@ -1536,6 +1645,8 @@ post "/exercise_library/create_group" do
      lvl_1_group_name_empty && !lvl_2_group_name_empty
     raise GroupOperations::GroupNameEmptyErr
   end
+
+  logger.info "#{logged_in_user} adds template group #{@group_lvl_1} - #{@group_lvl_2}"
 
   @exercise_library.save
 
@@ -1648,11 +1759,13 @@ post "/users/:username/exercises/groups/:group_name/move_down" do
 end
 
 get "/privacy_policy" do
+  logger.info "#{logged_in_user} views privacy policy"
   erb :privacy_policy
 end
 
 get "/terms" do
 
+  logger.info "#{logged_in_user} views terms of service"
   markdown :terms, layout: :layout
 end
 
