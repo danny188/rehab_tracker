@@ -1,3 +1,5 @@
+<div id="patient_username"><%= @patient.username %></div>
+
 <div class=" d-flex justify-content-between">
   <h1 class="ml-3"><%= session[:user].role == :patient ? address_user(@patient) : full_name_plus_username(@patient) %>'s Exercises (<%= @patient.num_of_exercises %>)
     <a href="/users/<%= @patient.username %>/exercises/list_view<%= '?end_date=' + params[:end_date] if params[:end_date] %>" class="btn btn-light ml-1 d-print-none">List View</a></h1>
@@ -26,6 +28,8 @@
       <label for="btn-save-changes" class="ml-1">You have unsaved changes.</label>
     </form>
   </span>
+
+  <button onclick="saveAllCheckboxes();">save all checkboxes</button>
 
     <!-- Modal to indicate saving changes -->
   <div class="modal fade" id="modal-saving-changes" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="modal-saving-changes" aria-hidden="true">
@@ -207,7 +211,8 @@
       <div class="tick-box col-1  <%= checkbox_display_class(index) %> %>">
         <form action="/users/<%= @patient.username %>/update_tracker<%= create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})  %>" method="post">
           <div class="custom-control custom-checkbox text-center">
-            <input type="checkbox" class="custom-control-input" id="chk_<%= grp_index.to_s %>_<%= ex_index.to_s + "_" + date.strftime("%Y%m%d") %>" name="checkbox_value" value="checkbox_value <%= check_value(date, exercise.record_of_days) %>" <%= "checked" if exercise.done_on?(date.strftime("%Y%m%d")) %>>
+            <input type="checkbox" class="custom-control-input" id="chk_<%= grp_index.to_s %>_<%= ex_index.to_s + "_" + date.strftime("%Y%m%d") %>" exercise_name = "<%= exercise.name %>" group="<%= group.name if group %>" date="<%= date.strftime("%Y%m%d") %>" name="checkbox_value" value="checkbox_value <%= check_value(date, exercise.record_of_days) %>" <%= "checked" if exercise.done_on?(date.strftime("%Y%m%d")) %>>
+
             <input type="hidden" name="exercise_name" value="<%= exercise.name %>">
             <input type="hidden" name="group" value="<%= group.name if group %>">
             <input type="hidden" name="date" value="<%= date.strftime("%Y%m%d") %>">

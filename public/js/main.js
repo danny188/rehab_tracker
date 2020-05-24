@@ -113,7 +113,10 @@ $(document).ready(function(){
            data: form.serialize(), // serializes the form's elements.
            success: function(data)
            {
+
+
               $('#form-save-tracker-changes').show();
+
               // $('.debug').html(data);
               // var json = JSON.parse(data);
               // $('.toast-header-text').html(json.toast_title);
@@ -237,4 +240,41 @@ $(function(){
 
 function goBack() {
   window.history.back();
+}
+
+function saveAllCheckboxes() {
+  var checkbox_ids = [];
+  var checkbox_exercise_names = [];
+  var checked = [];
+  var dates = [];
+  var groups = [];
+  var patient_username = $('#patient_username').text();
+
+  $('input:checkbox[name=checkbox_value]').each(function(index, item) {
+    // checkbox_ids.push(item.attr('id'));
+    checkbox_ids.push($(this).attr('id'));
+    checkbox_exercise_names.push($(this).attr('exercise_name'))
+    checked.push($(this).prop('checked'));
+    dates.push($(this).attr('date'));
+    groups.push($(this).attr('group'));
+  });
+
+  var checkbox_data = {
+    exercise_names: checkbox_exercise_names,
+    checked: checked,
+    dates: dates,
+    groups: groups,
+    patient_username: patient_username
+  }
+
+  $.ajax({
+    url: `/users/${patient_username}/exercises/save_all_checkboxes`,
+    type: "POST",
+    data: JSON.stringify(checkbox_data),
+    dataType: 'text',
+    contentType: 'application/json',
+    success: function(data) {
+      alert(data);
+    }
+  });
 }

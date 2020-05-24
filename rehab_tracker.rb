@@ -1027,6 +1027,39 @@ post "/users/:username/update_tracker" do
   "update date #{@check_date}, exercise: #{@exercise.name}"
 end
 
+post "/users/:username/exercises/save_all_checkboxes" do
+
+   checkbox_data = JSON.parse(request.body.read)
+
+
+
+  # session[:debug] = checkbox_data.inspect
+  # redirect "/test"
+
+  @patient = User.get(params[:username])
+
+  exercise_names = checkbox_data['exercise_names']
+  check_values = checkbox_data['checked']
+  dates = checkbox_data['dates']
+  groups = checkbox_data['groups']
+
+  exercise_list = exercise_names.zip(groups).uniq
+  exercises = exercise_list.map { |ex_name, group| @patient.get_exercise(ex_name, create_group_hierarchy(group))}
+
+  for i in 0...exercise_names.size do
+    cur_exercise = exercises.find { |exercise| exercise.name == exercise_names[i] }
+
+    if check_values[i]
+      cur_exercise.add_date(dates[i])
+    else
+      cur_exercise.delete_date(dates[i])
+    end
+  end
+
+  @patient.save
+  "saved"
+end
+
 # save tracker changes to s3
 post "/users/:username/save_tracker_changes" do
   @patient = session[:patient]
@@ -1868,7 +1901,7 @@ get "/test" do
    # settings.environment.to_s
 
    # ENV['RACK_ENV']
-   settings.environment.to_s
-   "ENV['RACK_ENV'] is #{ENV['RACK_ENV']}, sinatra settings.environment = #{settings.environment}"
+   # settings.environment.to_s
+   # "ENV['RACK_ENV'] is #{ENV['RACK_ENV']}, sinatra settings.environment = #{settings.environment}"
   # Amazon_AWS.delete_all_objs(bucket: :images, prefix: 'coffee')
 end
