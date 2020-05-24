@@ -1048,6 +1048,8 @@ post "/users/:username/exercises/save_all_checkboxes" do
     end
   end
 
+  logger.info "#{logged_in_user} saves all checkbox changes for patient #{params[:username]}"
+
   @patient.save
   "saved"
 end
