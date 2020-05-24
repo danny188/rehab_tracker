@@ -199,7 +199,7 @@ not_found do
 end
 
 get "/users/:username/exercises" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+  unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
 
@@ -229,7 +229,7 @@ end
 
 
 get "/users/:username/exercises/list_view" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+  unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
   @end_date_str = params[:end_date].strip if params[:end_date]
@@ -261,7 +261,7 @@ end
 
 # add exercise for patient from library
 get "/users/:username/exercises/add_from_library" do
-  unless verify_user_access(required_authorization: :therapist)
+  unless verify_user_access(min_authorization: :therapist)
     redirect "/access_error"
   end
 
@@ -277,7 +277,7 @@ end
 
 # add selected template as exercise for a patient
 post "/users/:username/exercises/add_from_library" do
-  unless verify_user_access(required_authorization: :therapist)
+  unless verify_user_access(min_authorization: :therapist)
     redirect "/access_error"
   end
 
@@ -334,7 +334,7 @@ end
 
 # display page for creating exercise template
 get "/exercise_library/add_exercise" do
-  unless verify_user_access(required_authorization: :therapist)
+  unless verify_user_access(min_authorization: :therapist)
     redirect "/access_error"
   end
 
@@ -361,7 +361,7 @@ end
 
 # add exercise template
 post "/exercise_library/add_exercise" do
-  unless verify_user_access(required_authorization: :therapist)
+  unless verify_user_access(min_authorization: :therapist)
     redirect "/access_error"
   end
 
@@ -414,7 +414,7 @@ end
 
 # display exercise template edit page
 get "/exercise_library/:exercise_name/edit" do
-  unless verify_user_access(required_authorization: :therapist)
+  unless verify_user_access(min_authorization: :therapist)
     redirect "/access_error"
   end
 
@@ -447,7 +447,7 @@ end
 
 # display templates and/or groups
 get "/exercise_library" do
-  unless verify_user_access(required_authorization: :therapist)
+  unless verify_user_access(min_authorization: :therapist)
     redirect "/access_error"
   end
 
@@ -474,7 +474,7 @@ end
 
 # edit exercise template
 post "/exercise_library/:exercise_name/edit" do
-  unless verify_user_access(required_authorization: :therapist)
+  unless verify_user_access(min_authorization: :therapist)
     redirect "/access_error"
   end
 
@@ -542,7 +542,7 @@ end
 
 # delete exercise template
 post "/exercise_library/:exercise_name/delete" do
-  unless verify_user_access(required_authorization: :therapist)
+  unless verify_user_access(min_authorization: :therapist)
     redirect "/access_error"
   end
 
@@ -578,7 +578,7 @@ end
 
 # adds a new exercise by name to patient's exercise list
 post "/users/:username/exercises/add" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+  unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
 
@@ -624,7 +624,7 @@ rescue GroupOperations::ItemNameEmptyErr
 end
 
 get "/users/:username/exercises/:exercise_name/edit" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+  unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
 
@@ -643,7 +643,7 @@ end
 
 # upload image/files for exercise template
 post "/exercise_library/:exercise_name/upload_file" do
-  unless verify_user_access(required_authorization: :therapist)
+  unless verify_user_access(min_authorization: :therapist)
     redirect "/access_error"
   end
 
@@ -682,7 +682,7 @@ end
 
 # upload image or other files associated with an exercise for a patient
 post "/users/:username/exercises/:exercise_name/upload_file" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+  unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
 
@@ -777,17 +777,17 @@ post "/users/:username/deactivate_account" do
 
   case @deactivate_user.role
   when :patient
-    unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+    unless verify_user_access(min_authorization: :patient, required_username: params[:username])
       redirect "/access_error"
     end
 
   when :therapist
-    unless verify_user_access(required_authorization: :admin)
+    unless verify_user_access(min_authorization: :admin)
       redirect "/access_error"
     end
 
   when :admin
-    unless verify_user_access(required_authorization: :admin)
+    unless verify_user_access(min_authorization: :admin)
       redirect "/access_error"
     end
 
@@ -811,7 +811,7 @@ end
 
 # Save exercise details
 post "/users/:username/exercises/:exercise_name/update" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+  unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
   @patient = User.get(params[:username])
@@ -885,7 +885,7 @@ end
 
 # delete exercise for patient
 post "/users/:username/exercises/:exercise_name/delete" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+  unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
 
@@ -904,7 +904,7 @@ end
 
 # Delete file associated with exercise
 post "/users/:username/exercises/:exercise_name/delete_file" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+  unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
 
@@ -935,7 +935,7 @@ end
 
 # Delete file associated with exercise template
 post "/exercise_library/:exercise_name/delete_file" do
-  unless verify_user_access(required_authorization: :therapist)
+  unless verify_user_access(min_authorization: :therapist)
     redirect "/access_error"
   end
 
@@ -961,7 +961,7 @@ post "/exercise_library/:exercise_name/delete_file" do
 end
 
 post "/users/:username/exercises/mark_all" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+  unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
 
@@ -985,7 +985,7 @@ end
 
 # update checkbox values for a particular exercise and day for a patient
 post "/users/:username/update_tracker" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+  unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
 
@@ -1092,13 +1092,13 @@ post "/new_account" do
   if @role == 'patient'
     @new_user = Patient.new(@username, @hashed_pw)
   elsif @role == 'therapist'
-    unless verify_user_access(required_authorization: :admin)
+    unless verify_user_access(min_authorization: :admin)
       redirect "/access_error"
     end
 
     @new_user = Therapist.new(@username, @hashed_pw)
   elsif @role == 'admin'
-    unless verify_user_access(required_authorization: :admin)
+    unless verify_user_access(min_authorization: :admin)
       redirect "/access_error"
     end
 
@@ -1129,7 +1129,7 @@ end
 
 
 post "/users/:username/profile/update" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+  unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
 
@@ -1266,7 +1266,7 @@ post "/login" do
 end
 
 get "/users/:username/admin_dashboard" do
-  unless verify_user_access(required_authorization: :admin)
+  unless verify_user_access(min_authorization: :admin)
     redirect "/access_error"
   end
   @user = User.get(params[:username])
@@ -1305,20 +1305,26 @@ def save_exercises(patient)
   end
 end
 
-def verify_user_access(required_authorization: :public, required_username: nil, allow_peer_access: true)
-  return false unless session[:user] || required_authorization == :public
+def verify_user_access(min_authorization: :public, required_username: nil)
+  return false unless session[:user] || min_authorization == :public
 
   session_role = session[:user].role if session[:user]
   current_role = session_role || :public
 
-  access_level_diff = ROLES.index(current_role) - ROLES.index(required_authorization)
-  role_ok = access_level_diff >= 0
+  access_level_diff_to_min = ROLES.index(current_role) - ROLES.index(min_authorization)
+
+  role_ok = access_level_diff_to_min >= 0
   username_ok = if required_username
-                  (session[:user].username == required_username) || (access_level_diff > 0 && allow_peer_access)
-                 # if required_username is provided, access is only granted
-                 #    if username matches, OR logged-in user has higher access level than required and
-                 #    allow_peer_access (e.g. therapist can access another therapist's resources)
-                 #    Currently the only admin- or therapist-specific resource is the profile page
+                  (session[:user].username == required_username) ||
+                    (access_level_diff_to_min > 0 || current_role == :admin)
+                 #  if required_username is provided, access is only granted if
+                 #  username matches, OR logged-in user has higher access level (i.e. disallow peer access)
+                 #  than required.
+                 #
+                 #  Admin can view another admin's resources in a limited capacity:
+                 #    - admins can view another admin's personal details, but not modify
+                 #    - admins can deactivate or change role of another admin
+                 #  Currently the only admin- or therapist-specific resource is the profile page
                 else
                   true
                 end
@@ -1331,7 +1337,7 @@ get "/access_error" do
 end
 
 get "/therapist_dashboard" do
-  unless verify_user_access(required_authorization: :therapist)
+  unless verify_user_access(min_authorization: :therapist)
     redirect "/access_error"
   end
   @user = session[:user]
@@ -1343,18 +1349,18 @@ get "/therapist_dashboard" do
 end
 
 get "/users/:username/profile" do
-  # disallow a therapist to view profile of other therapists or admins
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username], allow_peer_access: false)
+  @user = User.get(params[:username])
+
+  # disallow a therapist to view profile of other therapists or admins, but allow admins to view profile of other admins
+  unless verify_user_access(min_authorization: @user.role, required_username: params[:username])
     redirect "/access_error"
   end
-
-  @user = User.get(params[:username])
 
   erb :profile
 end
 
 get "/users/:username/stats" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+  unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
 
@@ -1395,7 +1401,7 @@ be applied to top level group of patient.
 if source group is level 2 group (i.e. subgroup), the whole source group
 will be applied as a subgroup for the patient.
 =end
-  unless verify_user_access(required_authorization: :therapist)
+  unless verify_user_access(min_authorization: :therapist)
     redirect "/access_error"
   end
 
@@ -1467,7 +1473,7 @@ will be applied as a subgroup for the patient.
 end
 
 post "/users/:username/exercises/add_group" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+  unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
 
@@ -1500,7 +1506,7 @@ post "/users/:username/exercises/add_group" do
 end
 
 post "/users/:username/exercises/group/:delete_group/delete" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+  unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
 
@@ -1519,7 +1525,7 @@ post "/users/:username/exercises/group/:delete_group/delete" do
 end
 
 get "/exercise_library/rename_group" do
-  unless verify_user_access(required_authorization: :therapist)
+  unless verify_user_access(min_authorization: :therapist)
     redirect "/access_error"
   end
 
@@ -1530,7 +1536,7 @@ get "/exercise_library/rename_group" do
 end
 
 post "/exercise_library/rename_group" do
-  unless verify_user_access(required_authorization: :therapist)
+  unless verify_user_access(min_authorization: :therapist)
     redirect "/access_error"
   end
 
@@ -1571,7 +1577,7 @@ post "/exercise_library/rename_group" do
 end
 
 post "/users/:username/exercises/group/:group_name/rename" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+  unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
 
@@ -1612,7 +1618,7 @@ post "/users/:username/exercises/group/:group_name/rename" do
 end
 
 post "/users/:username/exercises/:exercise_name/move" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+  unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
 
@@ -1647,7 +1653,7 @@ rescue GroupOperations::ItemNameInGroupNotUniqueErr
 end
 
 post "/exercise_library/delete_group" do
-  unless verify_user_access(required_authorization: :therapist)
+  unless verify_user_access(min_authorization: :therapist)
     redirect "/access_error"
   end
 
@@ -1668,7 +1674,7 @@ post "/exercise_library/delete_group" do
 end
 
 post "/exercise_library/create_group" do
-  unless verify_user_access(required_authorization: :therapist)
+  unless verify_user_access(min_authorization: :therapist)
     redirect "/access_error"
   end
 
@@ -1728,7 +1734,7 @@ post "/exercise_library/create_group" do
 end
 
 post "/users/:username/exercises/:exercise_name/move_up" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+  unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
 
@@ -1746,7 +1752,7 @@ post "/users/:username/exercises/:exercise_name/move_up" do
 end
 
 post "/users/:username/exercises/groups/:group_name/move_all_exercises_out" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+  unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
 
@@ -1774,7 +1780,7 @@ post "/users/:username/exercises/groups/:group_name/move_all_exercises_out" do
 end
 
 post "/users/:username/exercises/:exercise_name/move_down" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+  unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
 
@@ -1793,7 +1799,7 @@ post "/users/:username/exercises/:exercise_name/move_down" do
 end
 
 post "/users/:username/exercises/groups/:group_name/move_up" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+  unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
 
@@ -1811,7 +1817,7 @@ post "/users/:username/exercises/groups/:group_name/move_up" do
 end
 
 post "/users/:username/exercises/groups/:group_name/move_down" do
-  unless verify_user_access(required_authorization: :patient, required_username: params[:username])
+  unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
 
