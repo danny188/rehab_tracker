@@ -202,6 +202,10 @@ get "/users/:username/exercises" do
   unless verify_user_access(required_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
+
+  # discard unsaved changes
+  session.delete(:patient)
+
   @end_date_str = params[:end_date].strip if params[:end_date]
   @nav = params[:nav]
   @day_step = params[:day_step].to_s.to_i
@@ -973,9 +977,10 @@ post "/users/:username/exercises/mark_all" do
 
   logger.info "#{logged_in_user} marks all exercises done for day #{@mark_date} for pt #{params[:username]}"
 
-  @patient.save
+  # @patient.save
+  session[:patient] = @patient
 
-  redirect "/users/#{@patient.username}/exercises#{create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})}"
+  # redirect "/users/#{@patient.username}/exercises#{create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})}"
 end
 
 # update checkbox values for a particular exercise and day for a patient
@@ -984,7 +989,7 @@ post "/users/:username/update_tracker" do
     redirect "/access_error"
   end
 
-  @patient = User.get(params[:username])
+  @patient = session[:patient] || User.get(params[:username])
   @check_date = params[:date]
   @ticked = params[:checkbox_value]
   @group_name = params[:group]
@@ -1004,7 +1009,9 @@ post "/users/:username/update_tracker" do
     logger.info "#{logged_in_user} un-ticks exercise #{@exercise.name} from group #{@current_group_hierarchy} for day #{@check_date}"
   end
 
-  @patient.save
+  # @patient.save
+  # save user to session, postpone save/upload to s3 until manual save by user
+  session[:patient] = @patient
 
   # result = "updating #{@exercise_name} for #{params[:username]}. Date is #{@check_date}. Tick value is #{!!@ticked}"
 
@@ -1016,7 +1023,16 @@ post "/users/:username/update_tracker" do
   #   "not checked, exercise_id=#{params[:exercise_id]}"
   # end
 
-  redirect "/users/#{@patient.username}/exercises#{create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})}"
+  # redirect "/users/#{@patient.username}/exercises#{create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})}"
+  "update date #{@check_date}, exercise: #{@exercise.name}"
+end
+
+# save tracker changes to s3
+post "/users/:username/save_tracker_changes" do
+  @patient = session[:patient]
+  @patient.save if @patient
+
+  redirect "/users/#{@patient.username if @patient}/exercises#{create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})}"
 end
 
 # post "/upload" do

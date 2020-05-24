@@ -7,16 +7,16 @@ var weatherPopoverVisible = false;
 
 
 // checkbox - on change
-$('.custom-control-input').change(function() {
- // alert($(this).prop('checked'));
-  // alert($(this).is('checked'));
+// $('.custom-control-input').change(function() {
+//  // alert($(this).prop('checked'));
+//   // alert($(this).is('checked'));
 
-  $("#save-change-spinner").show();
-  $("#save-change-spinner-label").show();
+//   $("#save-change-spinner").show();
+//   $("#save-change-spinner-label").show();
 
 
-  this.form.submit();
-})
+//   this.form.submit();
+// })
 
 // check file sizes
 $('#chosen_file').change(function() {
@@ -98,8 +98,49 @@ function loadDoc() {
 
 
 
+
 $(document).ready(function(){
 
+  // for tracker page
+  $(".custom-control-input").change(function(e) {
+
+     var form = $(this.form);
+     var url = form.attr('action');
+
+     $.ajax({
+       type: "POST",
+       url: url,
+           data: form.serialize(), // serializes the form's elements.
+           success: function(data)
+           {
+              $('#save-changes').show();
+              // $('.debug').html(data);
+              // var json = JSON.parse(data);
+              // $('.toast-header-text').html(json.toast_title);
+              // $('.toast-body').html(json.toast_msg);
+              //  $('.toast').toast('show');
+
+              // if (json.type == 'success') {
+              //   $('#toast-header-text').addClass('text-success');
+              //   $('#toast-header-text').removeClass('text-danger');
+              // } else {
+              //   $('#toast-header-text').removeClass('text-success');
+              //   $('#toast-header-text').addClass('text-danger');
+              // }
+
+            }
+           });
+
+  });
+
+
+  $("#form-save-tracker-changes").on('submit', function(e) {
+    // $("#save-change-spinner").show();
+    // $("#save-change-spinner-label").show();
+    $('#modal-saving-changes').modal('show');
+  });
+
+  // for exercise library page
   $(".template-form").on('submit', function(e) {
      e.preventDefault(); // avoid to execute the actual submit of the form.
 
@@ -147,6 +188,10 @@ $(document).ready(function(){
 
   $("#save-change-spinner").hide();
   $("#save-change-spinner-label").hide();
+  $('#modal-saving-changes').modal('hide');
+
+  // hide save changes button
+  $('#save-changes').hide();
 
   // document.getElementById("save-change-spinner").style.display = "none";
   // document.getElementById("save-change-spinner-label").style.display = "none";
