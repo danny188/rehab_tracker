@@ -286,6 +286,7 @@ function saveAllCheckboxes() {
     success: function(data) {
       $('#modal-saving-changes').modal('hide');
       $('#save-tracker-changes').hide();
+      sessionStorage.setItem('unsaved_changes', 'false');
     }
   });
 }
