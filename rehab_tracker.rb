@@ -1148,7 +1148,12 @@ post "/new_account" do
   @new_user.save
 
   session[:success] = "Account #{@username} has been created"
-  redirect_to_home_page(session[:user])
+
+  if session[:user]
+    redirect_to_home_page(session[:user])
+  else
+    redirect "/login"
+  end
 end
 
 
