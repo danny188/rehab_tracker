@@ -248,7 +248,7 @@ function check_uncheck_all(date) {
     //   item.removeAttribute('checked');
     // }
 
-    event.target.checked ? item.setAttribute('checked', event.target.checked) : item.removeAttribute('checked');
+    item.checked = event.target.checked;
 
   })
 }
