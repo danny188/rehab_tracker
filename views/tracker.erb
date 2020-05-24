@@ -212,16 +212,16 @@
       <!-- Checkboxes for each day for each exercise -->
       <% @dates.each_with_index do |date, index| %>
       <div class="tick-box col-1  <%= checkbox_display_class(index) %> %>">
-        <form action="/users/<%= @patient.username %>/update_tracker<%= create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})  %>" method="post">
-          <div class="custom-control custom-checkbox text-center">
-            <input type="checkbox" class="custom-control-input" id="chk_<%= grp_index.to_s %>_<%= ex_index.to_s + "_" + date.strftime("%Y%m%d") %>" exercise_name = "<%= exercise.name %>" group="<%= group.name if group %>" date="<%= date.strftime("%Y%m%d") %>" name="checkbox_value" value="checkbox_value <%= check_value(date, exercise.record_of_days) %>" <%= "checked" if exercise.done_on?(date.strftime("%Y%m%d")) %>>
+        <!-- <form action="/users/<%= @patient.username %>/update_tracker<%= create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})  %>" method="post"> -->
+        <div class="custom-control custom-checkbox text-center">
+          <input type="checkbox" class="custom-control-input" id="chk_<%= grp_index.to_s %>_<%= ex_index.to_s + "_" + date.strftime("%Y%m%d") %>" exercise_name = "<%= exercise.name %>" group="<%= group.name if group %>" date="<%= date.strftime("%Y%m%d") %>" name="checkbox_value" value="checkbox_value <%= check_value(date, exercise.record_of_days) %>" <%= "checked" if exercise.done_on?(date.strftime("%Y%m%d")) %>>
 
-            <input type="hidden" name="exercise_name" value="<%= exercise.name %>">
-            <input type="hidden" name="group" value="<%= group.name if group %>">
-            <input type="hidden" name="date" value="<%= date.strftime("%Y%m%d") %>">
-            <label class="pr-3 custom-control-label custom-checkbox " for="chk_<%= grp_index.to_s %>_<%= ex_index.to_s + "_" + date.strftime("%Y%m%d") %>"></label>
-          </div>
-        </form>
+          <input type="hidden" name="exercise_name" value="<%= exercise.name %>">
+          <input type="hidden" name="group" value="<%= group.name if group %>">
+          <input type="hidden" name="date" value="<%= date.strftime("%Y%m%d") %>">
+          <label class="pr-3 custom-control-label custom-checkbox " for="chk_<%= grp_index.to_s %>_<%= ex_index.to_s + "_" + date.strftime("%Y%m%d") %>"></label>
+        </div>
+        <!-- </form> -->
       </div>
       <% end %>
 

@@ -984,6 +984,7 @@ post "/users/:username/exercises/mark_all" do
 end
 
 # update checkbox values for a particular exercise and day for a patient
+# ***deprecated*** replaced by save_all_checkboxes ajax js
 post "/users/:username/update_tracker" do
   unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
@@ -1052,6 +1053,7 @@ post "/users/:username/exercises/save_all_checkboxes" do
 end
 
 # save tracker changes to s3
+# ***deprecated*** replaced by save_all_checkboxes ajax js
 post "/users/:username/save_tracker_changes" do
   @patient = session[:patient]
   @patient.save if @patient
