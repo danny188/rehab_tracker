@@ -89,20 +89,13 @@ function loadDoc() {
  xhttp.send();
 }
 
-// function reloadDates(endDate_str) {
-
-//   var xhttp = new XMLHttpRequest();
-
-
-// }
-
-
 
 
 $(document).ready(function(){
 
   // on checkbox change on tracker page
   $(".custom-control-input").change(function(e) {
+    sessionStorage.setItem("unsaved_changes", 'true');
     $('#save-tracker-changes').show();
      // var form = $(this.form);
      // var url = form.attr('action');
@@ -192,6 +185,7 @@ $(document).ready(function(){
   // $("#save-change-spinner").hide();
   // $("#save-change-spinner-label").hide();
   $('#modal-saving-changes').modal('hide');
+  sessionStorage.setItem('unsaved_changes', 'false');
 
   // hide save changes button
   $('#save-tracker-changes').hide();
@@ -294,4 +288,11 @@ function saveAllCheckboxes() {
       $('#save-tracker-changes').hide();
     }
   });
+}
+
+function saveIfChanges() {
+  if (sessionStorage.getItem('unsaved_changes') == 'true') {
+    saveAllCheckboxes();
+  }
+  // alert(sessionStorage.getItem('unsaved_changes'));
 }

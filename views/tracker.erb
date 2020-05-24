@@ -57,8 +57,8 @@
     <h3 class="d-inline date-controller">Dates</h3>
     <!-- <a href="/users/<%= @patient.username %>/exercises?end_date=<%= (@end_date-7).strftime("%Y%m%d") %>" class="btn btn-info date-nav-button mb-1" data-toggle="tooltip" title="View earlier days"><i class="fas fa-arrow-left"></i></a>
     <a href="/users/<%= @patient.username %>/exercises?end_date=<%= (@end_date+7).strftime("%Y%m%d") %>" class="btn btn-info date-nav-button mb-1" data-toggle="tooltip" title="View later days"><i class="fas fa-arrow-right"></i></a> -->
-    <button form="date_nav_form" name="nav" value="back" type="submit" formaction="/users/<%= @patient.username %>/exercises" class="btn btn-info date-nav-button mb-1" data-toggle="tooltip" title="View earlier days"><i class="fas fa-arrow-left"></i></button>
-    <button form="date_nav_form" name="nav" value="fwd" type="submit" method="get" formaction="/users/<%= @patient.username %>/exercises" class="btn btn-info date-nav-button mb-1" data-toggle="tooltip" title="View later days"><i class="fas fa-arrow-right"></i></button>
+    <button onclick="saveIfChanges()" form="date_nav_form" name="nav" value="back" type="submit" formaction="/users/<%= @patient.username %>/exercises" class="btn btn-info date-nav-button mb-1" data-toggle="tooltip" title="View earlier days"><i class="fas fa-arrow-left"></i></button>
+    <button onclick="saveIfChanges()" form="date_nav_form" name="nav" value="fwd" type="submit" method="get" formaction="/users/<%= @patient.username %>/exercises" class="btn btn-info date-nav-button mb-1" data-toggle="tooltip" title="View later days"><i class="fas fa-arrow-right"></i></button>
 
     <form method="get" id="date_nav_form">
 
