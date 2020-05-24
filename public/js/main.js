@@ -101,7 +101,7 @@ function loadDoc() {
 
 $(document).ready(function(){
 
-  // for tracker page
+  // on checkbox change on tracker page, submit ajax form and save changes to session
   $(".custom-control-input").change(function(e) {
 
      var form = $(this.form);
@@ -113,7 +113,7 @@ $(document).ready(function(){
            data: form.serialize(), // serializes the form's elements.
            success: function(data)
            {
-              $('#save-changes').show();
+              $('#form-save-tracker-changes').show();
               // $('.debug').html(data);
               // var json = JSON.parse(data);
               // $('.toast-header-text').html(json.toast_title);
@@ -133,7 +133,7 @@ $(document).ready(function(){
 
   });
 
-
+  // indicate saving changes of tracker checkboxes
   $("#form-save-tracker-changes").on('submit', function(e) {
     // $("#save-change-spinner").show();
     // $("#save-change-spinner-label").show();
@@ -186,12 +186,12 @@ $(document).ready(function(){
   //       clickedItem.addClass( "active" );
   //   });
 
-  $("#save-change-spinner").hide();
-  $("#save-change-spinner-label").hide();
+  // $("#save-change-spinner").hide();
+  // $("#save-change-spinner-label").hide();
   $('#modal-saving-changes').modal('hide');
 
   // hide save changes button
-  $('#save-changes').hide();
+  $('#form-save-tracker-changes').hide();
 
   // document.getElementById("save-change-spinner").style.display = "none";
   // document.getElementById("save-change-spinner-label").style.display = "none";

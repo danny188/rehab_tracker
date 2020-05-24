@@ -16,11 +16,36 @@
       <span><%= session.delete(:success) %></span>
     </div>
     <% end %>
-    <span class="spinner-border text-info" id="save-change-spinner" role="status">
+    <!-- <span class="spinner-border text-info" id="save-change-spinner" role="status">
       <span class="sr-only">Saving changes, please wait...</span>
     </span>
-    <span class="text-info ml-2 pt-1" id="save-change-spinner-label">Saving changes, please wait...</span>
+    <span class="text-info ml-2 pt-1" id="save-change-spinner-label">Saving changes, please wait...</span> -->
+
+    <form id="form-save-tracker-changes" method="post" action="/users/<%= @patient.username %>/save_tracker_changes<%= create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})  %>">
+      <button id="btn-save-changes" type="submit" class="btn btn-warning">Save Changes</button>
+      <label for="btn-save-changes" class="ml-1">You have unsaved changes.</label>
+    </form>
   </span>
+
+    <!-- Modal to indicate saving changes -->
+  <div class="modal fade" id="modal-saving-changes" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="modal-saving-changes" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Saving Changes</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <span class="spinner-border text-info" id="save-change-spinner2" role="status">
+            <span class="sr-only">Saving changes, please wait...</span>
+          </span>
+          <span class="text-info ml-2 pt-1" id="save-change-spinner-label2">Saving changes, please wait...</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <span class="mr-4 d-print-none">
     <h3 class="d-inline date-controller">Dates</h3>
@@ -107,33 +132,14 @@
 
     <% end %>
 
-    <% content_for :exercise_chkboxes do |exercise, indent, ex_index, group, grp_index|%>
-      <!-- Checkboxes for each day for each exercise -->
-      <div class="row exercise-row">
-        <% @dates.each_with_index do |date, index| %>
-        <div class="mb-3 tick-box col-1  <%= checkbox_display_class(index) %> %>">
-          <form action="/users/<%= @patient.username %>/update_tracker<%= create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})  %>" method="post">
-            <div class="custom-control custom-checkbox text-center">
-              <input type="checkbox" class="custom-control-input" id="chk_<%= grp_index.to_s %>_<%= ex_index.to_s + "_" + date.strftime("%Y%m%d") %>" name="checkbox_value" value="checkbox_value <%= check_value(date, exercise.record_of_days) %>" <%= "checked" if exercise.done_on?(date.strftime("%Y%m%d")) %>>
-              <input type="hidden" name="exercise_name" value="<%= exercise.name %>">
-              <input type="hidden" name="group" value="<%= group.name if group %>">
-              <input type="hidden" name="date" value="<%= date.strftime("%Y%m%d") %>">
-              <label class="pr-3 custom-control-label custom-checkbox " for="chk_<%= grp_index.to_s %>_<%= ex_index.to_s + "_" + date.strftime("%Y%m%d") %>"></label>
-            </div>
-          </form>
-        </div>
-        <% end %>
-      </div>
-    <% end %>
 
-
-    <% content_for :exercise_list do |exercise, indent, ex_index, group, grp_index|%>
+    <% content_for :exercise_row do |exercise, indent, ex_index, group, grp_index|%>
     <div class="row exercise-row">
-      <div class="mb-2 col-lg-11 col-12 col-md-12 col-xl-6 ml-<%= indent ? indent * 4 : 0 %> mr-n<%= indent ? indent * 4 : 0 %>">
+      <div class="mb-2 col-lg-4 col-6 col-md-5 col-xl-3 ml-<%= indent ? indent * 4 : 0 %> mr-n<%= indent ? indent * 4 : 0 %>">
         <a href="/users/<%= @patient.username %>/exercises/<%= exercise.name %>/edit?group=<%= group.name if group %>" class="exercise" data-toggle="tooltip" title="<%= exercise.instructions %>"><%== exercise.name %></a>
       </div>
-      <div class="d-block d-sm-none col-4"></div>
-      <div class="col-lg-3 col-4 d-none d-xl-block d-print-block">
+      <div class="d-block d-sm-none col-3"></div>
+      <div class="col-lg-1 col-3 d-none d-xl-block d-print-block">
         <% if exercise.reps || exercise.sets %>
         <span class="badge badge-secondary reps-sets my-2"><%= reps_and_sets_str(exercise) %></span>
         <% end %>
@@ -195,6 +201,21 @@
               </div>
             </div>
           </div>
+
+      <!-- Checkboxes for each day for each exercise -->
+      <% @dates.each_with_index do |date, index| %>
+      <div class="tick-box col-1  <%= checkbox_display_class(index) %> %>">
+        <form action="/users/<%= @patient.username %>/update_tracker<%= create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})  %>" method="post">
+          <div class="custom-control custom-checkbox text-center">
+            <input type="checkbox" class="custom-control-input" id="chk_<%= grp_index.to_s %>_<%= ex_index.to_s + "_" + date.strftime("%Y%m%d") %>" name="checkbox_value" value="checkbox_value <%= check_value(date, exercise.record_of_days) %>" <%= "checked" if exercise.done_on?(date.strftime("%Y%m%d")) %>>
+            <input type="hidden" name="exercise_name" value="<%= exercise.name %>">
+            <input type="hidden" name="group" value="<%= group.name if group %>">
+            <input type="hidden" name="date" value="<%= date.strftime("%Y%m%d") %>">
+            <label class="pr-3 custom-control-label custom-checkbox " for="chk_<%= grp_index.to_s %>_<%= ex_index.to_s + "_" + date.strftime("%Y%m%d") %>"></label>
+          </div>
+        </form>
+      </div>
+      <% end %>
 
     </div>
     <% end %>
@@ -266,122 +287,18 @@
 
     <!-- display exercises in group -->
     <% group.items.each_with_index do |exercise, ex_index| %>
-      <%= yield_content :exercise_list, exercise, 1, ex_index, group, grp_index %>
+      <%= yield_content :exercise_row, exercise, 1, ex_index, group, grp_index %>
     <% end %>
     <% end %>
 
     <!-- display top level exercises -->
     <% @patient.get_group(Patient::TOP_HIERARCHY).items.each_with_index do |exercise, ex_index| %>
-    <%= yield_content :exercise_list, exercise, 0, ex_index, nil, -1 %>
+    <%= yield_content :exercise_row, exercise, 0, ex_index, nil, -1 %>
     <% end %>
 
     <br>
     <br>
     <br>
-
-    <!-- attempt integrate checkboxes to 1 form -->
-    <div class="row">
-      <!-- print exercises -->
-      <div class="col-lg-5">
-        <!-- display exercise groups -->
-        <% @patient.get_groups(Patient::TOP_HIERARCHY).each_with_index do |group, grp_index| %>
-
-        <!-- Rename group Modal -->
-        <div class="modal fade" id="modal_rename_group_<%= grp_index %>" tabindex="-1" role="dialog" aria-labelledby="modal_rename_group" aria-hidden="true">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Rename Group</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <form class="form-inline" method="post" action="/users/<%= @patient.username %>/exercises/group/<%= group.name %>/rename">
-                  <div class="form-group">
-                    <label for="new_group_name" class="sr-only">New Group Name</label>
-                    <input type="text" id="new_group_name" name="new_group_name" placeholder="New Group Name">
-                  </div>
-                  <button type="submit" class="mx-2 btn btn-primary">Rename</button>
-                  <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" aria-label="Close">Cancel</button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-
-
-
-        <div class="row exercise-row">
-          <div class="col">
-            <!-- <span class="exercise">
-              <u><%= group.name %></u>
-            </span> -->
-
-            <a class="btn btn-info dropdown-toggle" href="#" role="button" id="group_button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Group: <%== group.name %> (<%= group.items.size %>)
-            </a>
-
-            <div class="dropdown-menu" aria-labelledby="group_button">
-
-              <a type="button" class="dropdown-item text-primary" data-toggle="modal" data-target="#modal_rename_group_<%= grp_index %>">
-                Rename Group
-              </a>
-              <form method="post" action="/users/<%= @patient.username %>/exercises/groups/<%= group.name %>/move_down">
-                <button type="submit" class="dropdown-item"><i class="fas fa-arrow-down"></i> Move group down</button>
-              </form>
-              <form method="post" action="/users/<%= @patient.username %>/exercises/groups/<%= group.name %>/move_up">
-                <button type="submit" class="dropdown-item"><i class="fas fa-arrow-up"></i> Move group up</button>
-              </form>
-              <form action="/users/<%= @patient.username %>/exercises/groups/<%= group.name %>/move_all_exercises_out" method="post">
-                <button type="submit"  class="dropdown-item text-warning" data-toggle="tooltip" title="">Move all exercises out of group</button>
-              </form>
-              <hr>
-              <form action="/users/<%= @patient.username %>/exercises/group/<%= group.name %>/delete" method="post" onsubmit="return confirm('Are you sure you want to delete this group and its exercises? This cannot be reversed. Click OK to proceed.');">
-                <button type="submit"  class="dropdown-item text-danger" data-toggle="tooltip" title="Delete exercise and associated data.">Delete</button>
-              </form>
-            </div>
-          </div>
-
-          <div class="col-lg-1">
-
-          </div>
-        </div>
-
-        <!-- display exercises in group -->
-        <% group.items.each_with_index do |exercise, ex_index| %>
-          <%= yield_content :exercise_list, exercise, 1, ex_index, group, grp_index %>
-        <% end %>
-        <% end %>
-
-        <!-- display top level exercises -->
-        <% @patient.get_group(Patient::TOP_HIERARCHY).items.each_with_index do |exercise, ex_index| %>
-        <%= yield_content :exercise_list, exercise, 0, ex_index, nil, -1 %>
-        <% end %>
-      </div>
-
-      <!-- print checkboxes -->
-      <div class="col-lg-7">
-        <!-- display empty line for exercise groups -->
-        <% @patient.get_groups(Patient::TOP_HIERARCHY).each_with_index do |group, grp_index| %>
-
-          <div class="row exercise-row pt-2 pb-4">
-
-          </div>
-
-          <!-- display exercises in group -->
-          <% group.items.each_with_index do |exercise, ex_index| %>
-            <%= yield_content :exercise_chkboxes, exercise, 1, ex_index, group, grp_index %>
-          <% end %>
-        <% end %>
-
-        <!-- display top level exercises -->
-        <% @patient.get_group(Patient::TOP_HIERARCHY).items.each_with_index do |exercise, ex_index| %>
-          <%= yield_content :exercise_chkboxes, exercise, 0, ex_index, nil, -1 %>
-        <% end %>
-
-      </div>
-    </div>
 
     <!-- Form to add new exercises -->
     <form class="col-lg-12 d-print-none" id="form_add_exercise" action="/users/<%=@patient.username%>/exercises/add" method="post">
@@ -390,7 +307,7 @@
 
           <div class="input-group">
             <label class = "sr-only" for="formGroupExampleInput">Name of new exercise</label>
-            <input type="text"  class="form-control col-lg-8" name="new_exercise_name" placeholder="Name of new exercise">
+            <input type="text" pattern="([\sA-Za-z0-9])+" title="Please enter only letters" class="form-control col-lg-8" name="new_exercise_name" placeholder="Name of new exercise">
             <div class="col-1"></div><!--  spacer-column -->
             <button type="submit" class="col-lg-3 input-group-btn btn btn-outline-primary">Add Exercise</button>
           </div>
@@ -411,7 +328,7 @@
           <div class="input-group">
             <label for="group" class="col-lg-3 pl-0">For group: </label>
 
-            <input name="group" list="group" class="form-control col-lg-5" value="<%= @new_group_name || '' %>" placeholder="Group Name">
+            <input name="group" pattern="([\sA-Za-z0-9])+" title="Please enter only letters" list="group" class="form-control col-lg-5" value="<%= @new_group_name || '' %>" placeholder="Group Name">
             <datalist id="group">
               <% @patient.get_groups(GroupOperations::TOP_HIERARCHY).each do |group| %>
               <option value="<%= group.name %>"></option>
