@@ -309,7 +309,7 @@
     <br>
 
     <!-- Form to add new exercises -->
-    <form class="col-lg-12 d-print-none" id="form_add_exercise" action="/users/<%=@patient.username%>/exercises/add" method="post">
+    <form class="col-lg-12 d-print-none" id="form_add_exercise" action="/users/<%=@patient.username%>/exercises/add<%= create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})  %>" method="post">
       <div class="form-row mb-1">
         <div class="form-group col-lg-5">
 
