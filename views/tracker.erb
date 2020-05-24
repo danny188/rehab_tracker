@@ -1,4 +1,4 @@
-<div id="patient_username"><%= @patient.username %></div>
+<div id="patient_username" class="d-none"><%= @patient.username %></div>
 
 <div class=" d-flex justify-content-between">
   <h1 class="ml-3"><%= session[:user].role == :patient ? address_user(@patient) : full_name_plus_username(@patient) %>'s Exercises (<%= @patient.num_of_exercises %>)
@@ -23,13 +23,15 @@
     </span>
     <span class="text-info ml-2 pt-1" id="save-change-spinner-label">Saving changes, please wait...</span> -->
 
-    <form id="form-save-tracker-changes" method="post" action="/users/<%= @patient.username %>/save_tracker_changes<%= create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})  %>">
-      <button id="btn-save-changes" type="submit" class="btn btn-warning">Save Changes</button>
+    <!-- <form id="form-save-tracker-changes" method="post" action="/users/<%= @patient.username %>/save_tracker_changes<%= create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})  %>"> -->
+    <div id="save-tracker-changes">
+      <button id="btn-save-changes" onclick="saveAllCheckboxes()" class="btn btn-warning">Save Changes</button>
       <label for="btn-save-changes" class="ml-1">You have unsaved changes.</label>
-    </form>
+    </div>
+    <!-- </form> -->
   </span>
 
-  <button onclick="saveAllCheckboxes();">save all checkboxes</button>
+  <!-- <button onclick="saveAllCheckboxes();">save all checkboxes</button> -->
 
     <!-- Modal to indicate saving changes -->
   <div class="modal fade" id="modal-saving-changes" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="modal-saving-changes" aria-hidden="true">
@@ -115,15 +117,16 @@
         <% @dates.each_with_index do |date, index| %>
 
         <div class="tick-box col-1 text-center mb-3  <%= checkbox_display_class(index) %>">
-         <form method="post" action="/users/<%= @patient.username %>/exercises/mark_all<%= create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})  %>">
+         <!-- <form method="post" action="/users/<%= @patient.username %>/exercises/mark_all<%= create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})  %>"> -->
+
           <!-- <button type="button" class="border-0 px-4 btn btn-outline-secondary square"></button> -->
 
           <div class="custom-control custom-checkbox">
-            <input type="checkbox" class="border-primary custom-checkbox custom-control-input" id="<%="select_all_none_" + date.strftime("%Y%m%d") %>" name="select_all_none" value="select_all_none" <%= "checked" if @patient.done_all_exercises?(date.strftime("%Y%m%d")) %>>
+            <input onclick="check_uncheck_all(<%= date.strftime("%Y%m%d") %>)" type="checkbox" class="border-primary custom-checkbox custom-control-input" id="<%="select_all_none_" + date.strftime("%Y%m%d") %>" name="select_all_none" value="select_all_none" date="<%= date.strftime("%Y%m%d") %>" <%= "checked" if @patient.done_all_exercises?(date.strftime("%Y%m%d")) %>>
             <label class="pr-3 custom-checkbox custom-control-label border-primar" for="<%="select_all_none_" + date.strftime("%Y%m%d") %>" data-toggle="tooltip" title="Check all/none"></label>
             <input type="hidden" name="date" value="<%= date.strftime("%Y%m%d") %>">
           </div>
-        </form>
+       <!--  </form> -->
       </div>
 
       <% end %>

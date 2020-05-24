@@ -101,38 +101,38 @@ function loadDoc() {
 
 $(document).ready(function(){
 
-  // on checkbox change on tracker page, submit ajax form and save changes to session
+  // on checkbox change on tracker page
   $(".custom-control-input").change(function(e) {
+    $('#save-tracker-changes').show();
+     // var form = $(this.form);
+     // var url = form.attr('action');
 
-     var form = $(this.form);
-     var url = form.attr('action');
-
-     $.ajax({
-       type: "POST",
-       url: url,
-           data: form.serialize(), // serializes the form's elements.
-           success: function(data)
-           {
+     // $.ajax({
+     //   type: "POST",
+     //   url: url,
+     //       data: form.serialize(), // serializes the form's elements.
+     //       success: function(data)
+     //       {
 
 
-              $('#form-save-tracker-changes').show();
+     //          $('#save-tracker-changes').show();
 
-              // $('.debug').html(data);
-              // var json = JSON.parse(data);
-              // $('.toast-header-text').html(json.toast_title);
-              // $('.toast-body').html(json.toast_msg);
-              //  $('.toast').toast('show');
+     //          // $('.debug').html(data);
+     //          // var json = JSON.parse(data);
+     //          // $('.toast-header-text').html(json.toast_title);
+     //          // $('.toast-body').html(json.toast_msg);
+     //          //  $('.toast').toast('show');
 
-              // if (json.type == 'success') {
-              //   $('#toast-header-text').addClass('text-success');
-              //   $('#toast-header-text').removeClass('text-danger');
-              // } else {
-              //   $('#toast-header-text').removeClass('text-success');
-              //   $('#toast-header-text').addClass('text-danger');
-              // }
+     //          // if (json.type == 'success') {
+     //          //   $('#toast-header-text').addClass('text-success');
+     //          //   $('#toast-header-text').removeClass('text-danger');
+     //          // } else {
+     //          //   $('#toast-header-text').removeClass('text-success');
+     //          //   $('#toast-header-text').addClass('text-danger');
+     //          // }
 
-            }
-           });
+     //        }
+     //       });
 
   });
 
@@ -194,7 +194,7 @@ $(document).ready(function(){
   $('#modal-saving-changes').modal('hide');
 
   // hide save changes button
-  $('#form-save-tracker-changes').hide();
+  $('#save-tracker-changes').hide();
 
   // document.getElementById("save-change-spinner").style.display = "none";
   // document.getElementById("save-change-spinner-label").style.display = "none";
@@ -242,6 +242,23 @@ function goBack() {
   window.history.back();
 }
 
+function check_uncheck_all(date) {
+
+  $(`input:checkbox[name=checkbox_value][date=${date}]`).each(function(index,item) {
+    // console.log(event.target.checked);
+    // if (event.target.checked) {
+
+    //   item.setAttribute('checked', event.target.checked);
+
+    // } else {
+    //   item.removeAttribute('checked');
+    // }
+
+    event.target.checked ? item.setAttribute('checked', event.target.checked) : item.removeAttribute('checked');
+
+  })
+}
+
 function saveAllCheckboxes() {
   var checkbox_ids = [];
   var checkbox_exercise_names = [];
@@ -250,31 +267,31 @@ function saveAllCheckboxes() {
   var groups = [];
   var patient_username = $('#patient_username').text();
 
+  var checkbox_data_objs = [];
+
+  $('#modal-saving-changes').modal('show');
+
   $('input:checkbox[name=checkbox_value]').each(function(index, item) {
-    // checkbox_ids.push(item.attr('id'));
-    checkbox_ids.push($(this).attr('id'));
-    checkbox_exercise_names.push($(this).attr('exercise_name'))
-    checked.push($(this).prop('checked'));
-    dates.push($(this).attr('date'));
-    groups.push($(this).attr('group'));
+
+    checkbox_data_objs.push({
+      exercise_name: $(this).attr('exercise_name'),
+      checked: $(this).prop('checked'),
+      date: $(this).attr('date'),
+      group: $(this).attr('group')
+    });
+
   });
 
-  var checkbox_data = {
-    exercise_names: checkbox_exercise_names,
-    checked: checked,
-    dates: dates,
-    groups: groups,
-    patient_username: patient_username
-  }
 
   $.ajax({
     url: `/users/${patient_username}/exercises/save_all_checkboxes`,
     type: "POST",
-    data: JSON.stringify(checkbox_data),
+    data: JSON.stringify(checkbox_data_objs),
     dataType: 'text',
     contentType: 'application/json',
     success: function(data) {
-      alert(data);
+      $('#modal-saving-changes').modal('hide');
+      $('#save-tracker-changes').hide();
     }
   });
 }

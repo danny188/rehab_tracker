@@ -1029,30 +1029,21 @@ end
 
 post "/users/:username/exercises/save_all_checkboxes" do
 
-   checkbox_data = JSON.parse(request.body.read)
-
-
-
-  # session[:debug] = checkbox_data.inspect
-  # redirect "/test"
+  checkbox_data_objs = JSON.parse(request.body.read)
 
   @patient = User.get(params[:username])
 
-  exercise_names = checkbox_data['exercise_names']
-  check_values = checkbox_data['checked']
-  dates = checkbox_data['dates']
-  groups = checkbox_data['groups']
-
-  exercise_list = exercise_names.zip(groups).uniq
+  exercise_list = checkbox_data_objs.map { |obj| [obj['exercise_name'], obj['group']] }.uniq
+  # exercise_list = exercise_names.zip(groups).uniq
   exercises = exercise_list.map { |ex_name, group| @patient.get_exercise(ex_name, create_group_hierarchy(group))}
 
-  for i in 0...exercise_names.size do
-    cur_exercise = exercises.find { |exercise| exercise.name == exercise_names[i] }
+  checkbox_data_objs.each do |obj|
+    cur_exercise = exercises.find { |exercise| exercise.name == obj['exercise_name'] }
 
-    if check_values[i]
-      cur_exercise.add_date(dates[i])
+    if obj['checked']
+      cur_exercise.add_date(obj['date'])
     else
-      cur_exercise.delete_date(dates[i])
+      cur_exercise.delete_date(obj['date'])
     end
   end
 
