@@ -44,6 +44,8 @@
       <th scope="col" style="width: 10%">First</th>
       <th scope="col" style="width: 10%">Username</th>
       <th scope="col" style="width: 10%">Last login</th>
+      <!-- flags new patient who needs to be given exercises -->
+      <th scope="col" style="width: 10%"></th>
       <th scope="col">Actions</th>
     </tr>
   </thead>
@@ -57,6 +59,7 @@
         <td><%= patient.username %></td>
         <td><%= patient.last_login_time.strftime("%d/%m/%Y %k:%M") if patient.last_login_time %>
         </td>
+        <td><%= '<h5><span class="badge badge-danger">New Patient</span></h5>' unless patient.last_review_date %></td>
         <td>
           <a href="/users/<%= patient.username %>/exercises">View Exercises</a>
           <a href="/users/<%= patient.username %>/stats">Stats</a>
