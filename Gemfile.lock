@@ -919,6 +919,8 @@ GEM
     rack (2.2.2)
     rack-protection (2.0.8.1)
       rack
+    rack-ssl (1.4.1)
+      rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
     redcarpet (3.5.0)
@@ -948,6 +950,7 @@ DEPENDENCIES
   minitest
   pry-byebug
   puma
+  rack-ssl
   rack-test
   redcarpet
   sinatra

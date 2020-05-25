@@ -15,3 +15,4 @@ gem "puma"
 gem "tilt"
 gem "erubis"
 gem 'redcarpet'
+gem 'rack-ssl'
