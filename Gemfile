@@ -15,4 +15,4 @@ gem "puma"
 gem "tilt"
 gem "erubis"
 gem 'redcarpet'
-gem 'rack-ssl'
+gem 'rack-ssl-enforcer', '~> 0.2.9'

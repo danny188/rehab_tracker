@@ -12,7 +12,7 @@ require 'json'
 require 'securerandom'
 require 'logger'
 require 'redcarpet'
-
+require 'rack-ssl-enforcer'
 
 
 
@@ -72,6 +72,7 @@ configure do
   enable :sessions
   if ENV['RACK_ENV'] == 'production'
     set :session_secret, ENV.fetch('SINATRA_SESSION_KEY') { SecureRandom.hex(64) }
+    use Rack::SslEnforcer
   else
     set :session_secret, 'secret'
   end
