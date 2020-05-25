@@ -13,8 +13,6 @@ require 'securerandom'
 require 'logger'
 require 'redcarpet'
 
-require 'rack/ssl'
-use Rack::SSL
 
 
 
