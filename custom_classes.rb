@@ -1034,7 +1034,8 @@ end
 class Amazon_AWS
   REGION = "ap-southeast-2"
 
-  BUCKETS = { data: 'rehab-buddy-data', images: 'rehab-buddy-images'}
+  # BUCKETS = { data: 'rehab-buddy-data', images: 'rehab-buddy-images'}
+  BUCKETS = { data: ENV['S3_DATA_BUCKET'], images: ENV['S3_IMAGES_BUCKET'] }
   TEST_BUCKETS = { data: 'auto-test-rehab-buddy-data', images: 'auto-test-rehab-buddy-images'}
 
   def self.bucket_name(bucket)
