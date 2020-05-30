@@ -358,35 +358,15 @@
         </div>
       <% end %>
 
-      <!-- Add exercise to particular group, or create new group -->
-
-      <div class="form-row d-print-none">
-        <div class="form-group col-lg-5">
-          <div class="input-group">
-            <label for="group" class="col-lg-3 pl-0">For group: </label>
-
-            <input name="old_group" pattern="([\sA-Za-z0-9])+" title="Please enter only letters" list="group" class="form-control col-lg-5" value="<%= @new_group_name || '' %>" placeholder="Group Name">
-            <datalist id="group">
-              <% @patient.get_groups(GroupOperations::TOP_HIERARCHY).each do |group| %>
-              <option value="<%= group.name %>"></option>
-              <% end %>
-
-            </datalist>
-            <div class="col-1"></div><!--  spacer-column -->
 
 
-           <!-- <button type="submit" class="col-lg-3 btn btn-outline-primary" formaction="/users/<%=@patient.username%>/exercises/add_group">Create Group</button> -->
-         </div>
-       </div>
-     </div>
-
-  <!--  <div class="form-row mt-3">
-    <div class="input-group col-5">
-      <a href="#" class="btn btn-outline-primary">New Group</a>
-    </div> -->
-  </div>
-
-</form>
+    </form>
+    <!-- button to add more rows for adding exercises -->
+    <form class="col-lg-12" >
+      <div class="form-row mb-1">
+        <button type="button" onclick="addNewExerciseRows()">Add 3 more rows</button>
+      </div>
+    </form>
 
 <br>
 

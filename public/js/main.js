@@ -297,3 +297,24 @@ function saveIfChanges() {
   }
   // alert(sessionStorage.getItem('unsaved_changes'));
 }
+
+function addNewExerciseRows() {
+  var formRow = `<div class="form-row mb-1">
+          <div class="input-group col-lg-3 pl-0">
+            <label class = "sr-only">Name of new exercise</label>
+            <input type="text" pattern="([\\sA-Za-z0-9])+" title="Please enter only letters" class="form-control" name="new_exercise_name[]" placeholder="Name of new exercise">
+          </div>
+
+          <input name="group[]" pattern="([\\sA-Za-z0-9])+" title="Please enter only letters" list="group" class="form-control col-lg-2" placeholder="Group Name">
+          <datalist id="group">
+            <% @group_names_list.each do |group_name| %>
+              <option value="<%= group_name %>"></option>
+            <% end %>
+          </datalist>
+        </div>`;
+
+  // add 3 more new exercise rows
+  for (i=0; i < 3; i++) {
+    $('#form_add_exercise').append(formRow);
+  }
+}
