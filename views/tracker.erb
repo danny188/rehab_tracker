@@ -55,8 +55,7 @@
 
   <span class="mr-4 d-print-none">
     <h3 class="d-inline date-controller">Dates</h3>
-    <!-- <a href="/users/<%= @patient.username %>/exercises?end_date=<%= (@end_date-7).strftime("%Y%m%d") %>" class="btn btn-info date-nav-button mb-1" data-toggle="tooltip" title="View earlier days"><i class="fas fa-arrow-left"></i></a>
-    <a href="/users/<%= @patient.username %>/exercises?end_date=<%= (@end_date+7).strftime("%Y%m%d") %>" class="btn btn-info date-nav-button mb-1" data-toggle="tooltip" title="View later days"><i class="fas fa-arrow-right"></i></a> -->
+
     <button onclick="saveIfChanges()" form="date_nav_form" name="nav" value="back" type="submit" formaction="/users/<%= @patient.username %>/exercises" class="btn btn-info date-nav-button mb-1" data-toggle="tooltip" title="View earlier days"><i class="fas fa-arrow-left"></i></button>
     <button onclick="saveIfChanges()" form="date_nav_form" name="nav" value="fwd" type="submit" method="get" formaction="/users/<%= @patient.username %>/exercises" class="btn btn-info date-nav-button mb-1" data-toggle="tooltip" title="View later days"><i class="fas fa-arrow-right"></i></button>
 
@@ -309,26 +308,55 @@
     <br>
     <br>
 
+
+
+
+<!-- <button type="submit" class="col-lg-3 btn btn-outline-primary" formaction="/users/<%=@patient.username%>/exercises/add_group">Create Group</button> -->
+
     <!-- Form to add new exercises -->
     <form class="col-lg-12 d-print-none" id="form_add_exercise" action="/users/<%=@patient.username%>/exercises/add<%= create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})  %>" method="post">
-      <div class="form-row mb-1">
-        <div class="form-group col-lg-5">
 
-          <div class="input-group">
-            <label class = "sr-only" for="formGroupExampleInput">Name of new exercise</label>
-            <input type="text" pattern="([\sA-Za-z0-9])+" title="Please enter only letters" class="form-control col-lg-8" name="new_exercise_name" placeholder="Name of new exercise">
-            <div class="col-1"></div><!--  spacer-column -->
-            <button type="submit" class="col-lg-3 input-group-btn btn btn-outline-primary">Add Exercise</button>
-          </div>
+      <!-- exercise 1 -->
+      <div class="form-row mb-1">
+        <div class="input-group col-lg-3 pl-0">
+          <label class = "sr-only">Name of new exercise</label>
+          <input type="text" pattern="([\sA-Za-z0-9])+" title="Please enter only letters" class="form-control" name="new_exercise_name[]" placeholder="Name of new exercise" value="<%== (@new_exercise_names[0] if @new_exercise_names) %>">
         </div>
+
+        <input name="group[]" pattern="([\sA-Za-z0-9])+" title="Please enter only letters" list="group" class="form-control col-lg-2" value="<%= @groups[0] if @groups %>" placeholder="Group Name">
+        <datalist id="group">
+          <% @group_names_list.each do |group_name| %>
+            <option value="<%= group_name %>"></option>
+          <% end %>
+        </datalist>
+
+        <button type="submit" class="ml-2 col-lg-2 input-group-btn btn btn-outline-primary">Add Exercises</button>
+
         <% if session[:user].role == :therapist || session[:user].role == :admin %>
         <br>
         <div class="">
-          <a href="/users/<%= @patient.username %>/exercises/add_from_library<%= '?pt=' + @patient.username %>" class="btn btn-outline-primary ml-1">Choose From Exercise Library</a>
+          <a href="/users/<%= @patient.username %>/exercises/add_from_library<%= '?pt=' + @patient.username %>" class="btn btn-outline-primary ml-2">Choose From Exercise Library</a>
         </div>
         <% end %>
       </div>
 
+      <!-- exercise 2 to 4 -->
+      <% max_index = [(@new_exercise_names.size - 1 if @new_exercise_names), 3].compact.max %>
+      <% for new_ex_index in 1..max_index do %>
+        <div class="form-row mb-1">
+          <div class="input-group col-lg-3 pl-0">
+            <label class = "sr-only">Name of new exercise</label>
+            <input type="text" pattern="([\sA-Za-z0-9])+" title="Please enter only letters" class="form-control" name="new_exercise_name[]" placeholder="Name of new exercise" value="<%== (@new_exercise_names[new_ex_index] if @new_exercise_names) %>">
+          </div>
+
+          <input name="group[]" pattern="([\sA-Za-z0-9])+" title="Please enter only letters" list="group" class="form-control col-lg-2" value="<%= @groups[new_ex_index] if @groups %>" placeholder="Group Name">
+          <datalist id="group">
+            <% @group_names_list.each do |group_name| %>
+              <option value="<%= group_name %>"></option>
+            <% end %>
+          </datalist>
+        </div>
+      <% end %>
 
       <!-- Add exercise to particular group, or create new group -->
 
@@ -337,7 +365,7 @@
           <div class="input-group">
             <label for="group" class="col-lg-3 pl-0">For group: </label>
 
-            <input name="group" pattern="([\sA-Za-z0-9])+" title="Please enter only letters" list="group" class="form-control col-lg-5" value="<%= @new_group_name || '' %>" placeholder="Group Name">
+            <input name="old_group" pattern="([\sA-Za-z0-9])+" title="Please enter only letters" list="group" class="form-control col-lg-5" value="<%= @new_group_name || '' %>" placeholder="Group Name">
             <datalist id="group">
               <% @patient.get_groups(GroupOperations::TOP_HIERARCHY).each do |group| %>
               <option value="<%= group.name %>"></option>

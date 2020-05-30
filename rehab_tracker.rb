@@ -98,8 +98,6 @@ helpers do
     end
   end
 
-
-
   def checkbox_display_class(day_idx)
     case day_idx
     when 0..1
@@ -205,8 +203,8 @@ get "/users/:username/exercises" do
     redirect "/access_error"
   end
 
-  # discard unsaved changes
-  session.delete(:patient)
+  # # discard unsaved changes
+  # session.delete(:patient)
 
   @end_date_str = params[:end_date].strip if params[:end_date]
   @nav = params[:nav]
@@ -214,21 +212,25 @@ get "/users/:username/exercises" do
 
   @day_step *= -1 if @nav == 'back'
 
-  @end_date = if nil_or_empty?(@end_date_str) || !valid_date_str(@end_date_str)
-                Date.today
-              else
-                Date.parse(@end_date_str) + @day_step
-              end
+  @end_date = get_end_date(@end_date_str, @day_step)
 
   @dates = past_num_days(from: @end_date)
   @patient = User.get(params[:username])
+
+  @group_names_list = @patient.get_groups(GroupOperations::TOP_HIERARCHY).map { |group| group.name }
 
   logger.info "#{logged_in_user} display exercises (tracker view) for #{full_name_plus_username(@patient)}"
 
   erb :tracker
 end
 
-
+def get_end_date(end_date_str, day_step)
+  if nil_or_empty?(end_date_str) || !valid_date_str(end_date_str)
+    Date.today
+  else
+    Date.parse(end_date_str) + day_step
+  end
+end
 
 get "/users/:username/exercises/list_view" do
   unless verify_user_access(min_authorization: :patient, required_username: params[:username])
@@ -578,51 +580,130 @@ def create_group_hierarchy(*groups)
   groups
 end
 
-# adds a new exercise by name to patient's exercise list
+# adds one or more exercises by name to patient's exercise list
 post "/users/:username/exercises/add" do
   unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
   end
 
+  @end_date_str = params[:end_date].strip if params[:end_date]
+  @nav = params[:nav]
+  @day_step = params[:day_step].to_s.to_i
+
+  @day_step *= -1 if @nav == 'back'
+
+  @end_date = get_end_date(@end_date_str, @day_step)
+
+  @dates = past_num_days(from: @end_date)
   @patient = User.get(params[:username])
-  @new_exercise_name = params[:new_exercise_name].strip
-  @group_name = params[:group].strip
 
-  if invalid_name(@new_exercise_name)
-    session[:error] = "Exercise names can only contain letters and/or numbers."
-    redirect "/users/#{@patient.username}/exercises"
+  @group_names_list = @patient.get_groups(GroupOperations::TOP_HIERARCHY).map { |group| group.name }
+
+
+  # up to here
+  # session[:debug] = params[:group].inspect
+  # redirect "/test"
+
+
+  @new_exercise_names = params[:new_exercise_name].map(&:strip)
+  @groups = params[:group].map(&:strip)
+
+  # if @new_exercise_names.any? {invalid_name(@new_exercise_name)
+  #   session[:error] = "Exercise names can only contain letters and/or numbers."
+  #   redirect "/users/#{@patient.username}/exercises"
+  # end
+
+
+  until @new_exercise_names.size <= 0 do
+    cur_ex = @new_exercise_names[0]
+    cur_group = @groups[0]
+
+    # validations
+
+    if invalid_name(cur_ex)
+      session[:error] = "Invalid exercise name '#{cur_ex}'. Exercise names can only contain letters and/or numbers."
+      # redirect "/users/#{@patient.username if @patient}/exercises#{create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})}"
+      halt erb(:tracker)
+    end
+
+    if @patient.num_of_exercises >= Patient::MAX_NUM_EXERCISES
+      session[:error] = "You've reached the limit of having #{Patient::MAX_NUM_EXERCISES} exercises."
+      # redirect "/users/#{@patient.username if @patient}/exercises#{create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})}"
+      halt erb(:tracker)
+    end
+
+    if !cur_group.empty? && invalid_name(cur_group)
+      session[:error] = "Invalid group name '#{cur_group}'. Group name can only contain letters and/or numbers."
+      # redirect "/users/#{@patient.username if @patient}/exercises#{create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})}"
+      halt erb(:tracker)
+    end
+
+    if @patient.has_exercise(cur_ex, create_group_hierarchy(cur_group))
+      session[:error] = "An exercise called '#{cur_ex}' already exists. Please pick a new name."
+      # redirect "/users/#{@patient.username if @patient}/exercises#{create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})}"
+      halt erb(:tracker)
+    end
+
+    # skip row if current new exercise name blank
+    if !nil_or_empty?(cur_ex)
+      @patient.add_exercise_by_name(cur_ex, create_group_hierarchy(cur_group))
+
+      logger.info "#{logged_in_user} adds exercise '#{cur_ex}', under group '#{cur_group}' for patient #{full_name_plus_username(@patient)}"
+
+      log_date_if_therapist_doing_edit(@patient)
+      @patient.save
+    end
+
+    @new_exercise_names.shift
+    @groups.shift
+
+    # # if current exercise name blank
+    # if cur_ex.empty? && !nil_or_empty?(@new_exercise_names[1])
+    #   session[:error] = "Exercise name cannot be blank"
+    #   redirect "/users/#{@patient.username if @patient}/exercises#{create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})}"
+    # elsif cur_ex.empty?
+
+    # end
+
+
   end
 
-  if @patient.num_of_exercises >= Patient::MAX_NUM_EXERCISES
-    session[:error] = "You've reached the limit of having #{Patient::MAX_NUM_EXERCISES} exercises."
-    redirect "/users/#{@patient.username}/exercises"
-  end
+  # @new_exercise_name = params[:new_exercise_name].strip
+  # @group_name = params[:group].strip
 
-  if !@group_name.empty? && invalid_name(@group_name)
-    session[:error] = "Group name can only contain letters and/or numbers."
-    redirect "/users/#{@patient.username}/exercises"
-  end
+  # if invalid_name(@new_exercise_name)
+  #   session[:error] = "Exercise names can only contain letters and/or numbers."
+  #   redirect "/users/#{@patient.username}/exercises"
+  # end
+
+  # if @patient.num_of_exercises >= Patient::MAX_NUM_EXERCISES
+  #   session[:error] = "You've reached the limit of having #{Patient::MAX_NUM_EXERCISES} exercises."
+  #   redirect "/users/#{@patient.username}/exercises"
+  # end
+
+  # if !@group_name.empty? && invalid_name(@group_name)
+  #   session[:error] = "Group name can only contain letters and/or numbers."
+  #   redirect "/users/#{@patient.username}/exercises"
+  # end
 
   # validate exercise name
-  raise GroupOperations::ItemNameInGroupNotUniqueErr if @patient.has_exercise(@new_exercise_name, create_group_hierarchy(@group_name))
 
-  raise GroupOperations::ItemNameEmptyErr if @new_exercise_name.empty?
 
-  @patient.add_exercise_by_name(params[:new_exercise_name], create_group_hierarchy(@group_name))
+  # @patient.add_exercise_by_name(params[:new_exercise_name], create_group_hierarchy(@group_name))
 
-  logger.info "#{logged_in_user} adds exercise '#{@new_exercise_name}', under group '#{@group_name}' for patient #{full_name_plus_username(@patient)}"
+  # logger.info "#{logged_in_user} adds exercise '#{@new_exercise_name}', under group '#{@group_name}' for patient #{full_name_plus_username(@patient)}"
 
-  log_date_if_therapist_doing_edit(@patient)
-  @patient.save
+  # log_date_if_therapist_doing_edit(@patient)
+  # @patient.save
 
-  redirect "/users/#{@patient.username}/exercises"
+  redirect "/users/#{@patient.username if @patient}/exercises#{create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})}"
 
-rescue GroupOperations::ItemNameInGroupNotUniqueErr
-  session[:error] = "An exercise called '#{@new_exercise_name}' already exists. Please pick a new name."
-  redirect "/users/#{@patient.username}/exercises"
-rescue GroupOperations::ItemNameEmptyErr
-  session[:error] = "Exercise name cannot be blank"
-  redirect "/users/#{@patient.username}/exercises"
+# rescue GroupOperations::ItemNameInGroupNotUniqueErr
+#   session[:error] = "An exercise called '#{@new_exercise_name}' already exists. Please pick a new name."
+#   redirect "/users/#{@patient.username if @patient}/exercises#{create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})}"
+# rescue GroupOperations::ItemNameEmptyErr
+#   session[:error] = "Exercise name cannot be blank"
+#   redirect "/users/#{@patient.username if @patient}/exercises#{create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})}"
 end
 
 get "/users/:username/exercises/:exercise_name/edit" do
