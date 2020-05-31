@@ -14,11 +14,13 @@
   </div>
 </div>
 
+
 <!-- Exercise library contents -->
 
 <div class="d-flex justify-content-start">
   <span class="d-inline">
     <h2 class="mr-5 d-inline"><%= exercise_library_title(@group_hierarchy) %></h2>
+
 
     <% if @patient %>
     <a href="/users/<%= @patient.username %>/exercises" class="mx-2 btn btn-outline-secondary">Return to Exercise Page of <%= full_name_plus_username(@patient) %></a>
@@ -57,6 +59,8 @@
   </ol>
 </nav>
 
+
+
 <% if @group_hierarchy.size <= 2 %>
 <br>
 <div class="row">
@@ -67,6 +71,8 @@
     <a type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#create_group">Create New <%= @group_hierarchy.size <= 1 ? 'Group' : 'Subgroup' %></a>
   </div>
 </div>
+
+
 
  <!-- Modal to create new group -->
 <div class="modal" tabindex="-1" role="dialog" id="create_group">
@@ -100,6 +106,7 @@
 </div>
 
 <br>
+
 
 <!-- Existing groups -->
 <div class="row row-cols-1 row-cols-lg-6 row-cols-md-4">
@@ -136,11 +143,18 @@
       </div>
     </div>
   </div>
+
+
+
   <% end %>
+
 </div>
+
+
+
+
 <hr>
 <% end %>
-
 <!-- Existing Templates -->
 
 <div class="row">
@@ -152,8 +166,8 @@
 </div>
 
 <br>
-
 <div class="row row-cols-1 row-cols-lg-6 row-cols-md-4">
+
 
   <% @group.items.each_with_index do |exercise, index| %>
   <div class="col mb-4">
@@ -164,6 +178,9 @@
 
       <div class="card-body pt-0">
         <h5 class="card-title"><a href="/exercise_library/<%= exercise.name %>/edit<%=create_full_query_str({group: params[:group], pt: params[:pt]}) %>"><strong><%= exercise.name %></strong></a></h5>
+
+
+
 
         <div class="row justify-content-center">
           <a class="float-right btn btn-outline-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -185,10 +202,14 @@
 
               <button type="submit"  class="dropdown-item text-danger" data-toggle="tooltip" title="Delete template and associated data.">Delete</button>
             </form>
+
+
           </div>
+
         </div>
       </div>
     </div>
   </div>
   <% end %>
+
 </div>
