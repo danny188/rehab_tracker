@@ -34,3 +34,13 @@ Try out **Therapist** features with below login:
 ### Project Built With
 - [Sinatra framework](http://sinatrarb.com/)
 - [Bootstrap](https://getbootstrap.com/)
+
+#### Acknowledgements
+
+[Tim Hor](https://github.com/timhor) - Help with initial testing and valuable comments.
+
+<hr>
+
+#### Contact
+
+[Daniel Ho](https://danielho.dev)
