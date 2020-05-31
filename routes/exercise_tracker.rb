@@ -337,11 +337,9 @@ post "/users/:username/exercises/save_all_checkboxes" do
   # exercise_list = exercise_names.zip(groups).uniq
   exercises = exercise_list.map { |ex_name, group| @patient.get_exercise(ex_name, create_group_hierarchy(group))}
 
-  puts exercises.inspect
-
   checkbox_data_objs.each do |obj|
     cur_exercise = exercises.find { |exercise|
-        exercise.name == obj['exercise_name'] && exercise.group_hierarchy.last == obj['group']
+        exercise.name == obj['exercise_name'] && exercise.group_hierarchy[1].to_s == obj['group']
       }
 
     if obj['checked']
