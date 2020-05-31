@@ -35,12 +35,12 @@ Try out **Therapist** features with below login:
 - [Sinatra framework](http://sinatrarb.com/)
 - [Bootstrap](https://getbootstrap.com/)
 
-#### Acknowledgements
+### Acknowledgements
 
 [Tim Hor](https://github.com/timhor) - Help with initial testing and valuable comments.
 
 <hr>
 
-#### Contact
+### Contact
 
 [Daniel Ho](https://danielho.dev)
