@@ -210,6 +210,7 @@ function saveAllCheckboxes() {
       group: $(this).attr('group')
     });
   });
+
   $.ajax({
     url: `/users/${patient_username}/exercises/save_all_checkboxes`,
     type: "POST",

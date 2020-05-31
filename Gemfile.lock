@@ -914,7 +914,7 @@ GEM
     pry-byebug (3.9.0)
       byebug (~> 11.0)
       pry (~> 0.13.0)
-    puma (4.3.3)
+    puma (4.3.5)
       nio4r (~> 2.0)
     rack (2.2.2)
     rack-protection (2.0.8.1)
@@ -948,7 +948,7 @@ DEPENDENCIES
   erubis
   minitest
   pry-byebug
-  puma
+  puma (>= 4.3.5)
   rack-ssl-enforcer (~> 0.2.9)
   rack-test
   redcarpet
