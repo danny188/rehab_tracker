@@ -16,13 +16,13 @@ Try out **Therapist** features with below login:
 
 ### Features for Patients
 - Mark off and track completed exercises daily
-<img src="https://rehab-buddy-demo.herokuapp.com/images/diary.png" width="450">
+<img src="https://rehab-buddy-demo.herokuapp.com/images/diary.png" width="400">
 
 - Organize exercise into relevant groups
-<img src="https://rehab-buddy-demo.herokuapp.com/images/exercise_groups.jpg" width="450">
+<img src="https://rehab-buddy-demo.herokuapp.com/images/exercise_groups.jpg" width="400">
 
 - Data visualization charts for exercise records
-<img src="https://rehab-buddy-demo.herokuapp.com/images/stats.png" width="450">
+<img src="https://rehab-buddy-demo.herokuapp.com/images/stats.png" width="400">
 
 - Collaborate with therapists via exercise-specific comments
 
