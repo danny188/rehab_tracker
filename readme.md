@@ -6,7 +6,15 @@ Rehab Buddy is free collaboration tool for patients and rehabilitation therapist
 
 [https://rehab-buddy-demo.herokuapp.com](https://rehab-buddy-demo.herokuapp.com)
 
-## Features for Patients
+Feel free to create additional accounts as a Patient. Or use the following example Patient login:
+- username: stacey
+- password: patientsecret
+
+Try out Therapist features with below login:
+- username: therapist_1
+- password: therapistsecret
+
+### Features for Patients
 - Mark off and track completed exercises daily ![](https://rehab-buddy-demo.herokuapp.com/images/diary.png)
 
 - Organize exercise into relevant groups
@@ -16,11 +24,11 @@ Rehab Buddy is free collaboration tool for patients and rehabilitation therapist
 
 - Collaborate with therapists via exercise-specific comments
 
-## Features for Therapists
+### Features for Therapists
 - Dashboard for easy patient accounts management
 - View and update patient exercises with optional images
 - Exercise Library to create and dispense pre-set exercises and template groups
 
-## Project Built With
+### Project Built With
 - [Sinatra framework](http://sinatrarb.com/)
 - [Bootstrap](https://getbootstrap.com/)
