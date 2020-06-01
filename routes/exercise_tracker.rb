@@ -226,6 +226,9 @@ post "/users/:username/exercises/:exercise_name/update" do
 
     # re-get exercise since group or name changed
     @exercise = @patient.get_exercise(params[:new_exercise_name], create_group_hierarchy(*@dest_group_hierarchy))
+
+    logger.info "#{logged_in_user} updates exercise name from #{params[:exercise_name]} to #{params[:new_exercise_name]}"
+    logger.info "#{logged_in_user} updates group for exercise #{params[:exercise_name]} from #{@current_group_hierarchy} to #{@dest_group_hierarchy}"
   end
 
   @exercise.reps = params[:reps]
@@ -239,7 +242,7 @@ post "/users/:username/exercises/:exercise_name/update" do
   log_date_if_therapist_doing_edit(@patient)
   @patient.save
 
-  logger.info "#{logged_in_user} updates exercise '#{@exercise.name}', group #{@current_group_hierarchy} for pt #{full_name_plus_username(@patient)}"
+  logger.info "#{logged_in_user} updated exercise '#{params[:new_exercise_name]}', group #{@dest_group_hierarchy} for pt #{full_name_plus_username(@patient)}"
 
   session[:success] = "Your changes have been saved"
   redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit?group=#{@dest_group_name}"
