@@ -40,6 +40,29 @@ post "/exercise_library/:exercise_name/edit" do
   @exercise = @exercise_library.get_exercise(params[:exercise_name], @browse_group_hierarchy)
   @new_exercise_name = params[:new_exercise_name].strip
 
+  # validate new exercise name
+  if invalid_name(@new_exercise_name)
+    session[:error] = "Exercise name can only contain letters and/or numbers."
+    halt erb :'exercise_library/exercise_template_base_info_edit', :layout => :layout do
+      erb :'exercise_library/template_images_edit'
+    end
+  end
+
+  # ensuring not changing exercise name to clash with another existing exercise
+  if @exercise_library.has_exercise(@new_exercise_name, @dest_group_hierarchy) && @new_exercise_name != @exercise.name
+    session[:error] = "Exercise Library already has a exercise template named '#{@new_exercise_name}' in group #{@dest_group_hierarchy}. Please choose another name."
+
+    halt erb :'exercise_library/exercise_template_base_info_edit', :layout => :layout do
+      erb :'exercise_library/template_images_edit'
+    end
+  end
+
+  # rename exercise or change residing group
+  if (@browse_group_hierarchy != @dest_group_hierarchy) || (@exercise.name != @new_exercise_name)
+    @exercise_library.move_exercise(@exercise.name, @new_exercise_name, @browse_group_hierarchy, @dest_group_hierarchy)
+    @exercise = @exercise_library.get_exercise(params[:new_exercise_name], @dest_group_hierarchy)
+  end
+
   @exercise.reps = params[:reps]
   @exercise.sets = params[:sets]
   @exercise.instructions = params[:instructions]
@@ -56,23 +79,6 @@ post "/exercise_library/:exercise_name/edit" do
 
     session[:error] = "Group names can only contain letters and/or numbers."
     raise GroupOperations::GroupNameEmptyErr
-  end
-
-  # ensuring not changing exercise name to clash with another existing exercise
-  if @exercise_library.has_exercise(@new_exercise_name, @dest_group_hierarchy) && @new_exercise_name != @exercise.name
-    session[:error] = "Exercise Library already has a exercise template named '#{@new_exercise_name}'. Please choose another name."
-
-    halt erb :'exercise_library/exercise_template_base_info_edit', :layout => :layout do
-      erb :'exercise_library/template_images_edit'
-    end
-  end
-
-  # update exercise name
-  @exercise.name = @new_exercise_name
-
-  # change residing group if needed
-  if @browse_group_hierarchy != @dest_group_hierarchy
-    @exercise_library.move_exercise(@exercise.name, @browse_group_hierarchy, @dest_group_hierarchy)
   end
 
   @exercise_library.save
@@ -236,7 +242,7 @@ post "/exercise_library/add_exercise" do
   end
 
   if @exercise_library.has_exercise(@new_exercise_name, @dest_group_hierarchy)
-    session[:error] = "Exercise Library already has a template named '#{@new_exercise_name} in group #{[params[:group_lvl_1], params[:group_lvl_1]].join('/')}'. Please choose another name."
+    session[:error] = "Exercise Library already has a template named '#{@new_exercise_name}' in group '#{[params[:group_lvl_1], params[:group_lvl_2]].reject(&:empty?).join('/')}'. Please choose another name."
     halt erb(:'exercise_library/exercise_template_base_info_edit')
   end
 
