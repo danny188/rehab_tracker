@@ -136,9 +136,10 @@
           </button>
         </div>
         <div class="modal-body">
-          <form class="" method="post" action="/users/<%= @patient.username %>/exercises/<%= exercise.name %>/move?group=<%= group.name if group %>">
+          <form class="" method="post" action="/users/<%= @patient.username %>/exercises/<%= exercise.name %>/move<%= create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})  %>">
             <div class="form-group mb-2">
               <label for="grouplist_<%= grp_index %>_<%= ex_index %>" class="">Destination Group</label>
+              <input type="hidden" name="group" value="<%= group.name %>">
               <input name="dest_group" list="grouplist_<%= grp_index %>_<%= ex_index %>" class="form-control col-lg-12" value="" placeholder="">
               <datalist id="grouplist_<%= grp_index %>_<%= ex_index %>"> <% @patient.get_groups(GroupOperations::TOP_HIERARCHY).each do |group| %> <option value="<%= group.name %>"></option>
                 <% end %>

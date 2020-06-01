@@ -466,11 +466,11 @@ post "/users/:username/exercises/:exercise_name/move" do
   log_date_if_therapist_doing_edit(@patient)
   @patient.save
 
-  redirect "/users/#{@patient.username}/exercises"
+  redirect "/users/#{@patient.username if @patient}/exercises#{create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})}"
 
 rescue GroupOperations::ItemNameInGroupNotUniqueErr
-  session[:error] = "An exercise called '#{@new_exercise_name}' already exists in group #{dest_group.name}."
-  redirect "/users/#{@patient.username}/exercises"
+  session[:error] = "An exercise called '#{params[:exercise_name]}' already exists in group #{dest_group_name}."
+  redirect "/users/#{@patient.username if @patient}/exercises#{create_full_query_str({end_date: params[:end_date], day_step: params[:day_step], nav: params[:nav]})}"
 end
 
 # move exercise 1 position up list
