@@ -79,14 +79,14 @@ module GroupOperations
     new_group = get_group(new_group_hierarchy)
 
     cur_group.items.each do |exercise|
-      move_exercise(exercise.name, current_group_hierarchy, new_group_hierarchy)
+      move_exercise(exercise.name, exercise.name, current_group_hierarchy, new_group_hierarchy)
     end
 
     cur_group.subgroups.each do |subgroup|
       add_group(subgroup.name, new_group_hierarchy)
 
       subgroup.items.each do |exercise|
-        move_exercise(exercise.name,
+        move_exercise(exercise.name, exercise.name,
                       current_group_hierarchy + [subgroup.name],
                       new_group_hierarchy + [subgroup.name])
       end
@@ -188,21 +188,23 @@ module GroupOperations
   end
 
   # Used by ExerciseLibrary and Patient
-  def move_exercise(exercise_name, from_group_hierarchy, to_group_hierarchy)
+  def move_exercise(exercise_name, new_exercise_name, from_group_hierarchy, to_group_hierarchy)
     from_group = get_group(from_group_hierarchy)
     to_group = get_group(to_group_hierarchy)
 
     exercise = get_exercise(exercise_name, from_group_hierarchy)
 
-    raise GroupOperations::ItemNameInGroupNotUniqueErr if has_exercise(exercise.name, to_group_hierarchy)
+    raise GroupOperations::ItemNameInGroupNotUniqueErr if has_exercise(new_exercise_name, to_group_hierarchy)
 
     exercise.group_hierarchy = to_group_hierarchy
 
     # move related images/files on cloud
-    move_all_exercise_supp_files(exercise_name, from_group_hierarchy, to_group_hierarchy)
+    move_all_exercise_supp_files(exercise_name, new_exercise_name, from_group_hierarchy, to_group_hierarchy)
 
     exercise_copy = exercise.deep_copy
     exercise_copy.group_hierarchy = to_group_hierarchy
+
+    exercise_copy.name = new_exercise_name
 
     add_exercise(exercise_copy, to_group_hierarchy)
 
@@ -210,12 +212,12 @@ module GroupOperations
   end
 
   # Used by GroupOperations::move_exercise
-  def move_all_exercise_supp_files(exercise_name, from_group_hierarchy, to_group_hierarchy)
+  def move_all_exercise_supp_files(exercise_name, new_exercise_name, from_group_hierarchy, to_group_hierarchy)
     exercise = get_exercise(exercise_name, from_group_hierarchy)
     filenames = exercise.image_links.map { |link| File.basename(link) }
 
     filenames.each do |filename|
-      move_exercise_supp_file(exercise_name, filename, from_group_hierarchy, to_group_hierarchy)
+      move_exercise_supp_file(exercise_name, new_exercise_name, filename, from_group_hierarchy, to_group_hierarchy)
     end
 
     # self.save

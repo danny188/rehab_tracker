@@ -198,9 +198,9 @@ class ExerciseLibrary
   end
 
   # this is called by move_all_exercise_supp_files method included from GroupOperations
-  def move_exercise_supp_file(exercise_name, filename, from_group_hierarchy, to_group_hierarchy)
+  def move_exercise_supp_file(exercise_name, new_exercise_name, filename, from_group_hierarchy, to_group_hierarchy)
     source_key = "images/exercise_library_#{self.name}/#{make_group_query_str(from_group_hierarchy)}/#{exercise_name}/#{filename}"
-    target_key = "images/exercise_library_#{self.name}/#{make_group_query_str(to_group_hierarchy)}/#{exercise_name}/#{filename}"
+    target_key = "images/exercise_library_#{self.name}/#{make_group_query_str(to_group_hierarchy)}/#{new_exercise_name}/#{filename}"
 
     exercise = get_exercise(exercise_name, from_group_hierarchy)
     image_index = exercise.image_links.index{ |link| File.basename(link) == filename }

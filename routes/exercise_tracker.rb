@@ -194,7 +194,6 @@ post "/users/:username/exercises/:exercise_name/update" do
   @current_group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
 
 
-
   @dest_group_name = params[:dest_group].strip
 
   @exercise = @patient.get_exercise(params[:exercise_name], create_group_hierarchy(*@current_group_hierarchy))
@@ -211,20 +210,8 @@ post "/users/:username/exercises/:exercise_name/update" do
   # session[:debug] = @current_group_hierarchy.inspect
   # redirect "/test"
 
-  if @current_group_hierarchy != @dest_group_hierarchy
-    @patient.move_exercise(params[:exercise_name], @current_group_hierarchy, @dest_group_hierarchy)
-  end
-
-  @exercise = @patient.get_exercise(params[:exercise_name], create_group_hierarchy(*@dest_group_hierarchy))
-
-  @exercise.reps = params[:reps]
-  @exercise.sets = params[:sets]
-  @exercise.instructions = params[:instructions]
-  @exercise.comment_by_patient = params[:patient_comment]
-  @exercise.comment_by_therapist = params[:therapist_comment]
-
-  # validate exercise name
-  exercise_name_not_unique = @patient.has_exercise(params[:new_exercise_name], @dest_group_hierarchy) && @exercise.name != params[:new_exercise_name]
+  # validate new exercise name
+  exercise_name_not_unique = @patient.has_exercise(params[:new_exercise_name], @dest_group_hierarchy) && (@exercise.name != params[:new_exercise_name])
 
   raise GroupOperations::ItemNameInGroupNotUniqueErr if exercise_name_not_unique
 
@@ -232,6 +219,20 @@ post "/users/:username/exercises/:exercise_name/update" do
     session[:error] = "Exercise name can only contain letters and/or numbers."
     halt erb(:'exercise_tracker/edit_exercise')
   end
+
+  if (@current_group_hierarchy != @dest_group_hierarchy) ||
+    (@exercise.name != params[:new_exercise_name])
+    @patient.move_exercise(params[:exercise_name], params[:new_exercise_name], @current_group_hierarchy, @dest_group_hierarchy)
+
+    # re-get exercise since group or name changed
+    @exercise = @patient.get_exercise(params[:new_exercise_name], create_group_hierarchy(*@dest_group_hierarchy))
+  end
+
+  @exercise.reps = params[:reps]
+  @exercise.sets = params[:sets]
+  @exercise.instructions = params[:instructions]
+  @exercise.comment_by_patient = params[:patient_comment]
+  @exercise.comment_by_therapist = params[:therapist_comment]
 
   @exercise.name = params[:new_exercise_name]
 
@@ -244,7 +245,7 @@ post "/users/:username/exercises/:exercise_name/update" do
   redirect "/users/#{@patient.username}/exercises/#{@exercise.name}/edit?group=#{@dest_group_name}"
 
 rescue GroupOperations::ItemNameInGroupNotUniqueErr
-  session[:error] = "An exercise called '#{@exercise.name}' already exists in group #{display_current_group(@dest_group_hierarchy)}."
+  session[:error] = "An exercise called '#{params[:new_exercise_name]}' already exists in group #{display_current_group(@dest_group_hierarchy)}."
   halt erb(:'exercise_tracker/edit_exercise')
 # rescue ExerciseTemplate::ExerciseNameNotUniqueErr
 #   session[:error] = "An exercise called '#{@new_exercise_name}' already exists. Please pick a new name."
@@ -461,7 +462,7 @@ post "/users/:username/exercises/:exercise_name/move" do
 
   logger.info "#{logged_in_user} moves exercise #{params[:exercise_name]} from #{from_group_hierarchy} to #{dest_group_hierarchy} for pt #{full_name_plus_username(@patient)}"
 
-  @patient.move_exercise(params[:exercise_name], from_group_hierarchy, dest_group_hierarchy)
+  @patient.move_exercise(params[:exercise_name], params[:exercise_name], from_group_hierarchy, dest_group_hierarchy)
 
   log_date_if_therapist_doing_edit(@patient)
   @patient.save
@@ -511,7 +512,7 @@ post "/users/:username/exercises/groups/:group_name/move_all_exercises_out" do
 
   exercise_names = @group.items.map { |exercise| exercise.name.dup }
   exercise_names.each do |exercise_name|
-    @patient.move_exercise(exercise_name, @from_group_hierarchy, create_group_hierarchy)
+    @patient.move_exercise(exercise_name, exercise_name, @from_group_hierarchy, create_group_hierarchy)
   end
 
   @patient.save
