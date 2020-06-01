@@ -87,8 +87,9 @@
   <div class="col-lg-5 col-9 col-md-7 text-right pt-2 d-print-none">
     <span class="">Select/Unselect all</span>
   </div>
-  <% @dates.each_with_index do |date, index| %> <div class="tick-box col-1 text-center mb-3  <%= checkbox_display_class(index) %>">
-    <div class="custom-control custom-checkbox">
+  <% @dates.each_with_index do |date, index| %>
+  <div class="tick-box col-1 text-center mb-3 <%= checkbox_display_class(index) %>">
+    <div class="custom-control custom-checkbox  d-print-none">
       <input onclick="check_uncheck_all(<%= date.strftime("%Y%m%d") %>)" type="checkbox" class="border-primary custom-checkbox custom-control-input" id="<%="select_all_none_" + date.strftime("%Y%m%d") %>" name="select_all_none" value="select_all_none" date="<%= date.strftime("%Y%m%d") %>" <%= "checked" if @patient.done_all_exercises?(date.strftime("%Y%m%d")) %>>
       <label class="pr-3 custom-checkbox custom-control-label border-primar" for="<%="select_all_none_" + date.strftime("%Y%m%d") %>" data-toggle="tooltip" title="Check all/none"></label>
       <input type="hidden" name="date" value="<%= date.strftime("%Y%m%d") %>">
@@ -223,7 +224,7 @@
 <% end %>
 <br>
 <br>
-<a class="btn btn-success ml-2" data-toggle="collapse" href="#collapse_add_exercises" role="button" aria-expanded="false" aria-controls="collapse_add_exercises"> Add More Exercises<i class="ml-1 fas fa-caret-down"></i>
+<a class="btn btn-success ml-2 d-print-none" data-toggle="collapse" href="#collapse_add_exercises" role="button" aria-expanded="false" aria-controls="collapse_add_exercises"> Add More Exercises<i class="ml-1 fas fa-caret-down"></i>
 </a>
 <div class="collapse <%= 'show' if session[:user].role == :therapist %>" id="collapse_add_exercises">
   <br>
@@ -269,7 +270,7 @@
   <!-- button to add more rows for adding exercises -->
   <form class="col-lg-12">
     <br>
-    <div class="form-row mb-1">
+    <div class="form-row mb-1 d-print-none">
       <button type="button" onclick="addNewExerciseRows()">Add 3 more rows</button>
     </div>
   </form>
