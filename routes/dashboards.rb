@@ -9,6 +9,19 @@ get "/users/:username/therapist_dashboard" do
 
   logger.info "#{logged_in_user} displays therapist dashboard"
 
+  sort_by = params[:sort]
+  direction = nil_or_empty?(params[:dir]) ? 'desc' : params[:dir]
+
+  sort_criteria = ['first_name', 'last_name', 'last_login_time', 'username']
+
+  if sort_criteria.include?(sort_by)
+    @all_patients.sort_by! { |pt| pt.public_send(sort_by).to_s.downcase || Time.new(2000) }
+  else
+    @all_patients.sort_by! { |pt| pt.last_login_time || Time.new(2000) }
+  end
+
+  @all_patients.reverse! if direction == 'desc'
+
   erb :'dashboards/dashboard_base'
 end
 

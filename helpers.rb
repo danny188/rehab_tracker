@@ -17,6 +17,28 @@ helpers do
     end
   end
 
+  # toggles sort direction
+  def sort_direction(sort_by, dir)
+    if nil_or_empty?(dir) || dir.downcase == 'desc'
+      'asc'
+    else
+      'desc'
+    end
+  end
+
+  def time_ago(timestamp)
+    return nil unless timestamp
+
+    delta = Time.now - timestamp
+    case delta
+      when 0..30         then "just now"
+      when 31..119       then "about a minute ago"
+      when 120..3599     then "#{delta / 60} minutes ago"
+      when 3600..86399   then "#{(delta / 3600).round} hours ago"
+      when delta >= 86400 then "#{(delta / 86400).round} days ago"
+    end
+  end
+
   def checkbox_display_class(day_idx)
     case day_idx
     when 0..1

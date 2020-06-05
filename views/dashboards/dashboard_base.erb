@@ -40,10 +40,10 @@
   <thead class="thead-light">
     <tr>
       <th scope="col" style="width: 10%">#</th>
-      <th scope="col" style="width: 10%">Last</th>
-      <th scope="col" style="width: 10%">First</th>
-      <th scope="col" style="width: 10%">Username</th>
-      <th scope="col" style="width: 10%">Last login</th>
+      <th scope="col" style="width: 10%"><a href="/users/<%= params[:username] %>/therapist_dashboard?sort=last_name&dir=<%= params[:sort] == 'last_name' ? sort_direction(params[:dir]) : 'asc' %>"> Last Name</a></th>
+      <th scope="col" style="width: 10%"><a href="/users/<%= params[:username] %>/therapist_dashboard?sort=first_name&dir=<%= params[:sort] == 'first_name' ? sort_direction(params[:dir]) : 'asc' %>">First Name</a></th>
+      <th scope="col" style="width: 10%"><a href="/users/<%= params[:username] %>/therapist_dashboard?sort=username&dir=<%= params[:sort] == 'username' ? sort_direction(params[:dir]) : 'asc' %>">Username</a></th>
+      <th scope="col" style="width: 10%"><a href="/users/<%= params[:username] %>/therapist_dashboard?sort=last_login_time&dir=<%= params[:sort] == 'last_login_time' ? sort_direction(params[:dir]) : 'desc' %>">Last login</a></th>
       <!-- flags new patient who needs to be given exercises -->
       <th scope="col" style="width: 10%"></th>
       <th scope="col">Actions</th>
@@ -57,7 +57,9 @@
         <td><%= patient.last_name %></td>
         <td><%= patient.first_name %></td>
         <td><%= patient.username %></td>
-        <td><%= patient.last_login_time.strftime("%d/%m/%Y %k:%M") if patient.last_login_time %>
+        <td>
+          <%= time_ago(patient.last_login_time) %> <br>
+          <%= patient.last_login_time.strftime("%d/%m/%Y %k:%M") if patient.last_login_time %>
         </td>
         <td><%= '<h5><span class="badge badge-danger">New Patient</span></h5>' unless patient.last_review_date %></td>
         <td>
