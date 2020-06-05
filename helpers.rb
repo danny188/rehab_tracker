@@ -33,7 +33,7 @@ helpers do
     case delta
       when 0..30         then "just now"
       when 31..119       then "about a minute ago"
-      when 120..3599     then "#{delta / 60} minutes ago"
+      when 120..3599     then "#{(delta / 60).round} minutes ago"
       when 3600..86399   then "#{(delta / 3600).round} hours ago"
       when 86400.. then "#{(delta / 86400).round} days ago"
     end
