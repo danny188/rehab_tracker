@@ -7,6 +7,8 @@ class User
 
   alias :name :username
 
+  INACTIVE_DAYS_THRESHOLD = 20
+
   SlimUser = Struct.new(:username, :role)
 
   def initialize(username, pw)

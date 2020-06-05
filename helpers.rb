@@ -39,6 +39,11 @@ helpers do
     end
   end
 
+  def days_ago(timestamp)
+    return 0 unless timestamp
+    (Time.now - timestamp) / 86400
+  end
+
   def checkbox_display_class(day_idx)
     case day_idx
     when 0..1
