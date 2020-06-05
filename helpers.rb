@@ -18,7 +18,7 @@ helpers do
   end
 
   # toggles sort direction
-  def sort_direction(sort_by, dir)
+  def sort_direction(dir)
     if nil_or_empty?(dir) || dir.downcase == 'desc'
       'asc'
     else
