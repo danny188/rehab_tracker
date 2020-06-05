@@ -74,7 +74,7 @@
   <div class="col-lg-5 col-9 col-md-7">
   </div>
   <div class="col-1 d-print-block d-none"></div>
-
+  <div class="col-1 d-md-none "></div>
   <% @dates.each_with_index do |date, index| %> <div class="dates col-lg-1 text-center col-1 <%= checkbox_display_class(index) %> %>">
     <span class=""><%= format_date(date) %></span>
   </div>
@@ -84,6 +84,8 @@
 <% if @patient.num_of_exercises > 0 %>
 <div class="row exercise-row">
   <div class="col-1 d-print-block d-none"></div>
+  <div class="col-1 d-md-none "></div>
+
   <div class="col-lg-5 col-9 col-md-7 text-right pt-2 d-print-none">
     <span class="">Select/Unselect all</span>
   </div>
@@ -107,9 +109,10 @@
   <div class="mb-2 col-lg-4 col-6 col-md-5 col-xl-3 ml-<%= indent ? indent * 4 : 0 %> mr-n<%= indent ? indent * 4 : 0 %>">
     <a href="/users/<%= @patient.username %>/exercises/<%= exercise.name %>/edit?group=<%= group.name if group %>" class="exercise" data-toggle="tooltip" title="<%= exercise.instructions %>"><%== exercise.name %></a>
   </div>
-  <div class="d-block d-sm-none col-3"></div>
-  <div class="col-lg-1 col-3 d-none d-xl-block d-print-block"> <% if exercise.reps || exercise.sets %> <span class="badge badge-secondary reps-sets my-2"><%= reps_and_sets_str(exercise) %></span> <% end %> </div>
-  <div class="d-none d-sm-block col-lg-1 col-3 col-md-2 d-print-none">
+  <div class="d-none d-sm-none d-md-3 col-3 "></div>
+  <div class="col-lg-1 col-3 col-sm-3 col-md-2 d-print-block"> <% if exercise.reps || exercise.sets %> <span class="badge badge-secondary reps-sets my-2"><%= reps_and_sets_str(exercise) %></span> <% end %> </div>
+  <div class="col-1 d-md-none "></div>
+  <div class="col-lg-1 col-3 d-none d-xl-block d-print-none">
     <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button" id="exercise_actions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Actions </a>
     <div class="dropdown-menu" aria-labelledby="exercise_actions">
       <a href="/users/<%= @patient.username %>/exercises/<%= exercise.name %>/edit?group=<%== (group.name if group) %>" class="dropdown-item text-primary" data-toggle="tooltip" title="View/change exercise instructions or add comments.">View/Edit</a>
