@@ -1,10 +1,10 @@
 require_relative '../helpers'
 
-get "/therapist_dashboard" do
+get "/users/:username/therapist_dashboard" do
   unless verify_user_access(min_authorization: :therapist)
     redirect "/access_error"
   end
-  @user = session[:user]
+  @user = User.get(params[:username])
   @all_patients = Patient.get_all
 
   logger.info "#{logged_in_user} displays therapist dashboard"

@@ -161,7 +161,7 @@ def home_page_for(user)
   when :patient
     "/users/#{user.username}/exercises"
   when :therapist
-    "/therapist_dashboard"
+    "/users/#{user.username}/therapist_dashboard"
   when :admin
     "/users/#{user.username}/admin_dashboard"
   end
