@@ -43,8 +43,9 @@
       <th scope="col" style="width: 10%"><a href="/users/<%= params[:username] %>/therapist_dashboard?sort=last_name&dir=<%= params[:sort] == 'last_name' ? sort_direction(params[:dir]) : 'asc' %>"> Last Name</a></th>
       <th scope="col" style="width: 10%"><a href="/users/<%= params[:username] %>/therapist_dashboard?sort=first_name&dir=<%= params[:sort] == 'first_name' ? sort_direction(params[:dir]) : 'asc' %>">First Name</a></th>
       <th scope="col" style="width: 10%"><a href="/users/<%= params[:username] %>/therapist_dashboard?sort=username&dir=<%= params[:sort] == 'username' ? sort_direction(params[:dir]) : 'asc' %>">Username</a></th>
-      <th scope="col" style="width: 10%"><a href="/users/<%= params[:username] %>/therapist_dashboard?sort=last_login_time&dir=<%= params[:sort] == 'last_login_time' ? sort_direction(params[:dir]) : 'desc' %>">Last login</a></th>
-      <!-- patient flags -->
+      <th scope="col" style="width: 10%"><a href="/users/<%= params[:username] %>/therapist_dashboard?sort=last_login_time&dir=<%= (params[:sort] != 'last_login_time' &&
+      !nil_or_empty?(params[:sort])) ? 'desc' : sort_direction(params[:dir]) %>">Last login</a></th>
+      <!-- patient flags (new, inactive, etc..) -->
       <th scope="col" style="width: 10%"></th>
       <th scope="col">Actions</th>
     </tr>
