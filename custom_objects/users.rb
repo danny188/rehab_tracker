@@ -7,6 +7,8 @@ class User
 
   alias :name :username
 
+  SlimUser = Struct.new(:username, :role)
+
   def initialize(username, pw)
     @username = username
     @pw = pw
@@ -67,6 +69,11 @@ class User
       end
     end
     result
+  end
+
+  # returns a slimmed down version of User object
+  def slim
+    SlimUser.new(self.username, self.role)
   end
 
   def full_name

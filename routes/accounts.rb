@@ -253,7 +253,7 @@ post "/login" do
   if authenticate_user(@username, @password)
     @user = User.get(@username)
 
-    session[:user] = @user
+    session[:user] = @user.slim
 
     if @user.change_pw_next_login
       session[:warning] = "Please change your password"
