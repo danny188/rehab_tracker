@@ -65,7 +65,7 @@
         </li>
  -->
         <!-- Patient list -->
-        <li class="nav-item <%= active_class("/therapist_dashboard") %>">
+        <li class="nav-item <%= active_class("/users/#{session[:user].username if session[:user]}/therapist_dashboard") %>">
           <% if session[:user] && session[:user].role == :therapist %>
           <a class="nav-link" href="/users/<%= session[:user].username %>/therapist_dashboard">Dashboard</a>
           <% end %>
