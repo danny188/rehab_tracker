@@ -35,7 +35,7 @@ helpers do
       when 31..119       then "about a minute ago"
       when 120..3599     then "#{delta / 60} minutes ago"
       when 3600..86399   then "#{(delta / 3600).round} hours ago"
-      when delta >= 86400 then "#{(delta / 86400).round} days ago"
+      when 86400.. then "#{(delta / 86400).round} days ago"
     end
   end
 
