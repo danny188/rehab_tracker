@@ -107,7 +107,10 @@
 
 <% content_for :exercise_row do |exercise, indent, ex_index, group, grp_index|%> <div class="row exercise-row">
   <div class="mb-2 col-lg-4 col-6 col-md-5 col-xl-3 ml-<%= indent ? indent * 4 : 0 %> mr-n<%= indent ? indent * 4 : 0 %>">
-    <a href="/users/<%= @patient.username %>/exercises/<%= exercise.name %>/edit?group=<%= group.name if group %>" class="exercise" data-toggle="tooltip" title="<%= exercise.instructions %>"><%== exercise.name %></a>
+    <a href="/users/<%= @patient.username %>/exercises/<%= exercise.name %>/edit?group=<%= group.name if group %>" class="exercise mr-1" data-toggle="tooltip" title="<%= exercise.instructions %>"><%== exercise.name %></a>
+    <!-- show image icon if images -->
+    <% if exercise.image_links.size > 0 %><a href="/users/<%= @patient.username %>/exercises/<%= exercise.name %>/edit?group=<%= group.name if group %>"><i class="far fa-image" data-toggle="tooltip" title="Image Available"></i></a><% end %>
+
   </div>
   <div class="d-none d-sm-none d-md-3 col-3 "></div>
   <div class="col-lg-1 col-3 col-sm-3 col-md-2 d-print-block"> <% if exercise.reps || exercise.sets %> <span class="badge badge-secondary reps-sets my-2"><%= reps_and_sets_str(exercise) %></span> <% end %> </div>
