@@ -97,6 +97,11 @@ post "/new_account" do
   @role = params[:role].strip
   @hashed_pw = BCrypt::Password.create(@password)
 
+  unless params[:chkbox_agree_terms]
+    session[:error] = "Please read and agree to <a href='/terms'>Terms of Service</a> and <a href='/privacy_policy'>Privacy Policy</a> to create an account."
+    halt erb(:'accounts/new_account')
+  end
+
   if invalid_username(@username)
     session[:error] = "Username can only contain letters, numbers and/or '_' (underscore) and '-' (hyphen) characters."
     halt erb(:'accounts/new_account')
@@ -146,7 +151,7 @@ post "/new_account" do
 
   @new_user.save
 
-  session[:success] = "Account #{@username} has been created"
+  session[:success] = "Account #{@username} has been created. Please sign in."
 
   if session[:user]
     redirect_to_home_page(session[:user])
