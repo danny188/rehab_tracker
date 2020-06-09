@@ -1,0 +1,56 @@
+<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+<script type="text/javascript">
+      var eventSource = new EventSource('/users/<%= params[:username] %>/chat_with_therapist/stream');
+      var stockChart; // A <canvas> wrapper perhaps
+      var newsTicker; // A <ul> of news story links
+
+
+
+      eventSource.onmessage = function(e) {
+          $('#chat-log').val($('#chat-log').val() + e.data + "\n" );
+          var chat_log = document.getElementById('chat-log');
+          chat_log.scrollTop = chat_log.scrollHeight;
+
+      };
+
+  $( document ).ready( function() {
+    $( '#submit_new_msg' ).click( function() {
+
+      $.post('/users/<%= params[:username] %>/chat_with_therapist/stream',
+      $( '#new_msg' ).serialize(),
+      function(data) {
+        $( '#new_msg' ).val( '' );
+      });
+    });
+
+    $("#new_msg").keypress(function (e) {
+      if (e.which === 13) {
+          e.preventDefault();
+          $( '#submit_new_msg' ).trigger('click');
+          $( '#new_msg').val('');
+      }
+    });
+
+
+  });
+
+  // $('#chat-log').change(function() {
+  //      $('#chat-log').scrollTop($('#chat-log').scrollHeight);
+  //   });
+
+</script>
+
+<h1><%= params[:username] %>'s conversations</h1>
+
+
+<form id="chat_form">
+  <div class="form-group">
+    <textarea class="form-control col-lg-6" id="chat-log" rows="10" readonly></textarea>
+  </div>
+  <div class="form-group ">
+    <input class="col-lg-6" type="text" name="new_msg" id="new_msg">
+
+  </div>
+
+</form>
+<button id="submit_new_msg" class="btn btn-success">Send</button>

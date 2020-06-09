@@ -23,6 +23,7 @@ require_relative 'routes/exercise_tracker'
 require_relative 'routes/dashboards'
 require_relative 'routes/weather'
 require_relative 'routes/misc'
+require_relative 'routes/chat'
 
 require_relative 'helpers'
 

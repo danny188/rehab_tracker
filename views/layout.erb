@@ -98,6 +98,13 @@
           <a class="nav-link" href="/users/<%= (session[:user].username if session[:user]) %>/stats">Stats</a>
           <% end %>
         </li>
+
+        <!-- conversations with therapist -->
+        <li class="nav-item <%= active_class("/users/#{ session[:user].username if session[:user] }/stats") %>">
+          <% if session[:user] && session[:user].role == :patient %>
+          <a class="nav-link" href="/users/<%= (session[:user].username if session[:user]) %>/chat_with_therapist">Chat</a>
+          <% end %>
+        </li>
       <!-- <li class="nav-item">
         <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
       </li> -->
