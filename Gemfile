@@ -11,7 +11,7 @@ gem "minitest"
 gem "bcrypt"
 gem 'pry-byebug'
 gem "chartkick"
-gem "puma", ">= 4.3.5"
+# gem "puma", ">= 4.3.5"
 gem 'thin'
 gem "tilt"
 gem "erubis"
