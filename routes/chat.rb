@@ -8,7 +8,7 @@ get "/users/:username/chat_with_therapist" do
 
 end
 
-post "/users/:username/chat_with_therapist/stream" , provides: 'text/event-stream' do
+post "/users/:username/chat_with_therapist/stream" do
   content_type 'text/event-stream'
   # stream :keep_open do |out|
   #       # Error handling code omitted
@@ -21,7 +21,7 @@ post "/users/:username/chat_with_therapist/stream" , provides: 'text/event-strea
     204
 end
 
-get "/users/:username/chat_with_therapist/stream" , provides: 'text/event-stream' do
+get "/users/:username/chat_with_therapist/stream" do
   content_type 'text/event-stream'
   stream :keep_open do |out|
         # Error handling code omitted
