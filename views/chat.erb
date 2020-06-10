@@ -1,32 +1,47 @@
 <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 <script type="text/javascript">
-      var eventSource = new EventSource('/users/<%= params[:username] %>/chat_with_therapist/stream');
+  var eventSource = new EventSource('/users/<%= params[:username] %>/chat_with_therapist/stream');
 
 
-      // eventSource.addEventListener('for_james', function(e) {
-      //     var obj = JSON.parse(e.data);
-      //     console.log(obj.msg);
-      //     console.log('heyhey');
-      //     $('#chat-log').val($('#chat-log').val() + obj.msg + "\n" );
-      //     var chat_log = document.getElementById('chat-log');
-      //     chat_log.scrollTop = chat_log.scrollHeight;
+  // eventSource.addEventListener('for_james', function(e) {
+  //     var obj = JSON.parse(e.data);
+  //     console.log(obj.msg);
+  //     console.log('heyhey');
+  //     $('#chat-log').val($('#chat-log').val() + obj.msg + "\n" );
+  //     var chat_log = document.getElementById('chat-log');
+  //     chat_log.scrollTop = chat_log.scrollHeight;
 
 
-      // }, false);
+  // }, false);
 
-      eventSource.onmessage = function(e) {
-          var obj = JSON.parse(e.data);
-          if ( $('#chat-log').val() == '' ) {
-             $('#chat-log').val(obj.msg);
-          }
-          else {
-            $('#chat-log').val([$('#chat-log').val(), obj.msg].join("\n"));
-          }
+  eventSource.onmessage = function(e) {
+      var obj = JSON.parse(e.data);
+      // if ( $('#chat-log').val() == '' ) {
+      //    $('#chat-log').val(obj.msg);
+      // }
+      // else {
+      //   $('#chat-log').val([$('#chat-log').val(), obj.msg].join("\n"));
+      // }
 
-          var chat_log = document.getElementById('chat-log');
-          chat_log.scrollTop = chat_log.scrollHeight;
+      if (obj.for_user == '<%= address_user(@patient) %>') {
+        var chatEntry = `<p style='display: inline-block; width: 100%; text-align: right;'> ${obj.for_user} (<%= Time.now.strftime("%d/%m/%y %k:%M") %>): ${obj.msg}</p>`;
+      } else {
+        var chatEntry = `<p style='display: inline-block; width: 100%; text-align: left;'> ${obj.for_user} (<%= Time.now.strftime("%d/%m/%y %k:%M") %>): ${obj.msg}</p>`;
+      }
 
-      };
+      $('#new-chat-log').append(chatEntry);
+
+      // var chat_log = document.getElementById('chat-log');
+      // chat_log.scrollTop = chat_log.scrollHeight;
+
+      var chat_log = document.getElementById('new-chat-log');
+      chat_log.scrollTop = chat_log.scrollHeight;
+  };
+
+  eventSource.onerror = function(err) {
+    // alert("Error occurred, please reload page.");
+
+  };
 
   $( document ).ready( function() {
     $( '#submit_new_msg' ).click( function() {
@@ -50,7 +65,10 @@
       }
     });
 
-    var chat_log = document.getElementById('chat-log');
+    // var chat_log = document.getElementById('chat-log');
+    // chat_log.scrollTop = chat_log.scrollHeight;
+
+    var chat_log = document.getElementById('new-chat-log');
     chat_log.scrollTop = chat_log.scrollHeight;
 
   });
@@ -66,9 +84,23 @@
     <h1><%= address_user(@patient) %>'s conversations with Therapist</h1>
     <br>
 
+    <div style="border: 1px solid black; height: 400px; overflow: scroll" class="mx-auto col-lg-6" id="new-chat-log">
+      <% @patient.chat_history.each do |msg_log| %>
+        <% user, time_str, msg = *msg_log %>
+        <% if user == address_user(@patient) %>
+          <p style="display: inline-block; width: 100%; text-align: right;"><%= user %> (<%= time_str %>): <%= msg %></p>
+        <% else %>
+          <p style="display: inline-block; width: 100%; text-align: left;"><%= user %> (<%= time_str %>): <%= msg %></p>
+
+        <% end %>
+        <br>
+
+      <% end %>
+    </div>
+
     <form id="chat_form" >
       <div class="form-group">
-        <textarea class="form-control mx-auto col-lg-6" id="chat-log" rows="10" readonly><%=@patient.chat_history.join("\n")%></textarea>
+        <!-- <textarea class="form-control mx-auto col-lg-6" id="chat-log" rows="10" readonly><%=@patient.chat_history.join("\n")%></textarea> -->
       </div>
       <div class="form-group ">
         <input class="col-lg-6" data-toggle="tooltip" title="Press enter to submit message" type="text" name="new_msg" id="new_msg">
@@ -81,9 +113,9 @@
 
     <hr>
 
-    <form id="clear-history" action="/users/<%= params[:username] %>/chat_with_therapist/clear_history" method="post">
+    <form id="clear-history" action="/users/<%= params[:username] %>/chat_with_therapist/clear_history" method="post" onsubmit="return confirm('Are you sure you want to delete chat history? This cannot be reversed. Click OK to proceed.');">
       <br>
-      <button class="btn btn-secondary" type="submit" >Clear Chat History</button>
+      <button class="btn btn-secondary" type="submit"  >Clear Chat History</button>
     </form>
 
   </div>

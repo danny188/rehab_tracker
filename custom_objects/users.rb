@@ -9,7 +9,7 @@ class User
 
   INACTIVE_DAYS_THRESHOLD = 20
 
-  SlimUser = Struct.new(:username, :role)
+  SlimUser = Struct.new(:username, :role, :first_name)
 
   def initialize(username, pw)
     @username = username
@@ -75,7 +75,7 @@ class User
 
   # returns a slimmed down version of User object
   def slim
-    SlimUser.new(self.username, self.role)
+    SlimUser.new(self.username, self.role, self.first_name)
   end
 
   def full_name
@@ -135,7 +135,7 @@ end
 class Patient < User
   attr_accessor :exercise_collection, :wellness_ratings, :last_updated,
                 :last_review_date, :last_review_by, :last_updated,
-                :chat_history
+                :chat_history, :unread_therapist_msg, :unread_pt_msg
   include GroupOperations
 
   alias_method :top_collection, :exercise_collection
