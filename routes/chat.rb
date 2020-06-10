@@ -16,12 +16,10 @@ get "/users/:username/chat_with_therapist" do
   # mark messages read by therapist
   if session[:user].role == :therapist
     @patient.unread_pt_msg = false
-    puts "set unread pt msg to false"
     @patient.save
   # mark messages read by patient
   elsif session[:user].role == :patient
     @patient.unread_therapist_msg = false
-    puts "set unread thperaist msg to false"
     @patient.save
   end
 
@@ -42,6 +40,20 @@ post "/users/:username/chat_with_therapist/clear_history" do
   redirect "/users/#{params[:username]}/chat_with_therapist"
 end
 
+post "/users/:username/chat_with_therapist/mark_read" do
+  data_obj = JSON.parse(request.body.read)
+
+  @patient = User.get(params[:username])
+
+  if data_obj['readBy'] == 'therapist'
+    @patient.unread_pt_msg = false
+  elsif data_obj['readBy'] == 'patient'
+    @patient.unread_therapist_msg = false
+  end
+
+  @patient.save
+end
+
 post "/users/:username/chat_with_therapist/stream",  provides: 'text/event-stream' do
   unless verify_user_access(min_authorization: :patient, required_username: params[:username])
     redirect "/access_error"
@@ -59,10 +71,8 @@ post "/users/:username/chat_with_therapist/stream",  provides: 'text/event-strea
 
   if session[:user].role == :therapist
     @patient.unread_therapist_msg = true
-    puts "set unread thperaist msg to true"
   elsif session[:user].role == :patient
     @patient.unread_pt_msg = true
-    puts "set unread pt msg to true"
   end
 
   @patient.save

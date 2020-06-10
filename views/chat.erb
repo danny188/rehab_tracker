@@ -36,6 +36,19 @@
 
       var chat_log = document.getElementById('new-chat-log');
       chat_log.scrollTop = chat_log.scrollHeight;
+
+      // mark messages read as they come
+      var data_obj = {readBy: '<%= session[:user].role %>'};
+      $.ajax({
+        url: "/users/<%= params[:username] %>/chat_with_therapist/mark_read",
+        type: "POST",
+        data: JSON.stringify(data_obj),
+        dataType: 'text',
+        contentType: 'application/json',
+        success: function(data) {
+        }
+      });
+
   };
 
   eventSource.onerror = function(err) {
