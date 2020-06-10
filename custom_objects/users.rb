@@ -134,7 +134,8 @@ end
 
 class Patient < User
   attr_accessor :exercise_collection, :wellness_ratings, :last_updated,
-                :last_review_date, :last_review_by, :last_updated
+                :last_review_date, :last_review_by, :last_updated,
+                :chat_history
   include GroupOperations
 
   alias_method :top_collection, :exercise_collection
@@ -144,6 +145,7 @@ class Patient < User
   def initialize(username, pw)
     super
     @exercise_collection = ExerciseGroup.new(TOP_GROUP)
+    @chat_history = []
   end
 
   def self.get_all
