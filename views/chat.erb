@@ -2,18 +2,6 @@
 <script type="text/javascript">
   var eventSource = new EventSource('/users/<%= params[:username] %>/chat_with_therapist/stream');
 
-
-  // eventSource.addEventListener('for_james', function(e) {
-  //     var obj = JSON.parse(e.data);
-  //     console.log(obj.msg);
-  //     console.log('heyhey');
-  //     $('#chat-log').val($('#chat-log').val() + obj.msg + "\n" );
-  //     var chat_log = document.getElementById('chat-log');
-  //     chat_log.scrollTop = chat_log.scrollHeight;
-
-
-  // }, false);
-
   eventSource.onmessage = function(e) {
       var obj = JSON.parse(e.data);
       // if ( $('#chat-log').val() == '' ) {
@@ -53,7 +41,6 @@
 
   eventSource.onerror = function(err) {
     // alert("Error occurred, please reload page.");
-
   };
 
   $( document ).ready( function() {
@@ -94,7 +81,11 @@
 
 <div class="row-col">
   <div class="text-center">
-    <h1><%= address_user(@patient) %>'s conversations with Therapist</h1>
+    <% if session[:user].role == :therapist %>
+      <h1>Conversation with <%= full_name_plus_username(@patient) %></h1>
+    <% else %>
+      <h1>Conversation with Therapist</h1>
+    <% end %>
     <br>
 
     <div style="border: 1px solid black; height: 400px; overflow: scroll" class="mx-auto col-lg-6" id="new-chat-log">
