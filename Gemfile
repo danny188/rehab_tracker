@@ -18,4 +18,5 @@ gem "erubis"
 gem 'redcarpet'
 gem 'rack-ssl-enforcer', '~> 0.2.9'
 gem 'sendgrid-ruby'
+gem 'mail'
 gem 'envyable'

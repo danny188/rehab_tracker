@@ -13,6 +13,7 @@ require 'securerandom'
 require 'logger'
 require 'redcarpet'
 require 'rack-ssl-enforcer'
+require 'mail'
 require 'sendgrid-ruby'
 include SendGrid
 require 'envyable'
@@ -51,5 +52,6 @@ configure do
 end
 
 get "/debug" do
-   session[:debug]
+
+  session[:debug]
 end
