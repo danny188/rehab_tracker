@@ -13,6 +13,8 @@ require 'securerandom'
 require 'logger'
 require 'redcarpet'
 require 'rack-ssl-enforcer'
+require 'sendgrid-ruby'
+include SendGrid
 
 require_relative 'custom_objects/init'
 include GroupOperations
