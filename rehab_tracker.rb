@@ -15,6 +15,7 @@ require 'redcarpet'
 require 'rack-ssl-enforcer'
 require 'sendgrid-ruby'
 include SendGrid
+require 'envyable'
 
 require_relative 'custom_objects/init'
 include GroupOperations
@@ -28,6 +29,8 @@ require_relative 'routes/misc'
 require_relative 'routes/chat'
 
 require_relative 'helpers'
+
+Envyable.load('./config/env.yml', 'development')
 
 set :logger, Logger.new($stdout)
 
