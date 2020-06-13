@@ -180,20 +180,32 @@ post "/new_account" do
   logger.info "#{logged_in_user} creates #{@new_user.role.to_s} account for #{full_name_plus_username(@new_user)}"
 
   # verify patient accounts
-  if @role = 'patient'
+  if @role = 'patient' && !@new_user.account_activated
     response = @new_user.send_account_verification_email
     logger.info "email api response: #{response.status_code}\n body: #{response.body}\n headers: #{response.headers}"
   end
 
   @new_user.save
 
-  # session[:success] = "Account #{@username} has been created."
+  # notify admin of account creation
+  subject = "New #{@new_user.role} account created"
+  text = <<-heredoc
+    New #{@new_user.role} account created at #{Time.now.strftime("%d/%m/%Y %H:%M")}
+    username: #{@username}
+    first_name: #{@new_user.first_name}
+    last_name: #{@new_user.last_name}
+    email: #{@new_user.email}
+  heredoc
+
+  email_rb_admin(subject, text)
 
   if session[:user]
     redirect_to_home_page(session[:user])
-  else
-    # redirect "/login"
+  elsif !@new_user.account_activated
     erb :'accounts/await_verification'
+  else # account activation not necessary
+    session[:success] = "Account #{@username} has been created. Please sign in."
+    redirect "/login"
   end
 end
 
