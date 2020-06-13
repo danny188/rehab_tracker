@@ -155,7 +155,23 @@ $(document).ready(function() {
   // $("#toast-btn").click(function(){
   //   $('.deactivate-user-success').toast('show');
   // });
+
+  // set day step jump number by screen size
+  function resize() {
+    if ( $(window).width() < 992 && $(window).width() >= 768) {
+      $("#day_step").val('3');
+    }
+    else if ( $(window).width() < 768) {
+      $("#day_step").val('1');
+    } else {
+      $("#day_step").val('7');
+    }
+  }
+  $(window).on("resize", resize);
+  resize(); // call once initially
+
 });
+
 $(function() {
   $('[data-toggle="popover"]').popover({
     html: true
