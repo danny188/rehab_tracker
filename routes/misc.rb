@@ -26,3 +26,7 @@ get "/terms" do
   logger.info "#{logged_in_user} views terms of service"
   markdown :terms, layout: :layout
 end
+
+get "/contact" do
+  erb :contact
+end
