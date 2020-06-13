@@ -52,6 +52,9 @@ post "/users/:username/chat_with_therapist/mark_read" do
   end
 
   @patient.save
+
+  status 201
+
 end
 
 post "/users/:username/chat_with_therapist/stream",  provides: 'text/event-stream' do
