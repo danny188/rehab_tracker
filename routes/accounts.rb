@@ -86,11 +86,6 @@ get "/users/:username/activate" do
 
   redirect_to_home_page(@user) if @user.account_activated
 
-
-  puts "token expiry " + @user.activation_token_expiry.to_s
-  puts "token  " + @user.activation_token
-  puts "account_activated " + @user.account_activated.to_s
-
   if @user.activation_token_expiry <= Time.now || @user.activation_token.nil?
     session[:error] = "The activation link has expired. Please request a new one on your Profile page."
     @user.activation_token = nil
