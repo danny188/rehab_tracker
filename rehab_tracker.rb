@@ -52,6 +52,5 @@ configure do
 end
 
 get "/debug" do
-
   session[:debug]
 end

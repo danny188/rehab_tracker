@@ -78,13 +78,48 @@ post "/users/:username/deactivate_account" do
   redirect_to_home_page(session[:user])
 end
 
+# email account verification for new accounts
+get "/users/:username/activate" do
+  @token = params[:token]
+
+  @user = User.get(params[:username])
+
+  redirect_to_home_page(@user) if @user.account_activated
+
+
+  puts "token expiry " + @user.activation_token_expiry.to_s
+  puts "token  " + @user.activation_token
+  puts "account_activated " + @user.account_activated.to_s
+
+  if @user.activation_token_expiry <= Time.now || @user.activation_token.nil?
+    session[:error] = "The activation link has expired. Please request a new one on your Profile page."
+    @user.activation_token = nil
+    halt erb(:'accounts/activate_account')
+  end
+
+  if @user.activation_token == @token
+    @user.account_activated = true
+    @user.activation_token = nil
+    @user.activation_token_expiry = nil
+
+    session[:success] = "Account successfully verified."
+    @user.save
+
+    if session[:user] && session[:user].username == params[:username] # already logged in
+      redirect_to_home_page(@user)
+    else
+      redirect "/login"
+    end
+  else
+    session[:error] = "The activation link is not valid. You may request a new link on your <a href='/users/#{params[:username]}/profile'>Profile</a> page."
+    halt erb(:'accounts/activate_account')
+  end
+end
 
 get "/new_account" do
 
   logger.info "#{logged_in_user} displays new account creation page"
   erb :'accounts/new_account'
-
-
 end
 
 post "/new_account" do
@@ -149,17 +184,23 @@ post "/new_account" do
 
   logger.info "#{logged_in_user} creates #{@new_user.role.to_s} account for #{full_name_plus_username(@new_user)}"
 
+  # verify patient accounts
+  if @role = 'patient'
+    response = @new_user.send_account_verification_email
+    logger.info "email api response: #{response.status_code}\n body: #{response.body}\n headers: #{response.headers}"
+  end
+
   @new_user.save
 
-  session[:success] = "Account #{@username} has been created. Please sign in."
+  # session[:success] = "Account #{@username} has been created."
 
   if session[:user]
     redirect_to_home_page(session[:user])
   else
-    redirect "/login"
+    # redirect "/login"
+    erb :'accounts/await_verification'
   end
 end
-
 
 post "/users/:username/profile/update" do
   unless verify_user_access(min_authorization: :patient, required_username: params[:username])
@@ -168,7 +209,6 @@ post "/users/:username/profile/update" do
 
   @user = User.get(params[:username])
   @current_password = params[:current_password]
-
 
   @first_name = params[:first_name]
   @last_name = params[:last_name]
@@ -291,4 +331,22 @@ get "/users/:username/profile" do
   end
 
   erb :'accounts/profile'
+end
+
+# re-send account email verification link
+post "/users/:username/resend-activation" do
+  unless verify_user_access(min_authorization: :patient, required_username: params[:username])
+    redirect "/access_error"
+  end
+
+  @user = User.get(params[:username])
+  @user.create_activation_token
+  response = @user.send_account_verification_email
+
+  logger.info "#{logged_in_user} re-requests activation link for #{params[:username]}"
+  logger.info "email api response: #{response.status_code}\n body: #{response.body}\n headers: #{response.headers}"
+  @user.save
+
+  session[:success] = "Account verification link has been sent. Please activate within 24 hours to complete registration."
+  redirect "/users/#{params[:username]}/profile"
 end

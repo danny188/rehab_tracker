@@ -1,7 +1,9 @@
 
 class User
   attr_accessor :username, :pw, :first_name, :last_name, :email,
-  :change_pw_next_login, :account_status, :deactivate_time, :last_login_time
+                :change_pw_next_login, :account_status, :deactivate_time, :last_login_time,
+                :account_activated, :activation_token, :activation_token_expiry, :activation_link_sent_time,
+                :pw_reset_token, :pw_reset_token_expiry
 
   include DataPersistence
 
@@ -146,6 +148,8 @@ class Patient < User
     super
     @exercise_collection = ExerciseGroup.new(TOP_GROUP)
     @chat_history = []
+
+    create_activation_token
   end
 
   def self.get_all
@@ -154,6 +158,39 @@ class Patient < User
 
   def self.get_all_patients_locally
     get_all_users_locally.select { |user| user_role(user) == :patient }
+  end
+
+  def greet
+    self.first_name || self.username
+  end
+
+  def create_activation_token
+    @account_activated = false
+    @activation_token = SecureRandom.urlsafe_base64
+    @activation_token_expiry = Time.now + (24 * 60 * 60) # 24 hours from now
+  end
+
+  # sends email and returns SendGrid Response obj
+  def send_account_verification_email
+    return nil unless self.email
+
+    mail = SendGrid::Mail.new
+    mail.from = Email.new(email: ENV['REHAB_BUDDY_EMAIL'])
+
+    personalization = Personalization.new
+    personalization.add_to(Email.new(email: self.email))
+    personalization.add_dynamic_template_data({
+        "name" => self.greet,
+        "activation_link" => ENV['ABS_URL'] + "/users/#{self.username}/activate?token=" + self.activation_token
+      })
+    mail.add_personalization(personalization)
+    mail.template_id = 'd-f371032896e047cf9808eac2948dcb95'
+
+
+    sg = SendGrid::API.new(api_key: ENV['SENDGRID_API_KEY'])
+    self.activation_link_sent_time = Time.now
+
+    response = sg.client.mail._('send').post(request_body: mail.to_json)
   end
 
   def move_exercise_up(exercise_name, group_name)
@@ -339,6 +376,11 @@ class Therapist < User
   def self.get_all_therapists_locally
     get_all_users_locally.select { |user| user.role == :therapist }
   end
+
+  def initialize(username, pw)
+    super
+    self.account_activated = true
+  end
 end
 
 class Admin < User
@@ -348,6 +390,11 @@ class Admin < User
 
   def self.get_all_admins_locally
     get_all_users_locally.select { |user| user.role == :admin }
+  end
+
+  def initialize(username, pw)
+    super
+    self.account_activated = true
   end
 end
 

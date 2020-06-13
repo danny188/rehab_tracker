@@ -42,8 +42,16 @@
 
     <div class="form-group">
       <label class="sr-only" for="email">Email address</label>
-      <input type="email" class="form-control" name="email" id="email" placeholder="Enter email" value="<%= @user.email %>" <%= 'readonly' unless session[:user].username == params[:username] %>>
+      <input type="email" class="form-control" name="email" id="email" placeholder="Enter email" value="<%= @user.email %>" <%= 'readonly' unless session[:user].username == params[:username] %> required>
       <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+
+      <% if @user.account_activated %>
+        <p class="text-center alert-success">Email Verified</p>
+      <% else %>
+        <div class="d-flex justify-content-around">
+          <p class="alert-warning ">Email Not Verified <button class="btn btn-primary ml-3" type="submit" formaction="/users/<%= params[:username] %>/resend-activation">Re-send link</button></p>
+        </div>
+      <% end %>
     </div>
 
     <div class="form-group">
