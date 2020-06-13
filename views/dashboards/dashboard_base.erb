@@ -63,7 +63,7 @@
           <%= patient.last_login_time.strftime("%d/%m/%Y %k:%M") if patient.last_login_time %>
         </td>
         <td>
-          <%= '<h5><span class="badge badge-danger">New Patient</span></h5>' unless patient.last_review_date %>
+          <%= '<h5><span class="badge badge-success">New Patient</span></h5>' unless patient.last_review_date %>
           <%= '<h5><span class="badge badge-secondary">Inactive</span></h5>' unless days_ago(patient.last_login_time) < User::INACTIVE_DAYS_THRESHOLD %>
           <%= '<h5><span class="badge badge-warning">Email Unverified</span></h5>' unless patient.account_activated %>
         </td>
