@@ -65,13 +65,14 @@
         <td>
           <%= '<h5><span class="badge badge-danger">New Patient</span></h5>' unless patient.last_review_date %>
           <%= '<h5><span class="badge badge-secondary">Inactive</span></h5>' unless days_ago(patient.last_login_time) < User::INACTIVE_DAYS_THRESHOLD %>
+          <%= '<h5><span class="badge badge-warning">Email Unverified</span></h5>' unless patient.account_activated %>
         </td>
         <td>
-          <a href="/users/<%= patient.username %>/exercises">View Exercises</a>
-          <a href="/users/<%= patient.username %>/stats">Stats</a>
-          <a href="/users/<%= patient.username %>/chat_with_therapist">Chat <%= '<span class="badge badge-primary">New Msg</span>' if patient.unread_pt_msg %></a>
-          <a href="/users/<%= patient.username %>/profile">View Profile</a>
-          <a href="/users/<%= patient.username %>/deactivate_account" class="text-danger">Delete</a>
+          <a class="btn btn-dark my-1" href="/users/<%= patient.username %>/exercises">Exercises</a>
+          <a class="btn btn-dark my-1" href="/users/<%= patient.username %>/stats">Stats</a>
+          <a class="btn btn-dark my-1" href="/users/<%= patient.username %>/chat_with_therapist">Chat <%= '<span class="badge badge-primary">New Msg</span>' if patient.unread_pt_msg %></a>
+          <a class="btn btn-dark my-1" href="/users/<%= patient.username %>/profile">Profile</a>
+          <a class="btn btn-danger my-1" href="/users/<%= patient.username %>/deactivate_account" class="text-danger">Delete</a>
         </td>
       </tr>
     <% end %>
