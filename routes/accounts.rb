@@ -319,6 +319,9 @@ post "/login" do
 
     session[:user] = @user.slim
 
+    @user.last_login_time = Time.now
+    @user.save
+
     if @user.change_pw_next_login
       session[:warning] = "Please change your password"
       redirect "/users/#{@username}/profile"
@@ -329,9 +332,6 @@ post "/login" do
     else
       session.options[:expire_after] = 14400 # 4 hrs
     end
-
-    @user.last_login_time = Time.now
-    @user.save
 
     redirect_to_home_page(@user)
   else
