@@ -74,7 +74,7 @@ post "/users/:username/deactivate_account" do
   # notify admin of account deactivation
   subject = "#{@deactivate_user.role} account '#{@deactivate_user.username}' deactivated"
   text = <<-heredoc
-    New #{@deactivate_user.role} account deactivated by #{session[:user].username} at #{Time.now.strftime("%d/%m/%Y %H:%M")}
+    #{@deactivate_user.role} account deactivated by #{session[:user].username} at #{Time.now.strftime("%d/%m/%Y %H:%M")}
     username: #{@deactivate_user.username}
     first_name: #{@deactivate_user.first_name}
     last_name: #{@deactivate_user.last_name}
