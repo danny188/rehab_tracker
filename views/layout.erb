@@ -88,7 +88,7 @@
         <!-- Exercise Library -->
         <li class="nav-item <%= active_class('/exercise_library') %>">
           <% if session[:user] && STAFF_ROLES.include?(session[:user].role) %>
-          <a class="nav-link" href="/exercise_library"><i class="fas fa-book mr-1 d-block text-cente"></i>Exercises Library</a>
+          <a class="nav-link" href="/exercise_library"><i class="fas fa-book mr-1 d-block text-center"></i>Exercises Library</a>
           <% end %>
         </li>
 
