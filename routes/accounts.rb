@@ -71,6 +71,18 @@ post "/users/:username/deactivate_account" do
 
   logger.info "#{logged_in_user} deactivates #{@deactivate_user.role.to_s} account #{full_name_plus_username(@deactivate_user)}"
 
+  # notify admin of account deactivation
+  subject = "#{@deactivate_user.role} account '#{@deactivate_user.username}' deactivated"
+  text = <<-heredoc
+    New #{@deactivate_user.role} account deactivated by #{session[:user].username} at #{Time.now.strftime("%d/%m/%Y %H:%M")}
+    username: #{@deactivate_user.username}
+    first_name: #{@deactivate_user.first_name}
+    last_name: #{@deactivate_user.last_name}
+    email: #{@deactivate_user.email}
+  heredoc
+
+  email_rb_admin(subject, text)
+
   # mark account deactivated from storage
   @deactivate_user.deactivate
 
