@@ -167,6 +167,7 @@ $(document).ready(function() {
       $("#day_step").val('7');
     }
   }
+
   $(window).on("resize", resize);
   resize(); // call once initially
 
