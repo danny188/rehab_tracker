@@ -68,10 +68,12 @@
   <span class=""><em>Last modified by <%= address_user(User.get(@patient.last_review_by)) %> on <%= @patient.last_review_date.strftime("%d/%m/%Y") %> </em></span>
   <span class="d-none d-print-block"><em><%= ", printed on #{Date.today.strftime('%d/%m/%Y')}" %> </em></span>
   <% end %>
-  <!-- up to here -->
-  <form method="post" action="/users/<%= params[:username] %>/send-notification?event=exercise_update">
-    <button class="btn btn-dark ml-3">Notify Exercise Updates via Email</button>
-  </form>
+  <!-- display notify exercise updates by email button only if user has email -->
+  <% if @patient.email %>
+    <form method="post" action="/users/<%= params[:username] %>/send-notification?event=exercise_update">
+      <button class="btn btn-dark ml-3">Notify Exercise Updates via Email</button>
+    </form>
+  <% end %>
 </div>
 <hr>
 <div class="row spacer-top header-row">
