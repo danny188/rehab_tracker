@@ -30,8 +30,7 @@ helpers do
   # returns SendGrid Response object
   def email_rb_admin(subject, text)
     from = SendGrid::Email.new(email: ENV['REHAB_BUDDY_EMAIL'])
-    to = SendGrid::Email.new(email: "rehabbuddy@yahoo.com")
-    # to = SendGrid::Email.new(email: "#{ENV['REHAB_BUDDY_EMAIL']}")
+    to = SendGrid::Email.new(email: ENV['REHAB_BUDDY_EMAIL'])
     content = SendGrid::Content.new(type: 'text/plain', value: text)
     mail = SendGrid::Mail.new(from, subject, to, content)
 

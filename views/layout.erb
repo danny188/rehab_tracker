@@ -67,43 +67,43 @@
         <!-- Patient list -->
         <li class="nav-item <%= active_class("/users/#{session[:user].username if session[:user]}/therapist_dashboard") %>">
           <% if session[:user] && session[:user].role == :therapist %>
-          <a class="nav-link" href="/users/<%= session[:user].username %>/therapist_dashboard">Dashboard</a>
+          <a class="nav-link" href="/users/<%= session[:user].username %>/therapist_dashboard"><i class="fas fa-list mr-1 d-block text-center"></i>Dashboard</a>
           <% end %>
         </li>
 
         <!-- Admin Panel -->
         <li class="nav-item <%= active_class("/users/#{session[:user].username if session[:user]}/admin_dashboard")%>">
           <% if session[:user] && session[:user].role == :admin %>
-          <a class="nav-link" href="/users/<%= session[:user].username %>/admin_dashboard">Dashboard</a>
+          <a class="nav-link" href="/users/<%= session[:user].username %>/admin_dashboard"><i class="fas fa-list mr-1 d-block text-center"></i>Dashboard</a>
           <% end %>
         </li>
 
         <!-- Exercise page -->
         <li class="nav-item <%= active_class("/users/#{session[:user].username if session[:user] }/exercises") %>">
           <% if session[:user] && session[:user].role == :patient %>
-          <a class="nav-link" href="/users/<%= (session[:user].username if session[:user]) %>/exercises">Exercises</a>
+          <a class="nav-link" href="/users/<%= (session[:user].username if session[:user]) %>/exercises"><i class="fas fa-dumbbell mr-1 d-block text-center"></i>Exercises</a>
           <% end %>
         </li>
 
         <!-- Exercise Library -->
         <li class="nav-item <%= active_class('/exercise_library') %>">
           <% if session[:user] && STAFF_ROLES.include?(session[:user].role) %>
-          <a class="nav-link" href="/exercise_library">Exercises Library</a>
+          <a class="nav-link" href="/exercise_library"><i class="fas fa-book mr-1 d-block text-cente"></i>Exercises Library</a>
           <% end %>
         </li>
 
         <!-- Exercise Stats  -->
         <li class="nav-item <%= active_class("/users/#{ session[:user].username if session[:user] }/stats") %>">
           <% if session[:user] && session[:user].role == :patient %>
-          <a class="nav-link" href="/users/<%= (session[:user].username if session[:user]) %>/stats">Stats</a>
+          <a class="nav-link" href="/users/<%= (session[:user].username if session[:user]) %>/stats"><i class="fas fa-chart-line mr-1 d-block text-center"></i>Stats</a>
           <% end %>
         </li>
 
         <!-- conversations with therapist -->
-        <li class="nav-item <%= active_class("/users/#{ session[:user].username if session[:user] }/stats") %>">
+        <li class="nav-item <%= active_class("/users/#{ session[:user].username if session[:user] }/chat_with_therapist") %>">
           <% if session[:user] && session[:user].role == :patient %>
           <% @patient = @patient || @user %>
-          <a class="nav-link" href="/users/<%= (session[:user].username if session[:user]) %>/chat_with_therapist">Chat <%= '<span class="badge badge-primary">New Msg</span>' if @patient.unread_therapist_msg %></a>
+          <a class="nav-link" href="/users/<%= (session[:user].username if session[:user]) %>/chat_with_therapist"><i class="far fa-comments mr-1 d-block text-center"><%= '<span class="badge badge-primary py-0">New</span>' if @patient.unread_therapist_msg %></i>Chat </a>
           <% end %>
         </li>
       <!-- <li class="nav-item">
@@ -113,14 +113,14 @@
       <!-- Profile page -->
       <% if session[:user] %>
       <li class="nav-item <%= active_class("/users/#{ session[:user].username if session[:user] }/profile")%>">
-        <a class="nav-link" href="/users/<%= (session[:user].username if session[:user]) %>/profile">Profile</a>
+        <a class="nav-link" href="/users/<%= (session[:user].username if session[:user]) %>/profile"><i class="far fa-id-card mr-1 d-block text-center"></i>Profile</a>
       </li>
       <% end %>
 
       <!-- get current weather -->
       <li class="nav-item">
         <form method="get" action="/weather">
-          <a tabindex="-1" id="weather_btn" onclick="getWeather()" class="nav-link"  data-container="body" data-toggle="popover" data-trigger="focus" title="<div class='text-center'><b>Current Sydney Weather</b></div>" data-placement="right" data-content="Loading...">
+          <a tabindex="-1" id="weather_btn" onclick="getWeather()" class="nav-link"  data-container="body" data-toggle="popover" data-trigger="focus" title="<div class='text-center'><b>Current Sydney Weather</b></div>" data-placement="right" data-content="Loading..."><i class="fas fa-cloud-sun mr-1 d-block text-center"></i>
             Weather
           </a>
         </form>
@@ -129,13 +129,13 @@
       <!-- about page -->
 
       <li class="nav-item  <%= active_class("/about")%>">
-        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="/about"><i class="fas fa-info-circle mr-1 d-block text-center"></i>About</a>
       </li>
 
       <!-- contact/support -->
 
       <li class="nav-item  <%= active_class("/contact")%>">
-        <a class="nav-link" href="/contact">Contact</a>
+        <a class="nav-link" href="/contact"><i class="far fa-envelope mr-1 d-block text-center"></i>Contact</a>
       </li>
 
 
@@ -154,7 +154,7 @@
 </nav>
 
 <main role="main" class="container-fluid">
-  <br><br><br>
+  <br><br><br><br>
 
 <!--   <% if session[:error] %>
   <div class="row justify-content-center">

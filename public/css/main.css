@@ -118,3 +118,8 @@ footer p {
   padding-left: 0;
   padding-right: 0;
 }
+
+/*for navbar chat item - new msg badge*/
+.navbar .navbar-nav .nav-item .nav-link > .far > .badge {
+  margin-left: 0px;
+}
