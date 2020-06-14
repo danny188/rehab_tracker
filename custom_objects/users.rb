@@ -171,6 +171,27 @@ class Patient < User
   end
 
   # sends email and returns SendGrid Response obj
+  def send_exercises_updated_email
+    return nil unless self.email
+
+    mail = SendGrid::Mail.new
+    mail.from = Email.new(email: ENV['REHAB_BUDDY_EMAIL'])
+
+    personalization = Personalization.new
+    personalization.add_to(Email.new(email: self.email))
+    personalization.add_dynamic_template_data({
+        "name" => self.greet
+      })
+    mail.add_personalization(personalization)
+    mail.template_id = 'd-731aaf1593834d69846e60d08774b17e'
+
+    sg = SendGrid::API.new(api_key: ENV['SENDGRID_API_KEY'])
+    self.activation_link_sent_time = Time.now
+
+    response = sg.client.mail._('send').post(request_body: mail.to_json)
+  end
+
+  # sends email and returns SendGrid Response obj
   def send_account_verification_email
     return nil unless self.email
 
