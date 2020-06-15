@@ -88,7 +88,7 @@
     <% end %>
     <br>
 
-    <div style="border: 1px solid black; height: 400px; overflow: scroll" class="mx-auto col-lg-6" id="new-chat-log">
+    <div style="border: 1px solid black; height: 400px; overflow: scroll; background-color: floralwhite;" class="mx-auto col-lg-6" id="new-chat-log">
       <% @patient.chat_history.each do |msg_log| %>
         <% user, time_str, msg = *msg_log %>
         <% if user == address_user(@patient) %>
@@ -102,24 +102,27 @@
       <% end %>
     </div>
 
-    <form id="chat_form" >
+    <form id="chat_form">
       <div class="form-group">
         <!-- <textarea class="form-control mx-auto col-lg-6" id="chat-log" rows="10" readonly><%=@patient.chat_history.join("\n")%></textarea> -->
       </div>
-      <div class="form-group ">
-        <input class="col-lg-6" data-toggle="tooltip" title="Press enter to submit message" type="text" name="new_msg" id="new_msg">
+
+      <div class="form-group form-row justify-content-center">
+        <!-- <div class="form-row"> -->
+          <input class="bg-light col-lg-5 form-control input-lg" data-toggle="tooltip" title="Press enter to submit message" type="text" name="new_msg" id="new_msg" placeholder="Type your message here..">
+          <button id="submit_new_msg" class="form-control col-lg-1 ml-1 btn btn-primary">Send</button>
+        <!-- </div> -->
       </div>
 
-    </form>
 
-    <button id="submit_new_msg" class="btn btn-success">Send</button>
-    <button id="reload_page" class="btn btn-secondary ml-3">Reload messages</button>
+
+    </form>
 
     <hr>
 
     <form id="clear-history" action="/users/<%= params[:username] %>/chat_with_therapist/clear_history" method="post" onsubmit="return confirm('Are you sure you want to delete chat history? This cannot be reversed. Click OK to proceed.');">
       <br>
-      <button class="btn btn-secondary" type="submit"  >Clear Chat History</button>
+          <button id="reload_page" class="btn btn-secondary mr-3">Reload messages</button> <button class="btn btn-danger" type="submit"  >Clear Chat History</button>
     </form>
 
   </div>
