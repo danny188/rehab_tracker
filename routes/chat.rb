@@ -80,13 +80,13 @@ post "/users/:username/chat_with_therapist/stream",  provides: 'text/event-strea
 
   @patient.save
 
-    settings.connections.each_with_index { |out, index|
-      # puts "data: {\"for_user\": \"#{params[:username]}\", \"msg\": \" #{session[:user].username + ': ' + params[:new_msg]}\"\n\n"
-        if settings.connection_users[index] == params[:username]
-          out << "data: {\"for_user\": \"#{address_user_str}\", \"msg\": \"#{params[:new_msg]}\"}\n\n"
-        end
-    }
-    204
+  settings.connections.each_with_index { |out, index|
+    # puts "data: {\"for_user\": \"#{params[:username]}\", \"msg\": \" #{session[:user].username + ': ' + params[:new_msg]}\"\n\n"
+      if settings.connection_users[index] == params[:username]
+        out << "data: {\"for_user\": \"#{address_user_str}\", \"msg\": \"#{params[:new_msg]}\"}\n\n"
+      end
+  }
+  204
 end
 
 get "/users/:username/chat_with_therapist/stream" do
