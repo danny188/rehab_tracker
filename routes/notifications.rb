@@ -14,7 +14,10 @@ post "/users/:username/send-notification" do
       if subscribed
         response = @user.send_exercises_updated_email
 
-        if response.status_code == 202
+        logger.info "#{logged_in_user} sends exercise updated notification email for #{full_name_plus_username(@user)}"
+        logger.info "SendGrid response status_code: #{response.status_code}"
+
+        if response.status_code.to_i == 202
           session[:success] = "Exercise Update Notification Email Sent"
         else
           session[:error] = "Error in sending Exercise Update Notification Email"
