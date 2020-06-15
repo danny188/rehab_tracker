@@ -120,10 +120,13 @@
 
     <hr>
 
-    <form id="clear-history" action="/users/<%= params[:username] %>/chat_with_therapist/clear_history" method="post" onsubmit="return confirm('Are you sure you want to delete chat history? This cannot be reversed. Click OK to proceed.');">
-      <br>
-          <button id="reload_page" class="btn btn-secondary mr-3">Reload messages</button> <button class="btn btn-danger" type="submit"  >Clear Chat History</button>
-    </form>
-
+    <div class="row-col">
+      <button id="reload_page" class="col-lg-2 btn btn-secondary">Reload messages</button>
+      <button form="clear-history" class="btn btn-danger col-lg-2" type="submit"  >Clear Chat History</button>
+      <form id="clear-history" action="/users/<%= params[:username] %>/chat_with_therapist/clear_history" method="post" onsubmit="return confirm('Are you sure you want to delete chat history? This cannot be reversed. Click OK to proceed.');">
+        <br>
+        <!-- <button class="btn btn-danger col-lg-2" type="submit"  >Clear Chat History</button> -->
+      </form>
+    </div>
   </div>
 </div>
