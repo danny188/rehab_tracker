@@ -102,7 +102,7 @@
         <!-- conversations with therapist -->
         <li class="nav-item <%= active_class("/users/#{ session[:user].username if session[:user] }/chat_with_therapist") %>">
           <% if session[:user] && session[:user].role == :patient %>
-          <% @patient = @patient || @user %>
+          <% @patient = @patient || @user || User.get(session[:user].username) %>
           <a class="nav-link" href="/users/<%= (session[:user].username if session[:user]) %>/chat_with_therapist"><i class="far fa-comments mr-1 d-block text-center"><%= '<span class="badge badge-primary py-0">New</span>' if @patient.unread_therapist_msg %></i>Chat </a>
           <% end %>
         </li>
