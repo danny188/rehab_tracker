@@ -44,13 +44,22 @@
   };
 
   $( document ).ready( function() {
-    $( '#submit_new_msg' ).click( function() {
+    $( '#submit_new_msg' ).click( function(ev) {
 
       $.post('/users/<%= params[:username] %>/chat_with_therapist/stream',
       $( '#new_msg' ).serialize(),
       function(data) {
         $( '#new_msg' ).val( '' );
+
+        var chat_log = document.getElementById('new-chat-log');
+        chat_log.scrollTop = chat_log.scrollHeight;
+
       });
+
+
+
+      ev.preventDefault();
+
     });
 
     $('#reload_page').click(function () {
