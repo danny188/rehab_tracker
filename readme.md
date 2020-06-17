@@ -7,7 +7,7 @@ Rehab Buddy is free collaboration tool for patients and rehabilitation therapist
 [https://rehab-buddy-demo.herokuapp.com](https://rehab-buddy-demo.herokuapp.com)
 
 Feel free to create additional accounts as a **Patient**. Or use the following example Patient login:
-- username: stacey
+- username: bonnie
 - password: patientsecret
 
 Try out **Therapist** features with below login:
@@ -24,12 +24,16 @@ Try out **Therapist** features with below login:
 - Data visualization charts for exercise records
 <img src="https://rehab-buddy-demo.herokuapp.com/images/stats.png" width="400">
 
-- Collaborate with therapists via exercise-specific comments
+- Live chat with therapists
+
+<img src="https://rehab-buddy-demo.herokuapp.com/images/chat.png" width="400">
 
 ### Features for Therapists
 - Dashboard for easy patient accounts management
 - View and update patient exercises with optional images
+- 1-click button to notify via email patients of exercise updates
 - Exercise Library to create and dispense pre-set exercises and template groups
+- Live chat with patient
 
 ### Project Built With
 - [Sinatra framework](http://sinatrarb.com/)
