@@ -11,7 +11,9 @@ post "/users/:username/send-notification" do
 
   case @event
     when 'exercise_update'
-      if subscribed
+      if @user.email.to_s.empty?
+        session[:error] = "No email in user profile"
+      elsif subscribed
         response = @user.send_exercises_updated_email
 
         logger.info "#{logged_in_user} sends exercise updated notification email for #{full_name_plus_username(@user)}"

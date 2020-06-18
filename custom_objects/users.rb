@@ -176,7 +176,7 @@ class Patient < User
 
   # sends email and returns SendGrid Response obj
   def send_exercises_updated_email
-    return nil unless self.email
+    return nil if self.email.to_s.empty?
 
     mail = SendGrid::Mail.new
     mail.from = Email.new(email: ENV['REHAB_BUDDY_EMAIL'])
@@ -197,7 +197,7 @@ class Patient < User
 
   # sends email and returns SendGrid Response obj
   def send_account_verification_email
-    return nil unless self.email
+    return nil if self.email.to_s.empty?
 
     mail = SendGrid::Mail.new
     mail.from = Email.new(email: ENV['REHAB_BUDDY_EMAIL'])
