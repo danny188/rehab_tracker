@@ -143,7 +143,7 @@ class Patient < User
 
   alias_method :top_collection, :exercise_collection
 
-  MAX_NUM_EXERCISES = 20
+  MAX_NUM_EXERCISES = 30
 
   def initialize(username, pw)
     super
