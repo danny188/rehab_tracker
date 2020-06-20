@@ -216,7 +216,7 @@ post "/exercise_library/add_exercise" do
   @browse_group_hierarchy = create_group_hierarchy(*parse_group_query_str(params[:group]))
   @dest_group_hierarchy = create_group_hierarchy(params[:group_lvl_1], params[:group_lvl_2])
 
-  @exercise = ExerciseTemplate.new(@new_exercise_name, params[:reps], params[:sets])
+  @exercise = ExerciseTemplate.new(@new_exercise_name, @dest_group_hierarchy, params[:reps], params[:sets])
   @exercise.instructions = params[:instructions]
 
   @exercise_library = ExerciseLibrary.load('main')
