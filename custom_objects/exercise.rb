@@ -11,7 +11,7 @@ class Exercise < ExerciseTemplate
   Comment = Struct.new(:author, :text, :last_modified)
 
   def self.new_from_template(template)
-    new_ex = Exercise.new(template.name, template.reps, template.sets)
+    new_ex = Exercise.new(template.name, nil, template.reps, template.sets)
     new_ex.image_links = template.image_links
     new_ex.instructions = template.instructions
 
