@@ -20,3 +20,4 @@ gem 'rack-ssl-enforcer', '~> 0.2.9'
 gem 'sendgrid-ruby'
 gem 'mail'
 gem 'envyable'
+gem "rack", ">=2.2.3"
