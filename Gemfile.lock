@@ -926,7 +926,7 @@ GEM
     rack-ssl-enforcer (0.2.9)
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
-    redcarpet (3.5.0)
+    redcarpet (3.5.1)
     ruby2_keywords (0.0.2)
     ruby_http_client (3.5.0)
     sendgrid-ruby (6.2.1)
