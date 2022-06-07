@@ -905,7 +905,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     erubis (2.7.0)
     eventmachine (1.2.7)
-    jmespath (1.4.0)
+    jmespath (1.6.1)
     mail (2.7.1)
       mini_mime (>= 0.1.1)
     method_source (1.0.0)
