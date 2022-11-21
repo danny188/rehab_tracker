@@ -8,12 +8,12 @@ gem 'aws-sdk-s3', '~> 1'
 gem "sinatra"
 gem "sinatra-contrib"
 gem "rack-test"
-# gem "minitest"
+gem "minitest"
 gem "bcrypt"
 gem 'pry-byebug'
 gem "chartkick"
 gem 'nokogiri'
-gem "puma"
+# gem "puma"
 gem 'thin'
 gem "tilt"
 gem "erubis"
