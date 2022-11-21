@@ -3,7 +3,8 @@ source "https://rubygems.org"
 ruby "~> 3.1.2"
 
 
-gem 'aws-sdk', '~> 3'
+# gem 'aws-sdk', '~> 3'
+gem 'aws-sdk-s3', '~> 1'
 gem "sinatra"
 gem "sinatra-contrib"
 gem "rack-test"
