@@ -13,7 +13,7 @@ require 'securerandom'
 require 'logger'
 require 'redcarpet'
 require 'rack-ssl-enforcer'
-require 'mail'
+# require 'mail'
 require 'sendgrid-ruby'
 include SendGrid
 require 'envyable'
