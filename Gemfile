@@ -12,6 +12,7 @@ gem "rack-test"
 gem "bcrypt"
 gem 'pry-byebug'
 gem "chartkick"
+gem 'nokogiri'
 gem "puma"
 gem 'thin'
 gem "tilt"
