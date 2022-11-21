@@ -35,12 +35,15 @@ GEM
     multi_json (1.14.1)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
+    nio4r (2.5.8)
     pry (0.13.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
     pry-byebug (3.9.0)
       byebug (~> 11.0)
       pry (~> 0.13.0)
+    puma (6.0.0)
+      nio4r (~> 2.0)
     rack (2.2.3)
     rack-protection (2.0.8.1)
       rack
@@ -82,6 +85,7 @@ DEPENDENCIES
   erubis
   mail
   pry-byebug
+  puma
   rack (>= 2.2.3)
   rack-ssl-enforcer (~> 0.2.9)
   rack-test
