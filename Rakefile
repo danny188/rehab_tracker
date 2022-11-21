@@ -1,7 +1,7 @@
-require 'rake/testtask'
+# require 'rake/testtask'
 
-task default: "test"
+# task default: "test"
 
-Rake::TestTask.new do |task|
-  task.pattern = 'test/*_test.rb'
-end
+# Rake::TestTask.new do |task|
+#   task.pattern = 'test/*_test.rb'
+# end
