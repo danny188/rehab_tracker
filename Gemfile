@@ -1,13 +1,13 @@
 source "https://rubygems.org"
 
-ruby "~> 3.0.3"
+ruby "~> 3.1.2"
 
 
 gem 'aws-sdk', '~> 3'
 gem "sinatra"
 gem "sinatra-contrib"
 gem "rack-test"
-gem "minitest"
+# gem "minitest"
 gem "bcrypt"
 gem 'pry-byebug'
 gem "chartkick"
