@@ -14,6 +14,7 @@ gem 'pry-byebug'
 gem "chartkick"
 gem 'nokogiri'
 # gem "puma"
+gem 'net-smtp', require: false
 gem 'thin'
 gem "tilt"
 gem "erubis"
